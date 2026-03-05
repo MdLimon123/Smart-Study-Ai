@@ -1,0 +1,42 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_extension/views/base/bottom_menu.dart';
+import 'package:flutter_extension/views/screen/chat/ai_chat_screen.dart';
+import 'package:flutter_extension/views/screen/home/home_screen.dart';
+import 'package:flutter_extension/views/screen/library/library_screen.dart';
+import 'package:flutter_extension/views/screen/scan&solve/scan_screen.dart';
+
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0F0F1A),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [
+          const HomeScreen(),
+          ScanScreen(isActive: _currentIndex == 1),
+          const AiChatScreen(),
+          const LibraryScreen(),
+          Container(color: Colors.purple),
+        ],
+      ),
+      bottomNavigationBar: BottomMenu(
+        menuIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+      ),
+    );
+  }
+}

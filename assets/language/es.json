@@ -1,0 +1,4 @@
+{
+  "app_name": "conexión",
+  "connection_to_api_server_failed": "La conexión al servidor API falló debido a la conexión a Internet"
+}

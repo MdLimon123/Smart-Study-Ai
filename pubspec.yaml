@@ -1,0 +1,49 @@
+name: flutter_extension
+description: "Flutter extension"
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons:
+  get:
+  shared_preferences:
+  flutter_screenutil:
+  flutter_svg:
+  flutter_spinkit:
+  cached_network_image:
+  shimmer: 
+  image_picker: ^1.1.2
+  camera: ^0.11.0+2
+  permission_handler: ^11.3.0
+
+
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/language/
+    - assets/images/
+    - assets/icon/
+
+  fonts:
+    - family: Lato
+      fonts:
+        - asset: assets/fonts/Lato-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Lato-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Lato-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Lato-Black.ttf
+          weight: 900
