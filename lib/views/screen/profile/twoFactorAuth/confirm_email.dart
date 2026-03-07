@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_extension/views/base/custom_text_field.dart';
+import 'package:flutter_extension/views/screen/profile/twoFactorAuth/two_factor_verify.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
@@ -99,7 +100,9 @@ class _ConfirmEmailState extends State<ConfirmEmail> {
 
               const SizedBox(height: 20),
               InkWell(
-                onTap: () {},
+                onTap: () {
+                  Get.to(() => const TwoFactorVerify());
+                },
                 child: Container(
                   width: double.infinity,
                   height: 50,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/util/app_colors.dart';
+import 'package:flutter_extension/views/screen/profile/parental/parental_control_screen.dart';
 import 'package:flutter_extension/views/screen/profile/twoFactorAuth/two_factor_auth.dart';
 import 'package:get/route_manager.dart';
 import 'package:get/utils.dart';
@@ -291,7 +292,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 10),
 
                     _customRow(
-                      onTap: () {},
+                      onTap: () {
+                        Get.to(() => const ParentalControlScreen());
+                      },
                       backgroundColor: const Color(0xFFF59E0B),
                       image: "assets/images/groupUser.png",
                       title: "Parental Control",

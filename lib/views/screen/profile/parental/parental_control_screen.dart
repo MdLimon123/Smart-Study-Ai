@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/util/app_colors.dart';
-import 'package:flutter_extension/views/screen/profile/twoFactorAuth/confirm_email.dart';
+import 'package:flutter_extension/views/base/custom_button.dart';
+import 'package:flutter_extension/views/base/custom_text_field.dart';
 import 'package:get/get.dart';
 
-class ChooseYourMethod extends StatefulWidget {
-  const ChooseYourMethod({super.key});
+class ParentalControlScreen extends StatefulWidget {
+  const ParentalControlScreen({super.key});
 
   @override
-  State<ChooseYourMethod> createState() => _ChooseYourMethodState();
+  State<ParentalControlScreen> createState() => _ParentalControlScreenState();
 }
 
-class _ChooseYourMethodState extends State<ChooseYourMethod> {
+class _ParentalControlScreenState extends State<ParentalControlScreen> {
   int _selectedMethod = 0;
 
   @override
@@ -42,7 +43,7 @@ class _ChooseYourMethodState extends State<ChooseYourMethod> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Choose Your Method",
+                  "Parental Control",
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
@@ -50,7 +51,7 @@ class _ChooseYourMethodState extends State<ChooseYourMethod> {
                   ),
                 ),
                 Text(
-                  'Select a verification method',
+                  'Restrict and monitor app usage',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
@@ -59,69 +60,38 @@ class _ChooseYourMethodState extends State<ChooseYourMethod> {
                 ),
               ],
             ),
+            const Spacer(),
+
+            Text(
+              "View All",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textColor,
+              ),
+            ),
           ],
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Column(
             children: [
-              const SizedBox(height: 30),
+              _methodCard(index: 0, title: 'Parental'),
+              const SizedBox(height: 16),
+              _methodCard(index: 1, title: 'Child'),
+              const SizedBox(height: 20),
 
-              const SizedBox(height: 12),
-
-              _methodCard(
-                index: 1,
-                icon: 'assets/images/email.png',
-                iconColor: const Color(0xFF34D399),
-                title: "Email",
-                subtitle: "Receive a code at your registered\nemail address.",
-              ),
-
-              const Spacer(),
-
-              InkWell(
-                onTap: () {
-                  Get.to(() => const ConfirmEmail());
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF7C3AED).withValues(alpha: 0.30),
-                        blurRadius: 24,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Continue",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textColor,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(Icons.arrow_forward, color: AppColors.textColor),
-                    ],
-                  ),
+              const CustomTextField(hintText: "Enter Email"),
+              const SizedBox(height: 32),
+              CustomButton(
+                onTap: () {},
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
                 ),
+                text: "Send Invite",
               ),
-
-
-
-              const SizedBox(height: 30),
             ],
           ),
         ),
@@ -129,13 +99,7 @@ class _ChooseYourMethodState extends State<ChooseYourMethod> {
     );
   }
 
-  Widget _methodCard({
-    required int index,
-    required String icon,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-  }) {
+  Widget _methodCard({required int index, required String title}) {
     final bool isSelected = _selectedMethod == index;
 
     return InkWell(
@@ -162,15 +126,6 @@ class _ChooseYourMethodState extends State<ChooseYourMethod> {
         ),
         child: Row(
           children: [
-            Container(
-              height: 48,
-              width: 48,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                color: iconColor.withValues(alpha: 0.10),
-              ),
-              child: Center(child: Image.asset(icon)),
-            ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -185,14 +140,6 @@ class _ChooseYourMethodState extends State<ChooseYourMethod> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textColor.withValues(alpha: 0.40),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -227,7 +174,4 @@ class _ChooseYourMethodState extends State<ChooseYourMethod> {
       ),
     );
   }
-
-
-
 }
