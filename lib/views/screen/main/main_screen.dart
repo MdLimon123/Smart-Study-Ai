@@ -3,6 +3,7 @@ import 'package:flutter_extension/views/base/bottom_menu.dart';
 import 'package:flutter_extension/views/screen/chat/ai_chat_screen.dart';
 import 'package:flutter_extension/views/screen/home/home_screen.dart';
 import 'package:flutter_extension/views/screen/library/library_screen.dart';
+import 'package:flutter_extension/views/screen/profile/profile_screen.dart';
 import 'package:flutter_extension/views/screen/scan&solve/scan_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -26,7 +27,7 @@ class _MainScreenState extends State<MainScreen> {
           ScanScreen(isActive: _currentIndex == 1),
           const AiChatScreen(),
           const LibraryScreen(),
-          Container(color: Colors.purple),
+          const ProfileScreen(),
         ],
       ),
       bottomNavigationBar: BottomMenu(
