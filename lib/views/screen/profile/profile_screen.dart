@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/util/app_colors.dart';
+import 'package:flutter_extension/views/screen/profile/twoFactorAuth/two_factor_auth.dart';
+import 'package:get/route_manager.dart';
+import 'package:get/utils.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -270,6 +273,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _customRow(
+                      onTap: () {
+                        Get.to(() => const TwoFactorAuth());
+                      },
                       backgroundColor: const Color(0xFF60A5FA),
                       image: "assets/images/lock.png",
                       title: "Two-Factor Auth",
@@ -285,6 +291,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 10),
 
                     _customRow(
+                      onTap: () {},
                       backgroundColor: const Color(0xFFF59E0B),
                       image: "assets/images/groupUser.png",
                       title: "Parental Control",
@@ -300,6 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 10),
 
                     _customRow(
+                      onTap: () {},
                       backgroundColor: const Color(0xFFA78BFA),
                       image: "assets/images/groupUser.png",
                       title: "AI Personalization",
@@ -315,6 +323,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 10),
 
                     _customRow(
+                      onTap: () {},
                       backgroundColor: const Color(0xFF34D399),
                       image: "assets/images/groupUser.png",
                       title: "Data Control",
@@ -358,6 +367,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _customRow(
+                      onTap: () {},
                       backgroundColor: const Color(0xFF60A5FA),
                       image: "assets/images/notification.png",
                       title: "Notifications",
@@ -373,6 +383,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 10),
 
                     _customRow(
+                      onTap: () {},
                       backgroundColor: const Color(0xFF34D399),
                       image: "assets/images/privacy.png",
                       title: "Privacy & Security",
@@ -388,6 +399,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 10),
 
                     _customRow(
+                      onTap: () {},
                       backgroundColor: const Color(0xFFF59E0B),
                       image: "assets/images/help.png",
                       title: "Help & Support",
@@ -403,6 +415,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 10),
 
                     _customRow(
+                      onTap: () {},
                       backgroundColor: const Color(0xFF60A5FA),
                       image: "assets/images/lock.png",
                       title: "Change Password",
@@ -425,49 +438,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String image,
     required String title,
     required String subtitle,
+    required Function()? onTap,
   }) {
-    return Row(
-      children: [
-        Container(
-          height: 36,
-          width: 36,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            color: backgroundColor.withValues(alpha: 0.12),
+    return InkWell(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            height: 36,
+            width: 36,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              color: backgroundColor.withValues(alpha: 0.12),
+            ),
+            child: Image.asset(image),
           ),
-          child: Image.asset(image),
-        ),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textColor,
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textColor,
+                ),
               ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              subtitle,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textColor.withValues(alpha: 0.35),
+              const SizedBox(height: 5),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textColor.withValues(alpha: 0.35),
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
 
-        const Spacer(),
-        Icon(
-          Icons.navigate_next,
-          color: AppColors.textColor.withValues(alpha: 0.25),
-        ),
-      ],
+          const Spacer(),
+          Icon(
+            Icons.navigate_next,
+            color: AppColors.textColor.withValues(alpha: 0.25),
+          ),
+        ],
+      ),
     );
   }
 
