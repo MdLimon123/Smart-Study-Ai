@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/util/app_colors.dart';
+import 'package:flutter_extension/views/screen/profile/aiPersonalization/ai_personalization.dart';
+import 'package:flutter_extension/views/screen/profile/dataControl/data_control_screen.dart';
+import 'package:flutter_extension/views/screen/profile/notification_screen.dart';
 import 'package:flutter_extension/views/screen/profile/parental/parental_control_screen.dart';
+import 'package:flutter_extension/views/screen/profile/help_support.dart';
+import 'package:flutter_extension/views/screen/profile/privacy_security.dart';
 import 'package:flutter_extension/views/screen/profile/twoFactorAuth/two_factor_auth.dart';
 import 'package:get/route_manager.dart';
 import 'package:get/utils.dart';
@@ -310,7 +315,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 10),
 
                     _customRow(
-                      onTap: () {},
+                      onTap: () {
+                        Get.to(() => const AiPersonalization());
+                      },
                       backgroundColor: const Color(0xFFA78BFA),
                       image: "assets/images/groupUser.png",
                       title: "AI Personalization",
@@ -326,7 +333,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 10),
 
                     _customRow(
-                      onTap: () {},
+                      onTap: () {
+                        Get.to(() => const DataControlScreen());
+                      },
                       backgroundColor: const Color(0xFF34D399),
                       image: "assets/images/groupUser.png",
                       title: "Data Control",
@@ -370,7 +379,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _customRow(
-                      onTap: () {},
+                      onTap: () {
+                        Get.to(() => const NotificationScreen());
+                      },
                       backgroundColor: const Color(0xFF60A5FA),
                       image: "assets/images/notification.png",
                       title: "Notifications",
@@ -386,7 +397,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 10),
 
                     _customRow(
-                      onTap: () {},
+                      onTap: () {
+                        Get.to(() => const PrivacySecurity());
+                      },
                       backgroundColor: const Color(0xFF34D399),
                       image: "assets/images/privacy.png",
                       title: "Privacy & Security",
@@ -402,7 +415,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 10),
 
                     _customRow(
-                      onTap: () {},
+                      onTap: () {
+                        Get.to(() => const HelpSupport());
+                      },
                       backgroundColor: const Color(0xFFF59E0B),
                       image: "assets/images/help.png",
                       title: "Help & Support",
