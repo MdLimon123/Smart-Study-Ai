@@ -39,8 +39,10 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
+    return Scaffold(
+      backgroundColor: const Color(0xFF0F0F1A),
+      body: SafeArea(
+        child: Column(
         children: [
           // ─── App Bar ───
           Padding(
@@ -118,6 +120,7 @@ class _ScanScreenState extends State<ScanScreen> {
             );
           }),
         ],
+        ),
       ),
     );
   }

@@ -93,8 +93,10 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
+    return Scaffold(
+      backgroundColor: const Color(0xFF0F0F1A),
+      body: SafeArea(
+        child: Column(
         children: [
           // ─── App Bar ───
           Padding(
@@ -372,61 +374,65 @@ class _AiChatScreenState extends State<AiChatScreen> {
           ),
 
           // ─── Input Field ───
-          Container(
-            height: 50,
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            decoration: BoxDecoration(
-              color: AppColors.textColor.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: AppColors.textColor.withValues(alpha: 0.08),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: Container(
+              height: 50,
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              decoration: BoxDecoration(
+                color: AppColors.textColor.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppColors.textColor.withValues(alpha: 0.08),
+                ),
               ),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Attach button
-                SvgPicture.asset('assets/icon/file.svg'),
-                const SizedBox(width: 8),
-                // Text field
-                Expanded(
-                  child: TextField(
-                    controller: _aiChatController.messageController,
-                    textAlignVertical: TextAlignVertical.center,
-                    style: TextStyle(fontSize: 14, color: AppColors.textColor),
-                    decoration: InputDecoration(
-                      hintText: "Ask a question...",
-                      hintStyle: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.textColor.withValues(alpha: 0.50),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Attach button
+                  SvgPicture.asset('assets/icon/file.svg'),
+                  const SizedBox(width: 8),
+                  // Text field
+                  Expanded(
+                    child: TextField(
+                      controller: _aiChatController.messageController,
+                      textAlignVertical: TextAlignVertical.center,
+                      style: TextStyle(fontSize: 14, color: AppColors.textColor),
+                      decoration: InputDecoration(
+                        hintText: "Ask a question...",
+                        hintStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.textColor.withValues(alpha: 0.50),
+                        ),
+                        border: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        isCollapsed: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 2),
                       ),
-                      border: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      isCollapsed: true,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 2),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                // Send button
-                Container(
-                  height: 32,
-                  width: 32,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.textColor.withValues(alpha: 0.08),
+                  const SizedBox(width: 8),
+                  // Send button
+                  Container(
+                    height: 32,
+                    width: 32,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.textColor.withValues(alpha: 0.08),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SvgPicture.asset('assets/icon/send.svg'),
+                    ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SvgPicture.asset('assets/icon/send.svg'),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
+        ),
       ),
     );
   }

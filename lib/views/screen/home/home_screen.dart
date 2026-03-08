@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_extension/controller/ai_chat_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
+import 'package:flutter_extension/views/screen/chat/ai_chat_screen.dart';
+import 'package:flutter_extension/views/screen/home/subscreen/subject_screen.dart';
+import 'package:flutter_extension/views/screen/library/library_screen.dart';
+import 'package:flutter_extension/views/screen/notifications/notification1_screen.dart';
+import 'package:flutter_extension/views/screen/profile/notification_screen.dart';
+import 'package:flutter_extension/views/screen/scan&solve/scan_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/route_manager.dart';
+import 'package:get/utils.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -43,15 +52,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-                Container(
-                  height: 40,
-                  width: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.textColor.withValues(alpha: 0.07),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: SvgPicture.asset('assets/icon/notifications.svg'),
+                InkWell(
+                  onTap: () {
+                    Get.to(() => const Notification1Screen());
+                  },
+                  child: Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.textColor.withValues(alpha: 0.07),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: SvgPicture.asset('assets/icon/notifications.svg'),
+                    ),
                   ),
                 ),
               ],
@@ -274,219 +288,239 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(
-                              0xFFA78BFA,
-                            ).withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
+                        child: InkWell(
+                          onTap: () {
+                            Get.to(() => const ScanScreen());
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
                               color: const Color(
                                 0xFFA78BFA,
-                              ).withValues(alpha: 0.14),
-                              width: 1,
+                              ).withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: const Color(
+                                  0xFFA78BFA,
+                                ).withValues(alpha: 0.14),
+                                width: 1,
+                              ),
                             ),
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 34,
-                                width: 34,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(11),
-                                  color: const Color(
-                                    0xFFA78BFA,
-                                  ).withValues(alpha: 0.12),
-                                ),
-                                child: Center(
-                                  child: SvgPicture.asset(
-                                    'assets/icon/scan.svg',
-                                    height: 18,
-                                    width: 18,
+                            child: Column(
+                              children: [
+                                Container(
+                                  height: 34,
+                                  width: 34,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(11),
+                                    color: const Color(
+                                      0xFFA78BFA,
+                                    ).withValues(alpha: 0.12),
+                                  ),
+                                  child: Center(
+                                    child: SvgPicture.asset(
+                                      'assets/icon/scan.svg',
+                                      height: 18,
+                                      width: 18,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                "Scan & Solve",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.textColor.withValues(
-                                    alpha: 0.70,
+                                const SizedBox(height: 5),
+                                Text(
+                                  "Scan & Solve",
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w400,
+                                    color: AppColors.textColor.withValues(
+                                      alpha: 0.70,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(
-                              0xFF60A5FA,
-                            ).withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
+                        child: InkWell(
+                          onTap: () {
+                            Get.to(() => const AiChatScreen());
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
                               color: const Color(
                                 0xFF60A5FA,
-                              ).withValues(alpha: 0.14),
-                              width: 1,
+                              ).withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: const Color(
+                                  0xFF60A5FA,
+                                ).withValues(alpha: 0.14),
+                                width: 1,
+                              ),
                             ),
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 34,
-                                width: 34,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(11),
-                                  color: const Color(
-                                    0xFF60A5FA,
-                                  ).withValues(alpha: 0.12),
-                                ),
-                                child: Center(
-                                  child: SvgPicture.asset(
-                                    'assets/icon/chat.svg',
-                                    color: const Color(0xFF60A5FA),
-                                    height: 18,
-                                    width: 18,
+                            child: Column(
+                              children: [
+                                Container(
+                                  height: 34,
+                                  width: 34,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(11),
+                                    color: const Color(
+                                      0xFF60A5FA,
+                                    ).withValues(alpha: 0.12),
+                                  ),
+                                  child: Center(
+                                    child: SvgPicture.asset(
+                                      'assets/icon/chat.svg',
+                                      color: const Color(0xFF60A5FA),
+                                      height: 18,
+                                      width: 18,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                "AI Chat",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.textColor.withValues(
-                                    alpha: 0.70,
+                                const SizedBox(height: 5),
+                                Text(
+                                  "AI Chat",
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w400,
+                                    color: AppColors.textColor.withValues(
+                                      alpha: 0.70,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(
-                              0xFF34D399,
-                            ).withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
+                        child: InkWell(
+                          onTap: () {
+                            Get.to(() => const LibraryScreen());
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
                               color: const Color(
                                 0xFF34D399,
-                              ).withValues(alpha: 0.14),
-                              width: 1,
+                              ).withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: const Color(
+                                  0xFF34D399,
+                                ).withValues(alpha: 0.14),
+                                width: 1,
+                              ),
                             ),
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 34,
-                                width: 34,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(11),
-                                  color: const Color(
-                                    0xFF34D399,
-                                  ).withValues(alpha: 0.12),
-                                ),
-                                child: Center(
-                                  child: SvgPicture.asset(
-                                    'assets/icon/library.svg',
-                                    color: const Color(0xFF34D399),
-                                    height: 18,
-                                    width: 18,
+                            child: Column(
+                              children: [
+                                Container(
+                                  height: 34,
+                                  width: 34,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(11),
+                                    color: const Color(
+                                      0xFF34D399,
+                                    ).withValues(alpha: 0.12),
+                                  ),
+                                  child: Center(
+                                    child: SvgPicture.asset(
+                                      'assets/icon/library.svg',
+                                      color: const Color(0xFF34D399),
+                                      height: 18,
+                                      width: 18,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                "Library",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.textColor.withValues(
-                                    alpha: 0.70,
+                                const SizedBox(height: 5),
+                                Text(
+                                  "Library",
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w400,
+                                    color: AppColors.textColor.withValues(
+                                      alpha: 0.70,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(
-                              0xFFF59E0B,
-                            ).withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
+                        child: InkWell(
+                          onTap: () {
+                            Get.to(() => const SubjectScreen());
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
                               color: const Color(
                                 0xFFF59E0B,
-                              ).withValues(alpha: 0.14),
-                              width: 1,
+                              ).withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: const Color(
+                                  0xFFF59E0B,
+                                ).withValues(alpha: 0.14),
+                                width: 1,
+                              ),
                             ),
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 34,
-                                width: 34,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(11),
-                                  color: const Color(
-                                    0xFFF59E0B,
-                                  ).withValues(alpha: 0.12),
-                                ),
-                                child: Center(
-                                  child: SvgPicture.asset(
-                                    'assets/icon/subject.svg',
-                                    height: 18,
-                                    width: 18,
+                            child: Column(
+                              children: [
+                                Container(
+                                  height: 34,
+                                  width: 34,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(11),
+                                    color: const Color(
+                                      0xFFF59E0B,
+                                    ).withValues(alpha: 0.12),
+                                  ),
+                                  child: Center(
+                                    child: SvgPicture.asset(
+                                      'assets/icon/subject.svg',
+                                      height: 18,
+                                      width: 18,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                "Subjects",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.textColor.withValues(
-                                    alpha: 0.70,
+                                const SizedBox(height: 5),
+                                Text(
+                                  "Subjects",
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w400,
+                                    color: AppColors.textColor.withValues(
+                                      alpha: 0.70,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -840,6 +874,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-
 }
