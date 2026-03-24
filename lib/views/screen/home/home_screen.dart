@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_extension/controller/ai_chat_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_extension/views/screen/chat/ai_chat_screen.dart';
 import 'package:flutter_extension/views/screen/home/subscreen/subject_screen.dart';
 import 'package:flutter_extension/views/screen/library/library_screen.dart';
 import 'package:flutter_extension/views/screen/notifications/notification1_screen.dart';
-import 'package:flutter_extension/views/screen/profile/notification_screen.dart';
 import 'package:flutter_extension/views/screen/scan&solve/scan_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/route_manager.dart';
-import 'package:get/utils.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_extension/views/screen/profile/aiPersonalization/ai_personalization.dart';
+import 'package:flutter_extension/views/screen/profile/change_password_screen.dart';
 import 'package:flutter_extension/views/screen/profile/dataControl/data_control_screen.dart';
 import 'package:flutter_extension/views/screen/profile/notification_screen.dart';
 import 'package:flutter_extension/views/screen/profile/parental/parental_control_screen.dart';
@@ -8,7 +9,6 @@ import 'package:flutter_extension/views/screen/profile/help_support.dart';
 import 'package:flutter_extension/views/screen/profile/privacy_security.dart';
 import 'package:flutter_extension/views/screen/profile/twoFactorAuth/two_factor_auth.dart';
 import 'package:get/route_manager.dart';
-import 'package:get/utils.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -208,14 +208,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: AppColors.textColor,
                     ),
                   ),
-                  const Text(
-                    "See all",
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFFA78BFA),
-                    ),
-                  ),
+                  // const Text(
+                  //   "See all",
+                  //   style: TextStyle(
+                  //     fontSize: 12,
+                  //     fontWeight: FontWeight.w500,
+                  //     color: Color(0xFFA78BFA),
+                  //   ),
+                  // ),
                 ],
               ),
 
@@ -433,7 +433,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 10),
 
                     _customRow(
-                      onTap: () {},
+                      onTap: () {
+                        Get.to(() => const ChangePasswordScreen());
+                      },
                       backgroundColor: const Color(0xFF60A5FA),
                       image: "assets/images/lock.png",
                       title: "Change Password",

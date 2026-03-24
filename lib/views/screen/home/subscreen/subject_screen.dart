@@ -177,7 +177,6 @@ class _SubjectScreenState extends State<SubjectScreen> {
           ],
         ),
       ),
-     
       body: SafeArea(
         child: Column(
           children: [
