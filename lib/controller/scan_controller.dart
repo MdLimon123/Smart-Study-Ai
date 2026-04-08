@@ -4,6 +4,13 @@ import 'package:flutter_extension/views/screen/scan&solve/solutation_screen.dart
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+/// [Get.put] / [Get.delete] tags — shell tab and [Get.to] scan must not share one instance.
+class ScanControllerTags {
+  ScanControllerTags._();
+  static const mainTab = 'scan_main_tab';
+  static const homeModal = 'scan_home_modal';
+}
+
 class ScanController extends GetxController
     with GetTickerProviderStateMixin, WidgetsBindingObserver {
   ScanController({bool isActive = true}) : _isActive = isActive;
@@ -17,6 +24,10 @@ class ScanController extends GetxController
   bool _isActive;
 
   CameraController? cameraController;
+
+  /// Serializes native CameraX teardown so the next [initialize] runs after the
+  /// previous controller is fully disposed — including after pop/replace route.
+  static Future<void> _cameraNativeIdle = Future.value();
 
   // ─── Animations ───
   late AnimationController scanLineController;
@@ -60,18 +71,29 @@ class ScanController extends GetxController
   }
 
   void setActive(bool active) {
-    if (active && !_isActive) {
-      initCamera();
-      scanLineController.repeat(reverse: true);
-    } else if (!active && _isActive) {
-      _disposeCamera();
-      scanLineController.stop();
+    if (isClosed) return;
+    try {
+      if (active && !_isActive) {
+        initCamera();
+        scanLineController.repeat(reverse: true);
+      } else if (!active && _isActive) {
+        _disposeCamera();
+        scanLineController.stop();
+      }
+      _isActive = active;
+    } catch (e, st) {
+      debugPrint('setActive: $e\n$st');
+      _isActive = active;
     }
-    _isActive = active;
   }
 
   Future<void> initCamera() async {
+    await _cameraNativeIdle;
     if (isCameraReady.value) return;
+
+    hasCameraError.value = false;
+
+    CameraController? newController;
     try {
       final status = await Permission.camera.request();
       if (!status.isGranted) {
@@ -85,28 +107,47 @@ class ScanController extends GetxController
         return;
       }
 
-      cameraController = CameraController(
+      newController = CameraController(
         cameras.first,
         ResolutionPreset.medium,
         enableAudio: false,
       );
 
-      await cameraController!.initialize();
-      if (!isClosed && _isActive) {
-        isCameraReady.value = true;
+      await newController.initialize();
+      if (isClosed || !_isActive) {
+        await _safeDisposeController(newController);
+        return;
       }
-    } catch (e) {
+
+      cameraController = newController;
+      isCameraReady.value = true;
+    } catch (e, st) {
+      debugPrint('initCamera failed: $e\n$st');
+      await _safeDisposeController(newController);
       if (!isClosed) {
         hasCameraError.value = true;
       }
     }
   }
 
+  Future<void> _safeDisposeController(CameraController? c) async {
+    if (c == null) return;
+    try {
+      await c.dispose();
+    } catch (e) {
+      debugPrint('CameraController.dispose (after error): $e');
+    }
+  }
+
   void _disposeCamera() {
-    cameraController?.dispose();
+    final c = cameraController;
     cameraController = null;
     isCameraReady.value = false;
     hasCameraError.value = false;
+    if (c != null) {
+      _cameraNativeIdle =
+          _cameraNativeIdle.then((_) => _safeDisposeController(c));
+    }
   }
 
   @override
@@ -197,7 +238,11 @@ class ScanController extends GetxController
     await Get.to(() => const SolutationScreen());
     if (!isClosed && _isActive) {
       initCamera();
-      scanLineController.repeat(reverse: true);
+      try {
+        scanLineController.repeat(reverse: true);
+      } catch (e) {
+        debugPrint('scanLine repeat after result: $e');
+      }
     }
   }
 
@@ -208,7 +253,13 @@ class ScanController extends GetxController
     progressController?.removeListener(_onProgressUpdate);
     progressController?.dispose();
     pulseController?.dispose();
-    cameraController?.dispose();
+    final c = cameraController;
+    cameraController = null;
+    // Do not assign .obs here — triggers Obx rebuild while route is unmounting (tree locked).
+    if (c != null) {
+      _cameraNativeIdle =
+          _cameraNativeIdle.then((_) => _safeDisposeController(c));
+    }
     super.onClose();
   }
 }

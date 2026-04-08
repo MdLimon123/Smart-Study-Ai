@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+/// Separate [Get.put] tags so a pushed [AiChatScreen] never deletes the shell tab controller.
+class AiChatControllerTags {
+  AiChatControllerTags._();
+  static const mainTab = 'ai_chat_main_tab';
+  static const homeModal = 'ai_chat_home_modal';
+}
+
 class AiModel {
   final String name;
   final String subtitle;

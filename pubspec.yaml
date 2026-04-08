@@ -20,6 +20,8 @@ dependencies:
   shimmer: 
   image_picker: ^1.1.2
   camera: ^0.11.0+2
+  # Camera2 implementation — avoids CameraX re-init / surface bugs when leaving & returning to scan.
+  camera_android: ^0.10.10+16
   permission_handler: ^11.3.0
 
 

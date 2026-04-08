@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_extension/controller/ai_chat_controller.dart';
+import 'package:flutter_extension/controller/scan_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_extension/views/screen/chat/ai_chat_screen.dart';
 import 'package:flutter_extension/views/screen/home/subscreen/subject_screen.dart';
@@ -287,7 +289,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       Expanded(
                         child: InkWell(
                           onTap: () {
-                            Get.to(() => const ScanScreen());
+                            Get.to(
+                              () => const ScanScreen(
+                                isActive: true,
+                                controllerTag: ScanControllerTags.homeModal,
+                              ),
+                            );
                           },
                           child: Container(
                             width: double.infinity,
@@ -346,7 +353,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       Expanded(
                         child: InkWell(
                           onTap: () {
-                            Get.to(() => const AiChatScreen());
+                            Get.to(
+                              () => const AiChatScreen(
+                                controllerTag:
+                                    AiChatControllerTags.homeModal,
+                              ),
+                            );
                           },
                           child: Container(
                             width: double.infinity,

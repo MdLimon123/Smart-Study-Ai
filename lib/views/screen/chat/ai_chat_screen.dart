@@ -5,23 +5,32 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 class AiChatScreen extends StatefulWidget {
-  const AiChatScreen({super.key});
+  final String controllerTag;
+
+  const AiChatScreen({
+    super.key,
+    this.controllerTag = AiChatControllerTags.mainTab,
+  });
 
   @override
   State<AiChatScreen> createState() => _AiChatScreenState();
 }
 
 class _AiChatScreenState extends State<AiChatScreen> {
-  final _aiChatController = Get.put(AiChatController());
+  late final AiChatController _aiChatController;
 
   @override
   void initState() {
     super.initState();
+    _aiChatController = Get.put(
+      AiChatController(),
+      tag: widget.controllerTag,
+    );
   }
 
   @override
   void dispose() {
-    Get.delete<AiChatController>();
+    Get.delete<AiChatController>(tag: widget.controllerTag);
     super.dispose();
   }
 

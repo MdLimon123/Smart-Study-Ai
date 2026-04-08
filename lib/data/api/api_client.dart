@@ -23,13 +23,28 @@ class ApiClient extends GetxService {
   static String? token;
   static Map<String, String>? _mainHeaders;
 
+  /// Reloads token from [SharedPreferences] and rebuilds [_mainHeaders].
+  /// Call before every request — token is saved after OTP/login but the cache
+  /// must refresh or `Authorization` stays `Bearer ` (empty).
+  ///
+  /// **No token:** omit `Authorization` entirely. Sending `Bearer ` (empty) breaks
+  /// public routes (login, forgot-password, etc.) — many servers return 401
+  /// `bad_authorization_header`.
   static Future<void> loadPrefs() async {
     _prefs ??= await SharedPreferences.getInstance();
-    token = _prefs?.getString(AppConstants.TOKEN) ?? "";
+    final t = _prefs?.getString(AppConstants.TOKEN) ?? '';
+    token = t;
     _mainHeaders = {
       'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
+      if (t.isNotEmpty) 'Authorization': 'Bearer $t',
     };
+  }
+
+  static Map<String, String> _resolveHeaders(Map<String, String>? override) {
+    if (override == null || override.isEmpty) {
+      return Map<String, String>.from(_mainHeaders!);
+    }
+    return {..._mainHeaders!, ...override};
   }
 
   static Future<Response> getData(
@@ -38,10 +53,11 @@ class ApiClient extends GetxService {
     Map<String, String>? headers,
   }) async {
     try {
-      if (_prefs == null) await loadPrefs();
-      debugPrint('====> API Call: $uri\nHeader: ${headers ?? _mainHeaders}');
+      await loadPrefs();
+      final h = _resolveHeaders(headers);
+      debugPrint('====> API Call: $uri\nHeader: $h');
       http.Response response = await client
-          .get(Uri.parse(baseUrl + uri), headers: headers ?? _mainHeaders)
+          .get(Uri.parse(baseUrl + uri), headers: h)
           .timeout(Duration(seconds: timeoutInSeconds));
       return handleResponse(response, uri);
     } catch (e) {
@@ -56,15 +72,16 @@ class ApiClient extends GetxService {
     Map<String, String>? headers,
   }) async {
     try {
-      if (_prefs == null) await loadPrefs();
+      await loadPrefs();
+      final h = _resolveHeaders(headers);
       debugPrint(
-        '====> API Call: $uri\nHeader: ${headers ?? _mainHeaders} \nBody: $body',
+        '====> API Call: $uri\nHeader: $h \nBody: $body',
       );
       http.Response response = await client
           .post(
             Uri.parse(baseUrl + uri),
-            body: body,
-            headers: headers ?? _mainHeaders,
+            body: jsonEncode(body),
+            headers: h,
           )
           .timeout(Duration(seconds: timeoutInSeconds));
 
@@ -81,12 +98,13 @@ class ApiClient extends GetxService {
     Map<String, String>? headers,
   }) async {
     try {
-      if (_prefs == null) await loadPrefs();
-      debugPrint('====> API Call: $uri\nHeader: ${headers ?? _mainHeaders}');
+      await loadPrefs();
+      final h = _resolveHeaders(headers);
+      debugPrint('====> API Call: $uri\nHeader: $h');
       debugPrint('====> API Body: $body with ${multipartBody.length} picture');
 
       var request = http.MultipartRequest('POST', Uri.parse(baseUrl + uri));
-      request.headers.addAll(headers ?? _mainHeaders!);
+      request.headers.addAll(h);
       for (MultipartBody element in multipartBody) {
         request.files.add(
           await http.MultipartFile.fromPath(element.key, element.file.path),
@@ -108,14 +126,15 @@ class ApiClient extends GetxService {
     Map<String, String>? headers,
   }) async {
     try {
-      if (_prefs == null) await loadPrefs();
-      debugPrint('====> API Call: $uri\nHeader: ${headers ?? _mainHeaders}');
+      await loadPrefs();
+      final h = _resolveHeaders(headers);
+      debugPrint('====> API Call: $uri\nHeader: $h');
       debugPrint('====> API Body: $body');
       http.Response response = await http
           .put(
             Uri.parse(baseUrl + uri),
             body: jsonEncode(body),
-            headers: headers ?? _mainHeaders,
+            headers: h,
           )
           .timeout(Duration(seconds: timeoutInSeconds));
       return handleResponse(response, uri);
@@ -131,17 +150,16 @@ class ApiClient extends GetxService {
     Map<String, String>? headers,
   }) async {
     try {
-      if (_prefs == null) await loadPrefs();
-      debugPrint('====> API Call: $uri\nHeader: ${headers ?? _mainHeaders}');
+      await loadPrefs();
+      final h = _resolveHeaders(headers);
+      debugPrint('====> API Call: $uri\nHeader: $h');
       debugPrint('====> API Body: $body with ${multipartBody.length} picture');
       var request = http.MultipartRequest('PUT', Uri.parse(baseUrl + uri));
-      request.headers.addAll(headers ?? _mainHeaders!);
+      request.headers.addAll(h);
       for (MultipartBody element in multipartBody) {
-        for (MultipartBody element in multipartBody) {
-          request.files.add(
-            await http.MultipartFile.fromPath(element.key, element.file.path),
-          );
-        }
+        request.files.add(
+          await http.MultipartFile.fromPath(element.key, element.file.path),
+        );
       }
       request.fields.addAll(body);
       http.Response response = await http.Response.fromStream(
@@ -159,13 +177,14 @@ class ApiClient extends GetxService {
     dynamic body,
   }) async {
     try {
-      if (_prefs == null) await loadPrefs();
-      debugPrint('====> API Call: $uri\nHeader: ${headers ?? _mainHeaders}');
+      await loadPrefs();
+      final h = _resolveHeaders(headers);
+      debugPrint('====> API Call: $uri\nHeader: $h');
       debugPrint('====> API Call: $uri\n Body: $body');
       http.Response response = await http
           .delete(
             Uri.parse(baseUrl + uri),
-            headers: headers ?? _mainHeaders,
+            headers: h,
             body: body,
           )
           .timeout(Duration(seconds: timeoutInSeconds));

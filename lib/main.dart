@@ -7,11 +7,13 @@ import 'package:get/get.dart';
 
 import 'controller/localization_controller.dart';
 import 'controller/theme_controller.dart';
+import 'helper/android_camera_registration.dart';
 import 'helper/get_di.dart' as di;
 import 'helper/route_helper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  ensureAndroidCamera2Plugin();
   Map<String, Map<String, String>> _languages = await di.init();
   runApp(MyApp(languages: _languages));
 }

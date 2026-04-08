@@ -160,7 +160,9 @@ class _OnboardingScreen3State extends State<OnboardingScreen3> {
 
                   const SizedBox(height: 16),
                   CustomButton(
-                    onTap: () {},
+                    onTap: () {
+                      Get.offAllNamed(AppRoutes.loginScreen);
+                    },
                     color: Colors.black,
                     border: Border.all(
                       color: const Color(0xFF4A4754),

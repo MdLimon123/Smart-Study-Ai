@@ -6,9 +6,18 @@ import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
+/// [controllerTag] must be unique per route. Main shell tab and [Get.to] modal
+/// each need their own [ScanController] — otherwise [Get.delete] from the modal
+/// disposes the tab controller and breaks the bottom bar scan tab.
 class ScanScreen extends StatefulWidget {
   final bool isActive;
-  const ScanScreen({super.key, this.isActive = true});
+  final String controllerTag;
+
+  const ScanScreen({
+    super.key,
+    this.isActive = true,
+    this.controllerTag = ScanControllerTags.mainTab,
+  });
 
   @override
   State<ScanScreen> createState() => _ScanScreenState();
@@ -20,20 +29,25 @@ class _ScanScreenState extends State<ScanScreen> {
   @override
   void initState() {
     super.initState();
-    controller = Get.put(ScanController(isActive: widget.isActive));
+    controller = Get.put(
+      ScanController(isActive: widget.isActive),
+      tag: widget.controllerTag,
+    );
   }
 
   @override
   void didUpdateWidget(covariant ScanScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.isActive != oldWidget.isActive) {
-      controller.setActive(widget.isActive);
+      if (!controller.isClosed) {
+        controller.setActive(widget.isActive);
+      }
     }
   }
 
   @override
   void dispose() {
-    Get.delete<ScanController>();
+    Get.delete<ScanController>(tag: widget.controllerTag);
     super.dispose();
   }
 

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_extension/controller/profile_controller.dart';
+import 'package:flutter_extension/data/api/api_client.dart';
+import 'package:flutter_extension/helper/prefs_helper.dart';
+import 'package:flutter_extension/helper/route_helper.dart';
 import 'package:flutter_extension/util/app_colors.dart';
+import 'package:flutter_extension/util/app_constants.dart';
 import 'package:flutter_extension/views/screen/profile/aiPersonalization/ai_personalization.dart';
 import 'package:flutter_extension/views/screen/profile/change_password_screen.dart';
 import 'package:flutter_extension/views/screen/profile/dataControl/data_control_screen.dart';
@@ -8,6 +13,7 @@ import 'package:flutter_extension/views/screen/profile/parental/parental_control
 import 'package:flutter_extension/views/screen/profile/help_support.dart';
 import 'package:flutter_extension/views/screen/profile/privacy_security.dart';
 import 'package:flutter_extension/views/screen/profile/twoFactorAuth/two_factor_auth.dart';
+import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -18,6 +24,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final _profileController = Get.put(ProfileController());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,38 +37,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
+
               Center(
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    Container(
-                      height: 80,
-                      width: 80,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          image: AssetImage("assets/images/dummy.png"),
-                          fit: BoxFit.cover,
+                    Obx(
+                      () => GestureDetector(
+                        onTap: () => _profileController.pickUserImage(),
+                        child: Container(
+                          height: 80,
+                          width: 80,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFF181823),
+                          ),
+                          child: ClipOval(
+                            child:
+                                _profileController.userProfileImage.value !=
+                                    null
+                                ? Image.file(
+                                    _profileController.userProfileImage.value!,
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                  )
+                                : Image.asset(
+                                    "assets/images/dummy.png",
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                  ),
+                          ),
                         ),
                       ),
                     ),
                     Positioned(
                       bottom: 0,
                       right: 0,
-                      child: Container(
-                        height: 30,
-                        padding: const EdgeInsets.all(8),
-                        width: 30,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color(0xFF1D1929),
-                        ),
+                      child: GestureDetector(
+                        onTap: () => _profileController.pickUserImage(),
+
                         child: Container(
-                          height: 12,
-                          width: 12,
+                          height: 30,
+                          padding: const EdgeInsets.all(8),
+                          width: 30,
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Color(0xFF1BD2A4),
+                            color: Color(0xFF1D1929),
+                          ),
+                          child: Container(
+                            height: 12,
+                            width: 12,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Color(0xFF1BD2A4),
+                            ),
                           ),
                         ),
                       ),
@@ -436,13 +467,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onTap: () {
                         Get.to(() => const ChangePasswordScreen());
                       },
-                      backgroundColor: const Color(0xFF60A5FA),
+                      backgroundColor: const Color(0xFFF87171),
                       image: "assets/images/lock.png",
                       title: "Change Password",
                       subtitle: "Update your password",
                     ),
-
                     const SizedBox(height: 10),
+                    _customRow(
+                      onTap: () {
+                        showLogoutBottomSheet(context);
+                      },
+                      backgroundColor: const Color(0xFF60A5FA),
+                      image: "assets/images/logout.png",
+                      title: "Logout",
+                      subtitle: "",
+                    ),
                   ],
                 ),
               ),
@@ -450,6 +489,131 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  showLogoutBottomSheet(BuildContext context) {
+    const borderRadius = BorderRadius.vertical(top: Radius.circular(24));
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.55),
+      shape: const RoundedRectangleBorder(borderRadius: borderRadius),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: borderRadius,
+            border: Border.all(color: AppColors.surfaceBorder, width: 1),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Logout',
+                  style: TextStyle(
+                    color: AppColors.textColor,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Are you sure you want to log out?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.textSecondary,
+                    fontSize: 15,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                Container(
+                  width: double.maxFinite,
+                  height: 1,
+                  color: AppColors.surfaceBorder,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(100),
+                          onTap: () => Get.back(),
+                          child: Container(
+                            height: 52,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(100),
+                              border: Border.all(
+                                color: AppColors.surfaceBorder,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(100),
+                          onTap: () async {
+                            // Session: only [AppConstants.TOKEN] is auth data here.
+                            // Keep language + theme prefs (THEME, LANGUAGE_CODE, COUNTRY_CODE).
+                            await PrefsHelper.remove(AppConstants.TOKEN);
+                            await ApiClient.loadPrefs();
+                            Get.offAllNamed(AppRoutes.loginScreen);
+                          },
+                          child: Container(
+                            height: 52,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(100),
+                              gradient: const LinearGradient(
+                                colors: [
+                                  AppColors.accent,
+                                  AppColors.accentSecondary,
+                                ],
+                                begin: Alignment.centerRight,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                            child: Text(
+                              'Yes, log out',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -463,6 +627,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return InkWell(
       onTap: onTap,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             height: 36,
