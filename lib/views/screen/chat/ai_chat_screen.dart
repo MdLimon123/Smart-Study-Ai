@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/controller/ai_chat_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:get/get.dart';
 
 class AiChatScreen extends StatefulWidget {
@@ -18,6 +20,7 @@ class AiChatScreen extends StatefulWidget {
 
 class _AiChatScreenState extends State<AiChatScreen> {
   late final AiChatController _aiChatController;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -31,6 +34,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
   @override
   void dispose() {
     Get.delete<AiChatController>(tag: widget.controllerTag);
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -155,13 +159,15 @@ class _AiChatScreenState extends State<AiChatScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Image.asset(
-                            _aiChatController.selectedModel.icon,
+                            (_aiChatController.selectedModel ??
+                                    _aiChatController.models.first)
+                                .icon,
                             height: 16,
                             width: 16,
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            _aiChatController.selectedModel.name,
+                            _aiChatController.selectedModelName,
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -196,24 +202,38 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   ].map((label) {
                     return Padding(
                       padding: const EdgeInsets.only(right: 10),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.textColor.withValues(alpha: 0.06),
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(
-                            color: AppColors.textColor.withValues(alpha: 0.08),
+                      child: GestureDetector(
+                        onTap: () async {
+                          await _aiChatController.sendMessage(
+                            presetMessage: label,
+                          );
+                          if (_scrollController.hasClients) {
+                            _scrollController.animateTo(
+                              _scrollController.position.maxScrollExtent + 120,
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeOut,
+                            );
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
                           ),
-                        ),
-                        child: Text(
-                          label,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.textColor.withValues(alpha: 0.50),
+                          decoration: BoxDecoration(
+                            color: AppColors.textColor.withValues(alpha: 0.06),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: AppColors.textColor.withValues(alpha: 0.08),
+                            ),
+                          ),
+                          child: Text(
+                            label,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.textColor.withValues(alpha: 0.50),
+                            ),
                           ),
                         ),
                       ),
@@ -228,155 +248,100 @@ class _AiChatScreenState extends State<AiChatScreen> {
           Expanded(
             child: Obx(
               () => ListView(
+                controller: _scrollController,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 children: [
-                  // Model label
-                  Text(
-                    _aiChatController.selectedModel.name,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textColor.withValues(alpha: 0.30),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // AI welcome bubble
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      padding: const EdgeInsets.all(14),
-                      constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.75,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.textColor.withValues(alpha: 0.07),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(18),
-                          topRight: Radius.circular(18),
-                          bottomLeft: Radius.circular(4),
-                          bottomRight: Radius.circular(18),
-                        ),
-                      ),
-                      child: Text(
-                        "Hi! I'm your QQAI academic assistant 👋 I can help you understand complex topics, solve problems, and guide your studies. What would you like to learn today?",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.textColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Copy button
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        height: 28,
-                        width: 28,
-                        decoration: BoxDecoration(
-                          color: AppColors.textColor.withValues(alpha: 0.08),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SvgPicture.asset('assets/icon/cart.svg'),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // ─── User Message ───
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Flexible(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
+                  ..._aiChatController.messages.map((m) {
+                    final isUser = m.role == 'user';
+                    if (isUser) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
+                                  ),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(18),
+                                    topRight: Radius.circular(18),
+                                    bottomLeft: Radius.circular(18),
+                                    bottomRight: Radius.circular(4),
+                                  ),
+                                ),
+                                child: Text(
+                                  m.content,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
                             ),
-                            borderRadius: BorderRadius.only(
+                            const SizedBox(width: 8),
+                            Container(
+                              height: 28,
+                              width: 28,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppColors.textColor.withValues(alpha: 0.10),
+                              ),
+                              child: const Icon(
+                                Icons.person_rounded,
+                                size: 16,
+                                color: Color(0xFF7C3AED),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.78,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.textColor.withValues(alpha: 0.07),
+                            borderRadius: const BorderRadius.only(
                               topLeft: Radius.circular(18),
                               topRight: Radius.circular(18),
-                              bottomLeft: Radius.circular(18),
-                              bottomRight: Radius.circular(4),
+                              bottomLeft: Radius.circular(4),
+                              bottomRight: Radius.circular(18),
                             ),
                           ),
-                          child: const Text(
-                            "Solve quadratics",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
-                            ),
+                          child: _AiMarkdown(text: m.content),
+                        ),
+                      ),
+                    );
+                  }),
+                  if (_aiChatController.isSending.value)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Thinking...',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textColor.withValues(alpha: 0.5),
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        height: 28,
-                        width: 28,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.textColor.withValues(alpha: 0.10),
-                        ),
-                        child: const Icon(
-                          Icons.person_rounded,
-                          size: 16,
-                          color: Color(0xFF7C3AED),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // ─── AI Response ───
-                  Text(
-                    _aiChatController.selectedModel.name,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textColor.withValues(alpha: 0.30),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      padding: const EdgeInsets.all(14),
-                      constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.75,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.textColor.withValues(alpha: 0.07),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(18),
-                          topRight: Radius.circular(18),
-                          bottomLeft: Radius.circular(4),
-                          bottomRight: Radius.circular(18),
-                        ),
-                      ),
-                      child: Text(
-                        "Great question! Let me break this down step by step for you.",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.textColor,
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -399,8 +364,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Attach button
-                  SvgPicture.asset('assets/icon/file.svg'),
-                  const SizedBox(width: 8),
+                  // SvgPicture.asset('assets/icon/file.svg'),
+                  // const SizedBox(width: 8),
                   // Text field
                   Expanded(
                     child: TextField(
@@ -424,7 +389,18 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   ),
                   const SizedBox(width: 8),
                   // Send button
-                  Container(
+                  GestureDetector(
+                    onTap: () async {
+                      await _aiChatController.sendMessage();
+                      if (_scrollController.hasClients) {
+                        _scrollController.animateTo(
+                          _scrollController.position.maxScrollExtent + 120,
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeOut,
+                        );
+                      }
+                    },
+                    child: Container(
                     height: 32,
                     width: 32,
                     decoration: BoxDecoration(
@@ -436,12 +412,69 @@ class _AiChatScreenState extends State<AiChatScreen> {
                       child: SvgPicture.asset('assets/icon/send.svg'),
                     ),
                   ),
+                  ),
                 ],
               ),
             ),
           ),
         ],
         ),
+      ),
+    );
+  }
+}
+
+class _AiMarkdown extends StatelessWidget {
+  const _AiMarkdown({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final baseColor = AppColors.textColor.withValues(alpha: 0.92);
+    final baseStyle = TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      height: 1.55,
+      color: baseColor,
+    );
+
+    return GptMarkdownTheme(
+      gptThemeData: GptMarkdownThemeData(
+        brightness: Brightness.dark,
+        h1: baseStyle.copyWith(fontSize: 20, fontWeight: FontWeight.w800),
+        h2: baseStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w800),
+        h3: baseStyle.copyWith(fontSize: 17, fontWeight: FontWeight.w700),
+        h4: baseStyle.copyWith(fontSize: 16, fontWeight: FontWeight.w700),
+        h5: baseStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+        h6: baseStyle.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+        linkColor: const Color(0xFF93C5FD),
+      ),
+      child: GptMarkdown(
+        text.replaceAll(r'\n', '\n'),
+        style: baseStyle,
+        textAlign: TextAlign.start,
+        latexBuilder: (context, tex, textStyle, inline) {
+          final screenWidth = MediaQuery.sizeOf(context).width;
+          final safeWidth = (screenWidth - 96).clamp(160.0, screenWidth);
+          final math = Math.tex(
+            tex,
+            textStyle: textStyle,
+            mathStyle: inline ? MathStyle.text : MathStyle.display,
+            settings: const TexParserSettings(strict: Strict.ignore),
+            options: MathOptions(
+              color: baseColor,
+              fontSize: baseStyle.fontSize,
+            ),
+          );
+          return ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: safeWidth),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: math,
+            ),
+          );
+        },
       ),
     );
   }

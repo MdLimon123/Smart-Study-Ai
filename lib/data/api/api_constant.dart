@@ -18,4 +18,5 @@ class ApiConstant {
   static const String profileActivity = '/profile/activity/';
 
   static const String scanResultEndpoint = '/scan/';
+  static const String aiResponseEndpoint = '/chat/ask/';
 }
