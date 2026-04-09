@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/controller/profile_controller.dart';
 import 'package:flutter_extension/data/api/api_client.dart';
@@ -14,7 +15,6 @@ import 'package:flutter_extension/views/screen/profile/help_support.dart';
 import 'package:flutter_extension/views/screen/profile/privacy_security.dart';
 import 'package:flutter_extension/views/screen/profile/twoFactorAuth/two_factor_auth.dart';
 import 'package:get/get.dart';
-import 'package:get/route_manager.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -43,34 +43,101 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   alignment: Alignment.center,
                   children: [
                     Obx(
-                      () => GestureDetector(
-                        onTap: () => _profileController.pickUserImage(),
-                        child: Container(
-                          height: 80,
-                          width: 80,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Color(0xFF181823),
+                      () {
+                        final local = _profileController.userProfileImage.value;
+                        final p = _profileController.profile.value;
+                        final loading = _profileController.isProfileLoading.value;
+                        Widget imageChild;
+                        if (local != null) {
+                          imageChild = Image.file(
+                            local,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          );
+                        } else if (loading && p == null) {
+                          imageChild = const Center(
+                            child: SizedBox(
+                              width: 28,
+                              height: 28,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Color(0xFF7C3AED),
+                              ),
+                            ),
+                          );
+                        } else if (p?.imageUrl != null &&
+                            p!.imageUrl!.trim().isNotEmpty) {
+                          imageChild = CachedNetworkImage(
+                            imageUrl: p.imageUrl!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            placeholder: (_, __) => const Center(
+                              child: SizedBox(
+                                width: 28,
+                                height: 28,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Color(0xFF7C3AED),
+                                ),
+                              ),
+                            ),
+                            errorWidget: (_, __, ___) => Image.asset(
+                              "assets/images/dummy.png",
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                            ),
+                          );
+                        } else {
+                          imageChild = Image.asset(
+                            "assets/images/dummy.png",
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          );
+                        }
+                        return GestureDetector(
+                          onTap: () => _profileController.pickUserImage(),
+                          child: Container(
+                            height: 80,
+                            width: 80,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Color(0xFF181823),
+                            ),
+                            child: ClipOval(child: imageChild),
                           ),
+                        );
+                      },
+                    ),
+                    Obx(
+                      () {
+                        if (!_profileController.isUpdatingImage.value) {
+                          return const SizedBox.shrink();
+                        }
+                        return Positioned(
+                          left: 0,
+                          top: 0,
+                          right: 0,
+                          bottom: 0,
                           child: ClipOval(
-                            child:
-                                _profileController.userProfileImage.value !=
-                                    null
-                                ? Image.file(
-                                    _profileController.userProfileImage.value!,
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                  )
-                                : Image.asset(
-                                    "assets/images/dummy.png",
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                  ),
+                            child: Container(
+                              color: Colors.black.withValues(alpha: 0.45),
+                              alignment: Alignment.center,
+                              child: const SizedBox(
+                                width: 28,
+                                height: 28,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Color(0xFF7C3AED),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                     ),
                     Positioned(
                       bottom: 0,
@@ -102,69 +169,85 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
 
               const SizedBox(height: 12),
-              Center(
-                child: Text(
-                  "Alex Johnson",
-                  style: TextStyle(
-                    fontSize: 23,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textColor,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Center(
-                child: Text(
-                  "alex.j@student.edu",
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textColor.withValues(alpha: 0.50),
-                  ),
-                ),
+              Obx(
+                () {
+                  final p = _profileController.profile.value;
+                  final name =
+                      (p?.name.isNotEmpty == true) ? p!.name : '—';
+                  final email = p?.email ?? '';
+                  return Column(
+                    children: [
+                      Center(
+                        child: Text(
+                          name,
+                          style: TextStyle(
+                            fontSize: 23,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Center(
+                        child: Text(
+                          email,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.textColor.withValues(alpha: 0.50),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
 
               const SizedBox(height: 12),
 
-              Center(
-                child: Container(
-                  width: 180,
-
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF48A3B).withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(
-                      color: const Color(0xFFF48A3B),
-                      width: 1,
+              Obx(
+                () {
+                  final level = _profileController.profile.value?.level ?? 1;
+                  return Center(
+                    child: Container(
+                      width: 200,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF48A3B).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(
+                          color: const Color(0xFFF48A3B),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'LEVEL $level',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFFF48A3B),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '• Free plan',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textColor.withValues(alpha: 0.30),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-
-                  child: Row(
-                    children: [
-                      const Text(
-                        "FREE PLAN",
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFFF48A3B),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        "• 3 scans/day",
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textColor.withValues(alpha: 0.30),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                  );
+                },
               ),
 
               const SizedBox(height: 24),
@@ -199,32 +282,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
 
               const SizedBox(height: 24),
-              Row(
-                children: [
-                  _customContainer(
-                    image: "assets/images/circle.png",
-                    count: "3",
-                    title: "Problems Solved",
-                  ),
-                  const SizedBox(width: 8),
-                  _customContainer(
-                    image: "assets/images/book_fill.png",
-                    count: "128h",
-                    title: "Study Hours",
-                  ),
-                  const SizedBox(width: 8),
-                  _customContainer(
-                    image: "assets/images/phy.png",
-                    count: "7",
-                    title: "Streak Days",
-                  ),
-                  const SizedBox(width: 8),
-                  _customContainer(
-                    image: "assets/images/badges.png",
-                    count: "12",
-                    title: "Badges",
-                  ),
-                ],
+              Obx(
+                () {
+                  final p = _profileController.profile.value;
+                  final solved = p?.problemsSolved ?? 0;
+                  final study = p?.studyTimeLabel ?? '0';
+                  final streak = p?.activeDays ?? 0;
+                  final badgeCount = p?.badges.length ?? 0;
+                  return Row(
+                    children: [
+                      _customContainer(
+                        image: "assets/images/circle.png",
+                        count: '$solved',
+                        title: "Problems Solved",
+                      ),
+                      const SizedBox(width: 8),
+                      _customContainer(
+                        image: "assets/images/book_fill.png",
+                        count: study,
+                        title: "Study time",
+                      ),
+                      const SizedBox(width: 8),
+                      _customContainer(
+                        image: "assets/images/phy.png",
+                        count: '$streak',
+                        title: "Streak days",
+                      ),
+                      const SizedBox(width: 8),
+                      _customContainer(
+                        image: "assets/images/badges.png",
+                        count: '$badgeCount',
+                        title: "Badges",
+                      ),
+                    ],
+                  );
+                },
               ),
 
               const SizedBox(height: 23),
@@ -252,37 +344,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const SizedBox(height: 12),
 
-              Row(
-                children: [
-                  _badgesContainer(
-                    bacgroundColor: const Color(0xFFA78BFA),
-                    borderColor: const Color(0xFFA78BFA),
-                    image: "assets/images/fire.png",
-                    title: "7-Day Streak",
+              Obx(() {
+                final badges = _profileController.profile.value?.badges ?? [];
+                if (badges.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Center(
+                      child: Text(
+                        'No badges yet',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.textColor.withValues(alpha: 0.45),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                return SizedBox(
+                  height: 92,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: badges.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemBuilder: (context, i) {
+                      final b = badges[i];
+                      final title = b is Map
+                          ? (b['name'] ?? b['title'] ?? 'Badge').toString()
+                          : b.toString();
+                      return SizedBox(
+                        width: 76,
+                        child: _badgesContainer(
+                          bacgroundColor: const Color(0xFFA78BFA),
+                          borderColor: const Color(0xFFA78BFA),
+                          image: "assets/images/fire.png",
+                          title: title.length > 14
+                              ? '${title.substring(0, 12)}…'
+                              : title,
+                        ),
+                      );
+                    },
                   ),
-                  const SizedBox(width: 8),
-                  _badgesContainer(
-                    bacgroundColor: const Color(0xFF60A5FA),
-                    borderColor: const Color(0xFF60A5FA),
-                    image: "assets/images/star.png",
-                    title: "Top Solver",
-                  ),
-                  const SizedBox(width: 8),
-                  _badgesContainer(
-                    bacgroundColor: const Color(0xFF34D399),
-                    borderColor: const Color(0xFF34D399),
-                    image: "assets/images/book3.png",
-                    title: "Bookworm",
-                  ),
-                  const SizedBox(width: 8),
-                  _badgesContainer(
-                    bacgroundColor: const Color(0xFFF59E0B),
-                    borderColor: const Color(0xFFF59E0B),
-                    image: "assets/images/tree.png",
-                    title: "Accurate",
-                  ),
-                ],
-              ),
+                );
+              }),
               const SizedBox(height: 23),
 
               Text(
@@ -309,14 +413,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _customRow(
-                      onTap: () {
-                        Get.to(() => const TwoFactorAuth());
-                      },
-                      backgroundColor: const Color(0xFF60A5FA),
-                      image: "assets/images/lock.png",
-                      title: "Two-Factor Auth",
-                      subtitle: "Add extra sign-in security",
+                    Obx(
+                      () => _customRow(
+                        onTap: () {
+                          Get.to(() => const TwoFactorAuth());
+                        },
+                        backgroundColor: const Color(0xFF60A5FA),
+                        image: "assets/images/lock.png",
+                        title: "Two-Factor Auth",
+                        subtitle:
+                            _profileController.profile.value?.twoFactorEnabled ==
+                                true
+                            ? "Enabled"
+                            : "Add extra sign-in security",
+                      ),
                     ),
 
                     const SizedBox(height: 10),
@@ -674,47 +784,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Expanded _badgesContainer({
+  Widget _badgesContainer({
     required Color bacgroundColor,
     required Color borderColor,
     required String image,
     required String title,
   }) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: bacgroundColor.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: borderColor.withValues(alpha: 0.12),
-            width: 1,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: bacgroundColor.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: borderColor.withValues(alpha: 0.12),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            height: 40,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              color: bacgroundColor.withValues(alpha: 0.13),
+            ),
+            child: Image.asset(image),
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              height: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                color: bacgroundColor.withValues(alpha: 0.13),
-              ),
-              child: Image.asset(image),
+          const SizedBox(height: 6),
+          Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w400,
+              color: AppColors.textColor.withValues(alpha: 0.70),
             ),
-            const SizedBox(height: 6),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w400,
-                color: AppColors.textColor.withValues(alpha: 0.70),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

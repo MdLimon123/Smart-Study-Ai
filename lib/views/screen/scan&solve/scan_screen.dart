@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/controller/scan_controller.dart';
@@ -278,7 +279,7 @@ class _ScanScreenState extends State<ScanScreen> {
         children: [
           const SizedBox(height: 20),
           Text(
-            "Select subject (optional)",
+            "Select subject (required)",
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w400,
@@ -389,9 +390,12 @@ class _ScanScreenState extends State<ScanScreen> {
   // ─── Analyzing View ───
   Widget _buildAnalyzingView() {
     return AnimatedBuilder(
-      animation: controller.progressAnimation!,
+      animation: Listenable.merge([
+        controller.progressController,
+        controller.pulseController,
+      ]),
       builder: (context, _) {
-        final percent = (controller.progressAnimation!.value * 100).round();
+        final percent = (controller.progressAnimation.value * 100).round();
         return Column(
           children: [
             SizedBox(
@@ -403,7 +407,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   SizedBox.expand(
                     child: CustomPaint(
                       painter: _CircularProgressPainter(
-                        progress: controller.progressAnimation!.value,
+                        progress: controller.progressAnimation.value,
                         backgroundColor:
                             const Color(0xFFA78BFA).withValues(alpha: 0.12),
                         progressColor: const Color(0xFFA78BFA),
@@ -415,12 +419,12 @@ class _ScanScreenState extends State<ScanScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ScaleTransition(
-                        scale: controller.pulseAnimation!,
+                        scale: controller.pulseAnimation,
                         child: SvgPicture.asset('assets/icon/loader.svg'),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        "$percent%",
+                        '$percent%',
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w800,
@@ -444,8 +448,7 @@ class _ScanScreenState extends State<ScanScreen> {
             const SizedBox(height: 8),
             Obx(
               () => Text(
-                controller
-                    .analyzingSteps[controller.currentStep.value],
+                controller.analyzingSteps[controller.currentStep.value],
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,

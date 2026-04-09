@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_extension/controller/ai_chat_controller.dart';
 import 'package:flutter_extension/controller/scan_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
+import 'package:flutter_extension/views/base/get_greeting.dart';
 import 'package:flutter_extension/views/screen/chat/ai_chat_screen.dart';
 import 'package:flutter_extension/views/screen/home/subscreen/subject_screen.dart';
 import 'package:flutter_extension/views/screen/library/library_screen.dart';
@@ -33,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Good morning 👋",
+                      getGreeting(),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
@@ -355,8 +356,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           onTap: () {
                             Get.to(
                               () => const AiChatScreen(
-                                controllerTag:
-                                    AiChatControllerTags.homeModal,
+                                controllerTag: AiChatControllerTags.homeModal,
                               ),
                             );
                           },

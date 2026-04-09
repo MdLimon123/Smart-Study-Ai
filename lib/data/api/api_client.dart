@@ -91,6 +91,31 @@ class ApiClient extends GetxService {
     }
   }
 
+  static Future<Response> patchData(
+    String uri,
+    dynamic body, {
+    Map<String, String>? headers,
+  }) async {
+    try {
+      await loadPrefs();
+      final h = _resolveHeaders(headers);
+      debugPrint(
+        '====> API Call: PATCH $uri\nHeader: $h \nBody: $body',
+      );
+      http.Response response = await client
+          .patch(
+            Uri.parse(baseUrl + uri),
+            body: jsonEncode(body),
+            headers: h,
+          )
+          .timeout(Duration(seconds: timeoutInSeconds));
+
+      return handleResponse(response, uri);
+    } catch (e) {
+      return Response(statusCode: 1, statusText: noInternetMessage);
+    }
+  }
+
   static Future<Response> postMultipartData(
     String uri,
     Map<String, String> body, {
@@ -155,6 +180,34 @@ class ApiClient extends GetxService {
       debugPrint('====> API Call: $uri\nHeader: $h');
       debugPrint('====> API Body: $body with ${multipartBody.length} picture');
       var request = http.MultipartRequest('PUT', Uri.parse(baseUrl + uri));
+      request.headers.addAll(h);
+      for (MultipartBody element in multipartBody) {
+        request.files.add(
+          await http.MultipartFile.fromPath(element.key, element.file.path),
+        );
+      }
+      request.fields.addAll(body);
+      http.Response response = await http.Response.fromStream(
+        await request.send(),
+      );
+      return handleResponse(response, uri);
+    } catch (e) {
+      return Response(statusCode: 1, statusText: noInternetMessage);
+    }
+  }
+
+  static Future<Response> patchMultipartData(
+    String uri,
+    Map<String, String> body, {
+    required List<MultipartBody> multipartBody,
+    Map<String, String>? headers,
+  }) async {
+    try {
+      await loadPrefs();
+      final h = _resolveHeaders(headers);
+      debugPrint('====> API Call: PATCH $uri\nHeader: $h');
+      debugPrint('====> API Body: $body with ${multipartBody.length} picture');
+      var request = http.MultipartRequest('PATCH', Uri.parse(baseUrl + uri));
       request.headers.addAll(h);
       for (MultipartBody element in multipartBody) {
         request.files.add(

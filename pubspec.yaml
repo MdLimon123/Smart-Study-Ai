@@ -23,6 +23,7 @@ dependencies:
   # Camera2 implementation — avoids CameraX re-init / surface bugs when leaving & returning to scan.
   camera_android: ^0.10.10+16
   permission_handler: ^11.3.0
+  gpt_markdown: ^1.1.6
 
 
 

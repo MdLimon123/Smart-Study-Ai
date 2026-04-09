@@ -9,6 +9,8 @@ class AppConstants{
 
   static const String TOKEN ="token";
 
+  /// Last calendar day (yyyy-MM-dd) we sent [active_days_add] for profile activity.
+  static const String profileLastActiveDay = 'profile_last_active_day';
 
   // share preference Key
   static String THEME ="theme";

@@ -1,5 +1,12 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_extension/data/api/api_client.dart';
+import 'package:flutter_extension/data/api/api_constant.dart';
+import 'package:flutter_extension/data/model/scan_result_model.dart';
+import 'package:flutter_extension/views/base/custom_snackbar.dart';
 import 'package:flutter_extension/views/screen/scan&solve/solutation_screen.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -32,10 +39,13 @@ class ScanController extends GetxController
   // ─── Animations ───
   late AnimationController scanLineController;
   late Animation<double> scanLineAnimation;
-  AnimationController? progressController;
-  Animation<double>? progressAnimation;
-  AnimationController? pulseController;
-  Animation<double>? pulseAnimation;
+
+  late AnimationController progressController;
+  late Animation<double> progressAnimation;
+  late AnimationController pulseController;
+  late Animation<double> pulseAnimation;
+
+  Timer? _analyzingStepTimer;
 
   // ─── Data ───
   final List<String> analyzingSteps = [
@@ -66,6 +76,22 @@ class ScanController extends GetxController
       CurvedAnimation(parent: scanLineController, curve: Curves.easeInOut),
     );
     scanLineController.repeat(reverse: true);
+
+    progressController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 6),
+    );
+    progressAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: progressController, curve: Curves.easeInOut),
+    );
+
+    pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 750),
+    );
+    pulseAnimation = Tween<double>(begin: 0.92, end: 1.08).animate(
+      CurvedAnimation(parent: pulseController, curve: Curves.easeInOut),
+    );
 
     if (_isActive) initCamera();
   }
@@ -164,84 +190,96 @@ class ScanController extends GetxController
     selectedSubject.value = subject;
   }
 
+  /// API expects lowercase subject (e.g. `math`).
+  String _subjectToApi(String display) => display.trim().toLowerCase();
+
+  String? _messageFromBody(dynamic body) {
+    if (body is Map) return body['message']?.toString();
+    return null;
+  }
+
+  void _startAnalyzingUi() {
+    isAnalyzing.value = true;
+    currentStep.value = 0;
+    progressController
+      ..reset()
+      ..forward();
+    pulseController.repeat(reverse: true);
+    _analyzingStepTimer?.cancel();
+    _analyzingStepTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      if (!isAnalyzing.value) return;
+      currentStep.value = (currentStep.value + 1) % analyzingSteps.length;
+    });
+  }
+
+  void _stopAnalyzingUi() {
+    _analyzingStepTimer?.cancel();
+    _analyzingStepTimer = null;
+    progressController.stop();
+    progressController.reset();
+    pulseController.stop();
+    pulseController.reset();
+    isAnalyzing.value = false;
+  }
+
   Future<void> captureAndScan() async {
+    if (selectedSubject.value == null || selectedSubject.value!.trim().isEmpty) {
+      showCustomSnackBar('Please select a subject', isError: true);
+      return;
+    }
     if (cameraController == null || !cameraController!.value.isInitialized) {
       return;
     }
 
     try {
       final image = await cameraController!.takePicture();
-      debugPrint('Image captured: ${image.path}');
-      _startAnalyzing();
+      await _submitScan(image.path);
     } catch (e) {
       debugPrint('Error capturing image: $e');
+      showCustomSnackBar('Could not capture image', isError: true);
     }
   }
 
-  void _startAnalyzing() {
+  Future<void> _submitScan(String imagePath) async {
     _disposeCamera();
     scanLineController.stop();
+    _startAnalyzingUi();
 
-    pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
-    pulseAnimation = Tween<double>(begin: 0.85, end: 1.0).animate(
-      CurvedAnimation(parent: pulseController!, curve: Curves.easeInOut),
-    );
-    pulseController!.repeat(reverse: true);
+    try {
+      final response = await ApiClient.postMultipartData(
+        ApiConstant.scanResultEndpoint,
+        {'subject': _subjectToApi(selectedSubject.value!)},
+        multipartBody: [MultipartBody('image', File(imagePath))],
+      );
 
-    progressController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 6000),
-    );
-    progressAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: progressController!, curve: Curves.easeInOut),
-    );
-    progressController!.addListener(_onProgressUpdate);
-    progressController!.forward();
-
-    isAnalyzing.value = true;
-    currentStep.value = 0;
-  }
-
-  void _onProgressUpdate() {
-    final progress = progressAnimation!.value;
-
-    int newStep;
-    if (progress < 0.25) {
-      newStep = 0;
-    } else if (progress < 0.55) {
-      newStep = 1;
-    } else if (progress < 0.80) {
-      newStep = 2;
-    } else {
-      newStep = 3;
-    }
-
-    if (newStep != currentStep.value) {
-      currentStep.value = newStep;
-    }
-
-    if (progress >= 1.0) {
-      progressController!.removeListener(_onProgressUpdate);
-      pulseController?.dispose();
-      progressController?.dispose();
-      pulseController = null;
-      progressController = null;
-      isAnalyzing.value = false;
-      _navigateToResult();
-    }
-  }
-
-  Future<void> _navigateToResult() async {
-    await Get.to(() => const SolutationScreen());
-    if (!isClosed && _isActive) {
-      initCamera();
-      try {
-        scanLineController.repeat(reverse: true);
-      } catch (e) {
-        debugPrint('scanLine repeat after result: $e');
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final body = response.body;
+        if (body is Map && body['data'] is Map) {
+          final model = ScanResultModel.fromJson(
+            Map<String, dynamic>.from(body['data'] as Map),
+          );
+          _stopAnalyzingUi();
+          await Get.to(() => SolutationScreen(result: model));
+        } else {
+          showCustomSnackBar('Invalid response', isError: true);
+        }
+      } else {
+        showCustomSnackBar(
+          _messageFromBody(response.body) ?? 'Scan failed',
+          isError: true,
+        );
+      }
+    } catch (e) {
+      showCustomSnackBar(e.toString(), isError: true);
+    } finally {
+      _stopAnalyzingUi();
+      if (!isClosed && _isActive) {
+        initCamera();
+        try {
+          scanLineController.repeat(reverse: true);
+        } catch (e) {
+          debugPrint('scanLine repeat after scan: $e');
+        }
       }
     }
   }
@@ -249,13 +287,12 @@ class ScanController extends GetxController
   @override
   void onClose() {
     WidgetsBinding.instance.removeObserver(this);
+    _analyzingStepTimer?.cancel();
+    progressController.dispose();
+    pulseController.dispose();
     scanLineController.dispose();
-    progressController?.removeListener(_onProgressUpdate);
-    progressController?.dispose();
-    pulseController?.dispose();
     final c = cameraController;
     cameraController = null;
-    // Do not assign .obs here — triggers Obx rebuild while route is unmounting (tree locked).
     if (c != null) {
       _cameraNativeIdle =
           _cameraNativeIdle.then((_) => _safeDisposeController(c));

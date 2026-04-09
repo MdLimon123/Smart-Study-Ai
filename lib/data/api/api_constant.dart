@@ -10,4 +10,12 @@ class ApiConstant {
   static const String verifyEmail = '/auth/verify-otp/';
   static const String resendOTP = '/auth/resend-otp/';
   static const String profileSetup = '/profile/setup/';
+
+  static const String getProfile = '/profile/';
+
+  static const String updateProfile = '/profile/';
+
+  static const String profileActivity = '/profile/activity/';
+
+  static const String scanResultEndpoint = '/scan/';
 }
