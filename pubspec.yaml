@@ -19,6 +19,7 @@ dependencies:
   cached_network_image:
   shimmer: 
   image_picker: ^1.1.2
+  file_picker: ^8.1.6
   camera: ^0.11.0+2
   # Camera2 implementation — avoids CameraX re-init / surface bugs when leaving & returning to scan.
   camera_android: ^0.10.10+16

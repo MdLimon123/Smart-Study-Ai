@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/controller/ai_chat_controller.dart';
+import 'package:flutter_extension/controller/profile_controller.dart';
 import 'package:flutter_extension/controller/scan_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_extension/views/base/get_greeting.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_extension/views/screen/library/library_screen.dart';
 import 'package:flutter_extension/views/screen/notifications/notification1_screen.dart';
 import 'package:flutter_extension/views/screen/scan&solve/scan_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -43,9 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      "Welcome back, Alex",
+                      "Welcome back, ${Get.find<ProfileController>().profile.value?.name ?? 'User'}",
                       style: TextStyle(
-                        fontSize: 23,
+                        fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textColor,
                       ),

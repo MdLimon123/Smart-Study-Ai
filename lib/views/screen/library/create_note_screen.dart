@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_extension/controller/library_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
+import 'package:flutter_extension/views/base/custom_snackbar.dart';
 import 'package:get/get.dart';
 
 class _Subject {
@@ -24,6 +26,8 @@ class CreateNoteScreen extends StatefulWidget {
 }
 
 class _CreateNoteScreenState extends State<CreateNoteScreen> {
+  late final LibraryController _libraryController;
+
   final _titleController = TextEditingController();
   final _bodyController = TextEditingController();
   int _selectedSubject = 0;
@@ -67,10 +71,65 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    if (!Get.isRegistered<LibraryController>()) {
+      Get.put(LibraryController());
+    }
+    _libraryController = Get.find<LibraryController>();
+  }
+
+  @override
   void dispose() {
     _titleController.dispose();
     _bodyController.dispose();
     super.dispose();
+  }
+
+  Future<void> _saveNote() async {
+    FocusScope.of(context).unfocus();
+    final title = _titleController.text;
+    final bodyText = _bodyController.text;
+    final subject = _subjects[_selectedSubject].label;
+    if (title.trim().isEmpty) {
+      showCustomSnackBar(
+        'Please enter a title',
+        isError: true,
+        getXSnackBar: true,
+      );
+      return;
+    }
+    Get.dialog(
+      const Center(child: CircularProgressIndicator(color: Color(0xFFA78BFA))),
+      barrierDismissible: false,
+    );
+    try {
+      final result = await _libraryController.createNote(
+        title: title,
+        content: bodyText,
+        subject: subject,
+      );
+      if (Get.isDialogOpen ?? false) {
+        Get.back(closeOverlays: false);
+      }
+      if (result.success && mounted) {
+        Get.back(closeOverlays: false);
+        _libraryController.fetchNotes();
+      }
+      if (result.message.isNotEmpty) {
+        Future.microtask(() {
+          showCustomSnackBar(
+            result.message,
+            isError: !result.success,
+            getXSnackBar: true,
+          );
+        });
+      }
+    } catch (_) {
+      if (Get.isDialogOpen ?? false) {
+        Get.back(closeOverlays: false);
+      }
+    }
   }
 
   @override
@@ -79,68 +138,73 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
       backgroundColor: const Color(0xFF0F0F1A),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
-        title: Row(
-          children: [
-            InkWell(
-              onTap: () => Get.back(),
-              child: Container(
-                height: 40,
-                width: 40,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: AppColors.textColor.withValues(alpha: 0.04),
-                ),
-                child: Center(
-                  child: Icon(Icons.arrow_back, color: AppColors.textColor),
-                ),
-              ),
+        leadingWidth: 56,
+        leading: InkWell(
+          onTap: () => Get.back(),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: AppColors.textColor.withValues(alpha: 0.04),
             ),
-            const SizedBox(width: 16),
-            Text(
-              "Create Note",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textColor,
-              ),
-            ),
-            const Spacer(),
-            GestureDetector(
-              onTap: () {
-                Get.back();
-              },
-              child: Container(
-                width: 82,
-                height: 36,
-                decoration: BoxDecoration(
+            child: Icon(Icons.arrow_back, color: AppColors.textColor),
+          ),
+        ),
+        title: Text(
+          'Create Note',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textColor,
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Center(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: _saveNote,
                   borderRadius: BorderRadius.circular(14),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.check, color: AppColors.textColor, size: 18),
-                    const SizedBox(width: 4),
-                    Text(
-                      "Save",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textColor,
+                  child: Ink(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
                       ),
                     ),
-                  ],
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.check, color: AppColors.textColor, size: 18),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Save',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-      
-      
+
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -149,6 +213,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
             children: [
               // Title field
               TextFormField(
+                
                 controller: _titleController,
                 style: TextStyle(
                   fontSize: 22,
@@ -163,7 +228,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
                     color: AppColors.textColor.withValues(alpha: 0.25),
                   ),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.zero,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
               ),
               const SizedBox(height: 12),
@@ -280,8 +345,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
                           hintText: "Start writing your note here...",
                           hintStyle: TextStyle(
                             fontSize: 14,
-                            color:
-                                AppColors.textColor.withValues(alpha: 0.25),
+                            color: AppColors.textColor.withValues(alpha: 0.25),
                           ),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.zero,

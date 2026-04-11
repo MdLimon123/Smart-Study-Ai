@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_extension/controller/library_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
+import 'package:flutter_extension/views/base/custom_snackbar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
@@ -25,6 +27,8 @@ class UplaodFolder extends StatefulWidget {
 }
 
 class _UplaodFolderState extends State<UplaodFolder> {
+  late final LibraryController _libraryController;
+
   final _nameController = TextEditingController();
   int _selectedColor = 0;
   int _selectedSubject = 0;
@@ -69,6 +73,12 @@ class _UplaodFolderState extends State<UplaodFolder> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _libraryController = Get.find<LibraryController>();
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
@@ -111,8 +121,43 @@ class _UplaodFolderState extends State<UplaodFolder> {
             ),
             const Spacer(),
             GestureDetector(
-              onTap: () {
-                Get.back();
+              onTap: () async {
+                final name = _nameController.text;
+                if (name.trim().isEmpty) {
+                  showCustomSnackBar(
+                    'Please enter a folder name',
+                    isError: true,
+                    getXSnackBar: true,
+                  );
+                  return;
+                }
+                Get.dialog(
+                  const Center(child: CircularProgressIndicator()),
+                  barrierDismissible: false,
+                );
+                try {
+                  final result = await _libraryController.createFolder(name);
+                  if (Get.isDialogOpen ?? false) {
+                    Get.back(closeOverlays: false);
+                  }
+                  if (result.success && mounted) {
+                    Get.back(closeOverlays: false);
+                    _libraryController.fetchFolders();
+                  }
+                  if (result.message.isNotEmpty) {
+                    Future.microtask(() {
+                      showCustomSnackBar(
+                        result.message,
+                        isError: !result.success,
+                        getXSnackBar: true,
+                      );
+                    });
+                  }
+                } catch (_) {
+                  if (Get.isDialogOpen ?? false) {
+                    Get.back(closeOverlays: false);
+                  }
+                }
               },
               child: Container(
                 width: 92,
@@ -297,7 +342,6 @@ class _UplaodFolderState extends State<UplaodFolder> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: color,
-                      
                       ),
                       child: isSelected
                           ? Center(

@@ -1,7 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_extension/controller/library_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
+import 'package:flutter_extension/views/base/custom_snackbar.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 
 class _Subject {
@@ -26,11 +31,82 @@ class ImageUpload extends StatefulWidget {
 }
 
 class _ImageUploadState extends State<ImageUpload> {
-
-
+  late final LibraryController _libraryController;
+  final _picker = ImagePicker();
 
   final _titleController = TextEditingController();
   int _selectedSubject = 0;
+  File? _pickedImage;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!Get.isRegistered<LibraryController>()) {
+      Get.put(LibraryController());
+    }
+    _libraryController = Get.find<LibraryController>();
+  }
+
+  Future<void> _pickImage() async {
+    final x = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 88,
+    );
+    if (x == null) return;
+    setState(() => _pickedImage = File(x.path));
+  }
+
+  Future<void> _save() async {
+    FocusScope.of(context).unfocus();
+    final title = _titleController.text;
+    final subject = _subjects[_selectedSubject].label;
+    if (title.trim().isEmpty) {
+      showCustomSnackBar(
+        'Please enter a title',
+        isError: true,
+        getXSnackBar: true,
+      );
+      return;
+    }
+    if (_pickedImage == null) {
+      showCustomSnackBar(
+        'Please select an image',
+        isError: true,
+        getXSnackBar: true,
+      );
+      return;
+    }
+    Get.dialog(
+      const Center(child: CircularProgressIndicator(color: Color(0xFFA78BFA))),
+      barrierDismissible: false,
+    );
+    try {
+      final result = await _libraryController.uploadImage(
+        subject: subject,
+        title: title,
+        imageFile: _pickedImage!,
+      );
+      if (Get.isDialogOpen ?? false) {
+        Get.back(closeOverlays: false);
+      }
+      if (result.success && mounted) {
+        Get.back(closeOverlays: false);
+      }
+      if (result.message.isNotEmpty) {
+        Future.microtask(() {
+          showCustomSnackBar(
+            result.message,
+            isError: !result.success,
+            getXSnackBar: true,
+          );
+        });
+      }
+    } catch (_) {
+      if (Get.isDialogOpen ?? false) {
+        Get.back(closeOverlays: false);
+      }
+    }
+  }
 
   final List<_Subject> _subjects = [
     _Subject(
@@ -99,10 +175,7 @@ class _ImageUploadState extends State<ImageUpload> {
             ),
             const Spacer(),
             GestureDetector(
-              onTap: () {
-               
-                Get.back();
-              },
+              onTap: _save,
               child: Container(
                 width: 82,
                 height: 36,
@@ -152,12 +225,11 @@ class _ImageUploadState extends State<ImageUpload> {
 
               // Upload area
               GestureDetector(
-                onTap: () {
-                  // TODO: file picker
-                },
+                onTap: _pickImage,
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 28),
+                  constraints: const BoxConstraints(minHeight: 140),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
                     color: AppColors.textColor.withValues(alpha: 0.04),
@@ -165,46 +237,60 @@ class _ImageUploadState extends State<ImageUpload> {
                       color: const Color(0xFF10B981).withValues(alpha: 0.25),
                     ),
                   ),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color(0xFF10B981).withValues(alpha: 0.12),
-                        ),
-                        child: Center(
-                          child: SvgPicture.asset(
-                            'assets/icon/upload_file.svg',
-                            width: 22,
-                            height: 22,
-                            colorFilter: const ColorFilter.mode(
-                              Color(0xFF10B981),
-                              BlendMode.srcIn,
+                  child: _pickedImage != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: Image.file(
+                              _pickedImage!,
+                              fit: BoxFit.cover,
                             ),
                           ),
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: const Color(0xFF10B981)
+                                    .withValues(alpha: 0.12),
+                              ),
+                              child: Center(
+                                child: SvgPicture.asset(
+                                  'assets/icon/upload_file.svg',
+                                  width: 22,
+                                  height: 22,
+                                  colorFilter: const ColorFilter.mode(
+                                    Color(0xFF10B981),
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Tap to select image',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textColor,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'JPG, PNG, GIF, WEBP supported',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color:
+                                    AppColors.textColor.withValues(alpha: 0.35),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Tap to select image',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textColor,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'JPG, PNG, GIF, WEBP supported',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textColor.withValues(alpha: 0.35),
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
               ),
               const SizedBox(height: 24),

@@ -19,4 +19,27 @@ class ApiConstant {
 
   static const String scanResultEndpoint = '/scan/';
   static const String aiResponseEndpoint = '/chat/ask/';
+
+  static const String folderCreateEndpoint = '/library/folders/';
+  static const String getFoldersEndpoint = '/library/folders/';
+  static const String notesCreateEndpoint = '/library/notes/';
+  static const String getNotesEndpoint = '/library/notes/';
+
+  static const String imageUploadEndpoint = '/library/images/';
+  static const String getImagesEndpoint = '/library/images/';
+  static const String fileUploadEndpoint = '/library/files/';
+
+  static const String getFilesEndpoint = '/library/files/';
+
+  static String deleteFolderEndpoint({required String id}) =>
+      '/library/folders/$id/';
+
+  static String deleteFileEndpoint({required String id}) =>
+      '/library/files/$id/';
+
+  static String deleteImageEndpoint({required String id}) =>
+      '/library/images/$id/';
+
+  static String deleteNoteEndpoint({required String id}) =>
+      '/library/notes/$id/';
 }
