@@ -19,6 +19,8 @@ class ApiConstant {
 
   static const String scanResultEndpoint = '/scan/';
   static const String aiResponseEndpoint = '/chat/ask/';
+  /// GET ask history (same path as POST ask in some backends).
+  static const String chatHistoryEndpoint = '/chat/ask/';
 
   static const String folderCreateEndpoint = '/library/folders/';
   static const String getFoldersEndpoint = '/library/folders/';
@@ -42,4 +44,43 @@ class ApiConstant {
 
   static String deleteNoteEndpoint({required String id}) =>
       '/library/notes/$id/';
+
+  /// PATCH rename / partial update — each library type has its own URL (body e.g. `{ "title": "..." }`).
+  static String editFolderEndpoint({required String id}) =>
+      '/library/folders/$id/';
+
+  static String editNoteEndpoint({required String id}) =>
+      '/library/notes/$id/';
+
+  static String editImageEndpoint({required String id}) =>
+      '/library/images/$id/';
+
+  static String editFileEndpoint({required String id}) =>
+      '/library/files/$id/';
+
+
+  static const String twoFactorAuthEndpoint = '/2fa/send/';
+
+  static const String twoFactorVerifyEndpoint = '/2fa/verify/';
+
+  static String searchEndpoint({required String query}) =>
+      '/library/search/?q=$query';
+
+  static String getFolderDetailsEndpoint({required String id}) =>
+      '/library/folders/$id/contents/';
+
+  static const String getAllLibraryItemsEndpoint = '/library/overview/';
+
+  static String getSpecificNoteEndpoint({required String id}) =>
+      '/library/notes/$id/';
+
+  static String getSpecificImageEndpoint({required String id}) =>
+      '/library/images/$id/';
+
+  static String getSpecificFileEndpoint({required String id}) =>
+      '/library/files/$id/';
+
+static const String chatHistoryDeleteEndpoint = '/chat/ask/';   
+
+static const String scanHistoryEndpoint = '/scan/history/';
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_extension/controller/library_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_extension/views/base/custom_snackbar.dart';
@@ -18,19 +19,16 @@ class _Subject {
   });
 }
 
-
-
-class CreateNoteScreen extends StatefulWidget {
-  const CreateNoteScreen({super.key});
+class FolderCreateNotesScreen extends StatefulWidget {
+  final String id;
+  const FolderCreateNotesScreen({super.key, required this.id});
 
   @override
-  State<CreateNoteScreen> createState() => _CreateNoteScreenState();
+  State<FolderCreateNotesScreen> createState() =>
+      _FolderCreateNotesScreenState();
 }
 
-class _CreateNoteScreenState extends State<CreateNoteScreen> {
-
-
-
+class _FolderCreateNotesScreenState extends State<FolderCreateNotesScreen> {
   late final LibraryController _libraryController;
 
   final _titleController = TextEditingController();
@@ -109,10 +107,11 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
       barrierDismissible: false,
     );
     try {
-      final result = await _libraryController.createNote(
+      final result = await _libraryController.createNoteInFolder(
         title: title,
         content: bodyText,
         subject: subject,
+        folderId: widget.id,
       );
       if (Get.isDialogOpen ?? false) {
         Get.back(closeOverlays: false);
@@ -218,7 +217,6 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
             children: [
               // Title field
               TextFormField(
-                
                 controller: _titleController,
                 style: TextStyle(
                   fontSize: 22,
@@ -233,7 +231,10 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
                     color: AppColors.textColor.withValues(alpha: 0.25),
                   ),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -413,7 +414,4 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
       ),
     );
   }
-
-
-
 }

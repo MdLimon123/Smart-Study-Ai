@@ -1,13 +1,13 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_extension/controller/library_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_extension/views/base/custom_snackbar.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-
 
 class _Subject {
   final String label;
@@ -23,24 +23,21 @@ class _Subject {
   });
 }
 
-
-
-class ImageUpload extends StatefulWidget {
-  const ImageUpload({super.key});
+class FolderFileUpload extends StatefulWidget {
+  final String id;
+  const FolderFileUpload({super.key, required this.id});
 
   @override
-  State<ImageUpload> createState() => _ImageUploadState();
+  State<FolderFileUpload> createState() => _FolderFileUploadState();
 }
 
-class _ImageUploadState extends State<ImageUpload> {
-
-  
+class _FolderFileUploadState extends State<FolderFileUpload> {
   late final LibraryController _libraryController;
-  final _picker = ImagePicker();
 
   final _titleController = TextEditingController();
   int _selectedSubject = 0;
-  File? _pickedImage;
+  File? _pickedFile;
+  String? _pickedFileName;
 
   @override
   void initState() {
@@ -51,13 +48,31 @@ class _ImageUploadState extends State<ImageUpload> {
     _libraryController = Get.find<LibraryController>();
   }
 
-  Future<void> _pickImage() async {
-    final x = await _picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 88,
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: [
+        'pdf',
+        'doc',
+        'docx',
+        'ppt',
+        'pptx',
+        'xls',
+        'xlsx',
+        'txt',
+        'rtf',
+        'csv',
+      ],
+      withData: false,
     );
-    if (x == null) return;
-    setState(() => _pickedImage = File(x.path));
+    if (result == null || result.files.isEmpty) return;
+    final f = result.files.single;
+    final path = f.path;
+    if (path == null) return;
+    setState(() {
+      _pickedFile = File(path);
+      _pickedFileName = f.name;
+    });
   }
 
   Future<void> _save() async {
@@ -72,9 +87,9 @@ class _ImageUploadState extends State<ImageUpload> {
       );
       return;
     }
-    if (_pickedImage == null) {
+    if (_pickedFile == null) {
       showCustomSnackBar(
-        'Please select an image',
+        'Please select a file',
         isError: true,
         getXSnackBar: true,
       );
@@ -85,10 +100,11 @@ class _ImageUploadState extends State<ImageUpload> {
       barrierDismissible: false,
     );
     try {
-      final result = await _libraryController.uploadImage(
+      final result = await _libraryController.uploadFileInFolder(
         subject: subject,
         title: title,
-        imageFile: _pickedImage!,
+        folderId: widget.id,
+        file: _pickedFile!,
       );
       if (Get.isDialogOpen ?? false) {
         Get.back(closeOverlays: false);
@@ -170,7 +186,7 @@ class _ImageUploadState extends State<ImageUpload> {
             ),
             const SizedBox(width: 16),
             Text(
-              "Upload Image",
+              "Upload File",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -229,11 +245,13 @@ class _ImageUploadState extends State<ImageUpload> {
 
               // Upload area
               GestureDetector(
-                onTap: _pickImage,
+                onTap: _pickFile,
                 child: Container(
                   width: double.infinity,
-                  constraints: const BoxConstraints(minHeight: 140),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: EdgeInsets.symmetric(
+                    vertical: _pickedFile != null ? 16 : 28,
+                    horizontal: 16,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
                     color: AppColors.textColor.withValues(alpha: 0.04),
@@ -241,27 +259,70 @@ class _ImageUploadState extends State<ImageUpload> {
                       color: const Color(0xFF10B981).withValues(alpha: 0.25),
                     ),
                   ),
-                  child: _pickedImage != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: Image.file(
-                              _pickedImage!,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        )
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                  child: _pickedFile != null
+                      ? Row(
                           children: [
                             Container(
                               width: 48,
                               height: 48,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: const Color(0xFF10B981)
-                                    .withValues(alpha: 0.12),
+                                color: const Color(
+                                  0xFF10B981,
+                                ).withValues(alpha: 0.12),
+                              ),
+                              child: Center(
+                                child: SvgPicture.asset(
+                                  'assets/icon/files.svg',
+                                  width: 22,
+                                  height: 22,
+                                  colorFilter: const ColorFilter.mode(
+                                    Color(0xFF10B981),
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _pickedFileName ?? 'Selected file',
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textColor,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Tap to change file',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textColor.withValues(
+                                        alpha: 0.35,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: const Color(
+                                  0xFF10B981,
+                                ).withValues(alpha: 0.12),
                               ),
                               child: Center(
                                 child: SvgPicture.asset(
@@ -277,7 +338,7 @@ class _ImageUploadState extends State<ImageUpload> {
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              'Tap to select image',
+                              'Tap to select file',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -286,11 +347,12 @@ class _ImageUploadState extends State<ImageUpload> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'JPG, PNG, GIF, WEBP supported',
+                              'PDF, DOC, PPT, XLS, TXT',
                               style: TextStyle(
                                 fontSize: 12,
-                                color:
-                                    AppColors.textColor.withValues(alpha: 0.35),
+                                color: AppColors.textColor.withValues(
+                                  alpha: 0.35,
+                                ),
                               ),
                             ),
                           ],
@@ -314,10 +376,7 @@ class _ImageUploadState extends State<ImageUpload> {
               // Title field
               TextField(
                 controller: _titleController,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textColor,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.textColor),
                 decoration: InputDecoration(
                   hintText: 'e.g. Biology Textbook Ch3',
                   hintStyle: TextStyle(
@@ -383,11 +442,7 @@ class _ImageUploadState extends State<ImageUpload> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Image.asset(
-                                subject.image,
-                                width: 16,
-                                height: 16,
-                              ),
+                              Image.asset(subject.image, width: 16, height: 16),
                               const SizedBox(width: 6),
                               Text(
                                 subject.label,
@@ -456,7 +511,4 @@ class _ImageUploadState extends State<ImageUpload> {
       ),
     );
   }
-
-
-
 }

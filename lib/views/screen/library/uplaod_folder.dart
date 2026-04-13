@@ -142,7 +142,7 @@ class _UplaodFolderState extends State<UplaodFolder> {
                   }
                   if (result.success && mounted) {
                     Get.back(closeOverlays: false);
-                    _libraryController.fetchFolders();
+                    _libraryController.fetchLibraryOverview();
                   }
                   if (result.message.isNotEmpty) {
                     Future.microtask(() {

@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_extension/controller/library_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_extension/views/base/custom_snackbar.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-
 
 class _Subject {
   final String label;
@@ -23,18 +23,15 @@ class _Subject {
   });
 }
 
-
-
-class ImageUpload extends StatefulWidget {
-  const ImageUpload({super.key});
+class FolderImageUpload extends StatefulWidget {
+  final String id;
+  const FolderImageUpload({super.key, required this.id});
 
   @override
-  State<ImageUpload> createState() => _ImageUploadState();
+  State<FolderImageUpload> createState() => _FolderImageUploadState();
 }
 
-class _ImageUploadState extends State<ImageUpload> {
-
-  
+class _FolderImageUploadState extends State<FolderImageUpload> {
   late final LibraryController _libraryController;
   final _picker = ImagePicker();
 
@@ -85,10 +82,11 @@ class _ImageUploadState extends State<ImageUpload> {
       barrierDismissible: false,
     );
     try {
-      final result = await _libraryController.uploadImage(
+      final result = await _libraryController.uploadImageInFolder(
         subject: subject,
         title: title,
         imageFile: _pickedImage!,
+        folderId: widget.id,
       );
       if (Get.isDialogOpen ?? false) {
         Get.back(closeOverlays: false);
@@ -246,10 +244,7 @@ class _ImageUploadState extends State<ImageUpload> {
                           borderRadius: BorderRadius.circular(10),
                           child: AspectRatio(
                             aspectRatio: 16 / 9,
-                            child: Image.file(
-                              _pickedImage!,
-                              fit: BoxFit.cover,
-                            ),
+                            child: Image.file(_pickedImage!, fit: BoxFit.cover),
                           ),
                         )
                       : Column(
@@ -260,8 +255,9 @@ class _ImageUploadState extends State<ImageUpload> {
                               height: 48,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: const Color(0xFF10B981)
-                                    .withValues(alpha: 0.12),
+                                color: const Color(
+                                  0xFF10B981,
+                                ).withValues(alpha: 0.12),
                               ),
                               child: Center(
                                 child: SvgPicture.asset(
@@ -289,8 +285,9 @@ class _ImageUploadState extends State<ImageUpload> {
                               'JPG, PNG, GIF, WEBP supported',
                               style: TextStyle(
                                 fontSize: 12,
-                                color:
-                                    AppColors.textColor.withValues(alpha: 0.35),
+                                color: AppColors.textColor.withValues(
+                                  alpha: 0.35,
+                                ),
                               ),
                             ),
                           ],
@@ -314,10 +311,7 @@ class _ImageUploadState extends State<ImageUpload> {
               // Title field
               TextField(
                 controller: _titleController,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textColor,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.textColor),
                 decoration: InputDecoration(
                   hintText: 'e.g. Biology Textbook Ch3',
                   hintStyle: TextStyle(
@@ -383,11 +377,7 @@ class _ImageUploadState extends State<ImageUpload> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Image.asset(
-                                subject.image,
-                                width: 16,
-                                height: 16,
-                              ),
+                              Image.asset(subject.image, width: 16, height: 16),
                               const SizedBox(width: 6),
                               Text(
                                 subject.label,
@@ -456,7 +446,4 @@ class _ImageUploadState extends State<ImageUpload> {
       ),
     );
   }
-
-
-
 }

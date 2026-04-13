@@ -2,7 +2,6 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart' as Foundation;
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/data/api/api_constant.dart';
 import 'package:get/get.dart';
@@ -106,6 +105,42 @@ class ApiClient extends GetxService {
           .patch(
             Uri.parse(baseUrl + uri),
             body: jsonEncode(body),
+            headers: h,
+          )
+          .timeout(Duration(seconds: timeoutInSeconds));
+
+      return handleResponse(response, uri);
+    } catch (e) {
+      return Response(statusCode: 1, statusText: noInternetMessage);
+    }
+  }
+
+  /// PATCH with `application/x-www-form-urlencoded` — use when JSON PATCH returns 415 on
+  /// some library routes (DRF parsers).
+  static Future<Response> patchUrlEncoded(
+    String uri,
+    Map<String, String> body, {
+    Map<String, String>? headers,
+  }) async {
+    try {
+      await loadPrefs();
+      final h = _resolveHeaders({
+        'Content-Type': 'application/x-www-form-urlencoded',
+        ...?headers,
+      });
+      final encoded = body.entries
+          .map(
+            (e) =>
+                '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value)}',
+          )
+          .join('&');
+      debugPrint(
+        '====> API Call: PATCH $uri (urlencoded)\nHeader: $h \nBody: $encoded',
+      );
+      http.Response response = await client
+          .patch(
+            Uri.parse(baseUrl + uri),
+            body: encoded,
             headers: h,
           )
           .timeout(Duration(seconds: timeoutInSeconds));

@@ -1,114 +1,20 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/controller/library_controller.dart';
+import 'package:flutter_extension/data/model/library_folder_model.dart';
 import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_extension/views/base/custom_text_field.dart';
 import 'package:flutter_extension/views/screen/library/create_note_screen.dart';
+import 'package:flutter_extension/views/screen/library/folderDetails/folder_details.dart';
 import 'package:flutter_extension/views/screen/library/image_upload.dart';
 import 'package:flutter_extension/views/screen/library/problem_solution_screen.dart';
 import 'package:flutter_extension/views/screen/library/uplaod_folder.dart';
 import 'package:flutter_extension/views/screen/library/upload_file.dart';
 import 'package:flutter_extension/views/base/custom_snackbar.dart';
+import 'package:flutter_extension/views/screen/library/library_content_ui.dart';
+import 'package:flutter_extension/views/screen/library/library_item.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-
-class LibraryItem {
-  final String title;
-  final String subject;
-  final Color subjectColor;
-  final String date;
-  final String size;
-  final IconData? icon;
-  final String? svgIcon;
-  final Color iconColor;
-  final String type;
-
-  LibraryItem({
-    required this.title,
-    required this.subject,
-    required this.subjectColor,
-    required this.date,
-    required this.size,
-    this.icon,
-    this.svgIcon,
-    required this.iconColor,
-    required this.type,
-  });
-}
-
-// ─── Sample Data ───
-final List<LibraryItem> allItems = [
-  LibraryItem(
-    title: 'Calculus Chapter 5',
-    subject: 'Mathematics',
-    subjectColor: const Color(0xFF6366F1),
-    date: 'Today',
-    size: '12 KB',
-    svgIcon: 'assets/icon/math.svg',
-    iconColor: const Color(0xFF6366F1),
-    type: 'note',
-  ),
-  LibraryItem(
-    title: 'Chemistry Lab Notes',
-    subject: 'Chemistry',
-    subjectColor: const Color(0xFF10B981),
-    date: 'Yesterday',
-    size: '2.4 MB',
-    icon: Icons.science,
-    iconColor: Color(0xFF10B981),
-    type: 'note',
-  ),
-  LibraryItem(
-    title: "Newton's Laws Summary",
-    subject: 'Physics',
-    subjectColor: Color(0xFFF59E0B),
-    date: 'Feb 22',
-    size: '8 KB',
-    icon: Icons.bolt,
-    iconColor: Color(0xFFF59E0B),
-    type: 'note',
-  ),
-  LibraryItem(
-    title: 'Biology Textbook Ch3',
-    subject: 'Biology',
-    subjectColor: Color(0xFFEF4444),
-    date: 'Feb 20',
-    size: '4.1 MB',
-    icon: Icons.rocket_launch,
-    iconColor: Color(0xFFEF4444),
-    type: 'upload',
-  ),
-  LibraryItem(
-    title: 'WWII Timeline',
-    subject: 'History',
-    subjectColor: Color(0xFF8B5CF6),
-    date: 'Feb 18',
-    size: '15 KB',
-    icon: Icons.menu_book,
-    iconColor: Color(0xFF8B5CF6),
-    type: 'image',
-  ),
-  LibraryItem(
-    title: 'Organic Structure Diagrams',
-    subject: 'Chemistry',
-    subjectColor: Color(0xFF10B981),
-    date: 'Feb 15',
-    size: '1.8 MB',
-    icon: Icons.science,
-    iconColor: Color(0xFF10B981),
-    type: 'image',
-  ),
-  LibraryItem(
-    title: 'Physics Lab Report',
-    subject: 'Physics',
-    subjectColor: Color(0xFFF59E0B),
-    date: 'Feb 12',
-    size: '3.2 MB',
-    icon: Icons.bolt,
-    iconColor: Color(0xFFF59E0B),
-    type: 'upload',
-  ),
-];
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -126,6 +32,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
   void initState() {
     super.initState();
     _libraryController = Get.find<LibraryController>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _libraryController.fetchLibraryOverview();
+    });
   }
 
   String _folderDateLabel(String iso) {
@@ -157,21 +66,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
         return const Color(0xFFEF4444);
       default:
         return const Color(0xFF10B981);
-    }
-  }
-
-  List<LibraryItem> get _filteredItems {
-    switch (_selectedTab) {
-      case 1:
-        return allItems.where((e) => e.type == 'note').toList();
-      case 2:
-        return allItems.where((e) => e.type == 'image').toList();
-      case 3:
-        return allItems.where((e) => e.type == 'upload').toList();
-      case 4:
-        return allItems.where((e) => e.type == 'folder').toList();
-      default:
-        return allItems;
     }
   }
 
@@ -248,10 +142,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
                     Row(
                       children: [
-                        _customContainer(
-                          icon: 'assets/icon/files.svg',
-                          title: "24",
-                          subtitle: "Files",
+                        Obx(
+                          () => _customContainer(
+                            icon: 'assets/icon/files.svg',
+                            title: '${_libraryController.notes.length}',
+                            subtitle: 'Files',
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Obx(
@@ -262,10 +158,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        _customContainer(
-                          icon: 'assets/icon/book_mark.svg',
-                          title: "12",
-                          subtitle: "Bookmarks",
+                        Obx(
+                          () => _customContainer(
+                            icon: 'assets/icon/book_mark.svg',
+                            title: '${_libraryController.images.length}',
+                            subtitle: 'Bookmarks',
+                          ),
                         ),
                       ],
                     ),
@@ -281,18 +179,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           child: GestureDetector(
                             onTap: () {
                               setState(() => _selectedTab = index);
-                              if (index == 1) {
-                                _libraryController.fetchNotes();
-                              }
-                              if (index == 2) {
-                                _libraryController.fetchImages();
-                              }
-                              if (index == 3) {
-                                _libraryController.fetchFiles();
-                              }
-                              if (index == 4) {
-                                _libraryController.fetchFolders();
-                              }
+                              _libraryController.fetchLibraryOverview();
                             },
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
@@ -348,153 +235,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           ? _buildImagesList()
                           : _selectedTab == 3
                           ? _buildFilesList()
-                          : ListView.builder(
-                              itemCount: _filteredItems.length,
-                              padding: EdgeInsets.zero,
-                              itemBuilder: (context, index) {
-                                final item = _filteredItems[index];
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 4),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(14),
-                                    color: AppColors.textColor.withValues(
-                                      alpha: 0.04,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 44,
-                                        height: 44,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: item.iconColor.withValues(
-                                            alpha: 0.15,
-                                          ),
-                                        ),
-                                        child: Center(
-                                          child: item.svgIcon != null
-                                              ? SvgPicture.asset(
-                                                  item.svgIcon!,
-                                                  width: 20,
-                                                  height: 20,
-                                                  colorFilter: ColorFilter.mode(
-                                                    item.iconColor,
-                                                    BlendMode.srcIn,
-                                                  ),
-                                                )
-                                              : Icon(
-                                                  item.icon,
-                                                  color: item.iconColor,
-                                                  size: 20,
-                                                ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              item.title,
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                color: AppColors.textColor,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  item.subject,
-                                                  style: TextStyle(
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: item.subjectColor,
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 6,
-                                                      ),
-                                                  child: Icon(
-                                                    Icons.circle,
-                                                    size: 3,
-                                                    color: AppColors.textColor
-                                                        .withValues(
-                                                          alpha: 0.25,
-                                                        ),
-                                                  ),
-                                                ),
-                                                Icon(
-                                                  Icons.access_time,
-                                                  size: 12,
-                                                  color: AppColors.textColor
-                                                      .withValues(alpha: 0.35),
-                                                ),
-                                                const SizedBox(width: 3),
-                                                Text(
-                                                  item.date,
-                                                  style: TextStyle(
-                                                    fontSize: 11,
-                                                    color: AppColors.textColor
-                                                        .withValues(
-                                                          alpha: 0.35,
-                                                        ),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 6,
-                                                      ),
-                                                  child: Icon(
-                                                    Icons.circle,
-                                                    size: 3,
-                                                    color: AppColors.textColor
-                                                        .withValues(
-                                                          alpha: 0.25,
-                                                        ),
-                                                  ),
-                                                ),
-                                                Text(
-                                                  item.size,
-                                                  style: TextStyle(
-                                                    fontSize: 11,
-                                                    color: AppColors.textColor
-                                                        .withValues(
-                                                          alpha: 0.35,
-                                                        ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () =>
-                                            _showItemMenu(context, item),
-                                        child: Icon(
-                                          Icons.more_vert,
-                                          color: AppColors.textColor.withValues(
-                                            alpha: 0.35,
-                                          ),
-                                          size: 20,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
+                          : _buildOverviewAllList(),
                     ),
                   ],
                 ),
@@ -517,6 +258,256 @@ class _LibraryScreenState extends State<LibraryScreen> {
     if (t.isEmpty) return 'No content';
     if (t.length <= 80) return t;
     return '${t.substring(0, 80)}…';
+  }
+
+  Widget _overviewSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textColor.withValues(alpha: 0.55),
+          letterSpacing: 0.4,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOverviewAllList() {
+    return Obx(() {
+      final loading = _libraryController.isNotesLoading.value ||
+          _libraryController.isImagesLoading.value ||
+          _libraryController.isFoldersLoading.value ||
+          _libraryController.isFilesLoading.value;
+      if (loading) {
+        return const Center(
+          child: CircularProgressIndicator(color: Color(0xFFA78BFA)),
+        );
+      }
+      final err = _libraryController.notesError.value ??
+          _libraryController.imagesError.value ??
+          _libraryController.foldersError.value ??
+          _libraryController.filesError.value;
+      if (err != null && err.isNotEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  err,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textColor.withValues(alpha: 0.70),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: () => _libraryController.fetchLibraryOverview(),
+                  child: Text(
+                    'Retry',
+                    style: TextStyle(
+                      color: AppColors.textColor.withValues(alpha: 0.90),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+      final notes = _libraryController.notes;
+      final images = _libraryController.images;
+      final folders = _libraryController.folders;
+      final files = _libraryController.files;
+      if (notes.isEmpty &&
+          images.isEmpty &&
+          folders.isEmpty &&
+          files.isEmpty) {
+        return Center(
+          child: Text(
+            'Nothing in your library yet',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.textColor.withValues(alpha: 0.45),
+            ),
+          ),
+        );
+      }
+      final children = <Widget>[];
+      void appendSection(String title, List<Widget> tiles) {
+        if (tiles.isEmpty) return;
+        if (children.isNotEmpty) {
+          children.add(const SizedBox(height: 12));
+        }
+        children.add(_overviewSectionHeader(title));
+        children.addAll(tiles);
+      }
+
+      appendSection(
+        'Notes',
+        notes
+            .map(
+              (n) => LibraryContentUi.noteTile(
+                context,
+                _libraryController,
+                n,
+              ),
+            )
+            .toList(),
+      );
+      appendSection(
+        'Images',
+        images
+            .map(
+              (img) => LibraryContentUi.imageTile(
+                context,
+                _libraryController,
+                img,
+              ),
+            )
+            .toList(),
+      );
+      appendSection(
+        'Folders',
+        folders.map(_folderListTile).toList(),
+      );
+      appendSection(
+        'Uploads',
+        files
+            .map(
+              (f) => LibraryContentUi.fileTile(
+                context,
+                _libraryController,
+                f,
+              ),
+            )
+            .toList(),
+      );
+
+      return ListView(
+        padding: EdgeInsets.zero,
+        children: children,
+      );
+    });
+  }
+
+  Widget _folderListTile(LibraryFolderModel f) {
+    return GestureDetector(
+      onTap: () => Get.to(() => FolderDetails(id: f.id)),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          color: AppColors.textColor.withValues(alpha: 0.04),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFFA78BFA).withValues(alpha: 0.15),
+              ),
+              child: Center(
+                child: SvgPicture.asset(
+                  'assets/icon/folder.svg',
+                  width: 22,
+                  height: 22,
+                  colorFilter: const ColorFilter.mode(
+                    Color(0xFFA78BFA),
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    f.name,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textColor,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Created · ${_folderDateLabel(f.createdAt)}',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textColor.withValues(alpha: 0.35),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: () => _showLibraryActionsMenu(
+                context,
+                leading: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    color: const Color(0xFFA78BFA).withValues(alpha: 0.09),
+                  ),
+                  child: Center(
+                    child: SvgPicture.asset(
+                      'assets/icon/folder.svg',
+                      width: 20,
+                      height: 20,
+                      colorFilter: const ColorFilter.mode(
+                        Color(0xFFA78BFA),
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
+                ),
+                title: f.name,
+                subtitle: 'Created · ${_folderDateLabel(f.createdAt)}',
+                renameItem: LibraryItem(
+                  id: f.id,
+                  title: f.name,
+                  subject: 'Folder',
+                  subjectColor: const Color(0xFFA78BFA),
+                  date: _folderDateLabel(f.createdAt),
+                  size: 'Folder',
+                  svgIcon: 'assets/icon/folder.svg',
+                  iconColor: const Color(0xFFA78BFA),
+                  type: 'folder',
+                ),
+                onDelete: () async {
+                  final result = await _libraryController.deleteFolder(f.id);
+                  if (!context.mounted) return;
+                  Future.microtask(() {
+                    showCustomSnackBar(
+                      result.message,
+                      isError: !result.success,
+                      getXSnackBar: true,
+                    );
+                  });
+                },
+              ),
+              child: Icon(
+                Icons.more_vert,
+                color: AppColors.textColor.withValues(alpha: 0.35),
+                size: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildNotesList() {
@@ -544,7 +535,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 ),
                 const SizedBox(height: 12),
                 TextButton(
-                  onPressed: () => _libraryController.fetchNotes(),
+                  onPressed: () => _libraryController.fetchLibraryOverview(),
                   child: Text(
                     'Retry',
                     style: TextStyle(
@@ -694,6 +685,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     subtitle:
                         '${_subjectLabel(n.subject)} · ${_folderDateLabel(n.createdAt)}',
                     renameItem: LibraryItem(
+                      id: n.id,
                       title: n.title.isEmpty ? 'Untitled' : n.title,
                       subject: _subjectLabel(n.subject),
                       subjectColor: const Color(0xFF6366F1),
@@ -754,7 +746,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 ),
                 const SizedBox(height: 12),
                 TextButton(
-                  onPressed: () => _libraryController.fetchImages(),
+                  onPressed: () => _libraryController.fetchLibraryOverview(),
                   child: Text(
                     'Retry',
                     style: TextStyle(
@@ -961,6 +953,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     subtitle:
                         '${_subjectLabel(img.subject)} · ${_formatFileSize(img.fileSizeBytes)}',
                     renameItem: LibraryItem(
+                      id: img.id,
                       title: img.title.isEmpty ? 'Untitled' : img.title,
                       subject: _subjectLabel(img.subject),
                       subjectColor: accent,
@@ -998,6 +991,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
     });
   }
 
+
+
   Widget _buildFilesList() {
     const fileAccent = Color(0xFF10B981);
     return Obx(() {
@@ -1024,7 +1019,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 ),
                 const SizedBox(height: 12),
                 TextButton(
-                  onPressed: () => _libraryController.fetchFiles(),
+                  onPressed: () => _libraryController.fetchLibraryOverview(),
                   child: Text(
                     'Retry',
                     style: TextStyle(
@@ -1195,6 +1190,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     subtitle:
                         '${_subjectLabel(file.subject)} · ${_formatFileSize(file.fileSizeBytes)}',
                     renameItem: LibraryItem(
+                      id: file.id,
                       title: file.title.isEmpty ? 'Untitled' : file.title,
                       subject: _subjectLabel(file.subject),
                       subjectColor: accent,
@@ -1232,6 +1228,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
     });
   }
 
+
+
   Widget _buildFoldersList() {
     return Obx(() {
       if (_libraryController.isFoldersLoading.value) {
@@ -1257,7 +1255,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 ),
                 const SizedBox(height: 12),
                 TextButton(
-                  onPressed: () => _libraryController.fetchFolders(),
+                  onPressed: () => _libraryController.fetchLibraryOverview(),
                   child: Text(
                     'Retry',
                     style: TextStyle(
@@ -1285,150 +1283,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
       return ListView.builder(
         itemCount: list.length,
         padding: EdgeInsets.zero,
-        itemBuilder: (context, index) {
-          final f = list[index];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              color: AppColors.textColor.withValues(alpha: 0.04),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: const Color(0xFFA78BFA).withValues(alpha: 0.15),
-                  ),
-                  child: Center(
-                    child: SvgPicture.asset(
-                      'assets/icon/folder.svg',
-                      width: 22,
-                      height: 22,
-                      colorFilter: const ColorFilter.mode(
-                        Color(0xFFA78BFA),
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        f.name,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textColor,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Created · ${_folderDateLabel(f.createdAt)}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textColor.withValues(alpha: 0.35),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => _showLibraryActionsMenu(
-                    context,
-                    leading: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(14),
-                        color: const Color(0xFFA78BFA).withValues(alpha: 0.09),
-                      ),
-                      child: Center(
-                        child: SvgPicture.asset(
-                          'assets/icon/folder.svg',
-                          width: 20,
-                          height: 20,
-                          colorFilter: const ColorFilter.mode(
-                            Color(0xFFA78BFA),
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ),
-                    ),
-                    title: f.name,
-                    subtitle: 'Created · ${_folderDateLabel(f.createdAt)}',
-                    renameItem: LibraryItem(
-                      title: f.name,
-                      subject: 'Folder',
-                      subjectColor: const Color(0xFFA78BFA),
-                      date: _folderDateLabel(f.createdAt),
-                      size: 'Folder',
-                      svgIcon: 'assets/icon/folder.svg',
-                      iconColor: const Color(0xFFA78BFA),
-                      type: 'folder',
-                    ),
-                    onDelete: () async {
-                      final result = await _libraryController.deleteFolder(
-                        f.id,
-                      );
-                      if (!context.mounted) return;
-                      Future.microtask(() {
-                        showCustomSnackBar(
-                          result.message,
-                          isError: !result.success,
-                          getXSnackBar: true,
-                        );
-                      });
-                    },
-                  ),
-                  child: Icon(
-                    Icons.more_vert,
-                    color: AppColors.textColor.withValues(alpha: 0.35),
-                    size: 20,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+        itemBuilder: (context, index) => _folderListTile(list[index]),
       );
     });
-  }
-
-  void _showItemMenu(BuildContext context, LibraryItem item) {
-    _showLibraryActionsMenu(
-      context,
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          color: const Color(0xFFA78BFA).withValues(alpha: 0.09),
-        ),
-        child: Center(
-          child: item.svgIcon != null
-              ? SvgPicture.asset(
-                  item.svgIcon!,
-                  width: 20,
-                  height: 20,
-                  colorFilter: ColorFilter.mode(
-                    item.iconColor,
-                    BlendMode.srcIn,
-                  ),
-                )
-              : Icon(item.icon, color: item.iconColor, size: 20),
-        ),
-      ),
-      title: item.title,
-      subtitle: '${item.subject} · ${item.size}',
-      renameItem: item,
-    );
   }
 
   void _showLibraryActionsMenu(
@@ -1438,6 +1295,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
     required String subtitle,
     required LibraryItem renameItem,
     Future<void> Function()? onDelete,
+    Future<void> Function()? afterRename,
   }) {
     showModalBottomSheet(
       context: context,
@@ -1502,7 +1360,17 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 ).withValues(alpha: 0.12),
                 label: 'Open',
                 onTap: () {
-                  Get.to(() => const ProblemSolutionScreen());
+                  Navigator.pop(context);
+                  if (renameItem.type == 'folder') {
+                    Get.to(() => FolderDetails(id: renameItem.id));
+                  } else {
+                    Get.to(
+                      () => ProblemSolutionScreen(
+                        id: renameItem.id,
+                        itemType: renameItem.type,
+                      ),
+                    );
+                  }
                 },
               ),
               _menuOption(
@@ -1514,7 +1382,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 label: 'Rename',
                 onTap: () {
                   Navigator.pop(context);
-                  _showRenameSheet(context, renameItem);
+                  _showRenameSheet(
+                    context,
+                    renameItem,
+                    afterRename: afterRename,
+                  );
                 },
               ),
               _menuOption(
@@ -1672,126 +1544,16 @@ class _LibraryScreenState extends State<LibraryScreen> {
     );
   }
 
-  void _showRenameSheet(BuildContext context, LibraryItem item) {
-    final controller = TextEditingController(text: item.title);
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E1B2E),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.textColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Rename',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textColor,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                TextField(
-                  controller: controller,
-                  autofocus: true,
-                  style: TextStyle(fontSize: 14, color: AppColors.textColor),
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: AppColors.textColor.withValues(alpha: 0.06),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          height: 44,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(14),
-                            color: AppColors.textColor.withValues(alpha: 0.08),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Cancel',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.textColor.withValues(
-                                  alpha: 0.60,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          height: 44,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(14),
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Save',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textColor,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+  void _showRenameSheet(
+    BuildContext context,
+    LibraryItem item, {
+    Future<void> Function()? afterRename,
+  }) {
+    LibraryContentUi.showRenameSheet(
+      context,
+      item,
+      _libraryController,
+      afterRename: afterRename,
     );
   }
 

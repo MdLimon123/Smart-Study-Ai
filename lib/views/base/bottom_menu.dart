@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_svg/svg.dart';
 
 class BottomMenu extends StatelessWidget {
@@ -22,7 +23,9 @@ class BottomMenu extends StatelessWidget {
           height: 22,
           width: 22,
           colorFilter: ColorFilter.mode(
-            isSelected ? const Color(0xFF7C3AED) : const Color(0xFF6B6B7B),
+            isSelected
+                ? Color(0xFFA78BFA)
+                : AppColors.textColor.withValues(alpha: 0.40),
             BlendMode.srcIn,
           ),
         ),

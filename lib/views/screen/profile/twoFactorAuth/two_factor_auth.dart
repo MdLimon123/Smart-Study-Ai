@@ -178,7 +178,7 @@ class _TwoFactorAuthState extends State<TwoFactorAuth> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFA7C3AED).withValues(alpha: 0.30),
+                        color: const Color(0xFF7C3AED).withValues(alpha: 0.30),
                         blurRadius: 24,
                         offset: const Offset(0, 8),
                       ),

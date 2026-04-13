@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_extension/controller/profile_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_extension/views/base/custom_text_field.dart';
-import 'package:flutter_extension/views/screen/profile/twoFactorAuth/two_factor_verify.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
@@ -13,6 +13,15 @@ class ConfirmEmail extends StatefulWidget {
 }
 
 class _ConfirmEmailState extends State<ConfirmEmail> {
+  final emailController = TextEditingController();
+  late final ProfileController _profileController;
+
+  @override
+  void initState() {
+    super.initState();
+    _profileController = Get.find<ProfileController>();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,51 +100,84 @@ class _ConfirmEmailState extends State<ConfirmEmail> {
               const SizedBox(height: 20),
 
               CustomTextField(
+                controller: emailController,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  return null;
+                },
                 hintText: 'alex.j@student.edu',
                 prefixIcon: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: SvgPicture.asset('assets/icon/email.svg'),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SvgPicture.asset('assets/icon/email.svg'),
+                  ),
                 ),
               ),
 
               const SizedBox(height: 20),
-              InkWell(
-                onTap: () {
-                  Get.to(() => const TwoFactorVerify());
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF7C3AED).withValues(alpha: 0.30),
-                        blurRadius: 24,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Send Code ",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textColor,
+              Obx(() {
+                final loading = _profileController.isSendingTwoFactorCode.value;
+                return InkWell(
+                  onTap: loading
+                      ? null
+                      : () => _profileController.sendTwoFactorEmailCode(
+                            emailController.text,
+                          ),
+                  child: Opacity(
+                    opacity: loading ? 0.65 : 1,
+                    child: Container(
+                      width: double.infinity,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF7C3AED)
+                                .withValues(alpha: 0.30),
+                            blurRadius: 24,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      Icon(Icons.arrow_forward, color: AppColors.textColor),
-                    ],
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (loading) ...[
+                            SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.textColor,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                          ],
+                          Text(
+                            loading ? 'Sending…' : 'Send Code ',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textColor,
+                            ),
+                          ),
+                          if (!loading) ...[
+                            const SizedBox(width: 4),
+                            Icon(Icons.arrow_forward,
+                                color: AppColors.textColor),
+                          ],
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              }),
             ],
           ),
         ),

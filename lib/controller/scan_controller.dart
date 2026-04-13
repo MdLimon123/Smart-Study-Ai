@@ -16,6 +16,7 @@ class ScanControllerTags {
   ScanControllerTags._();
   static const mainTab = 'scan_main_tab';
   static const homeModal = 'scan_home_modal';
+  static const dataControl = 'scan_data_control';
 }
 
 class ScanController extends GetxController

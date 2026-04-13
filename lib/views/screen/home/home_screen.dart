@@ -11,7 +11,6 @@ import 'package:flutter_extension/views/screen/notifications/notification1_scree
 import 'package:flutter_extension/views/screen/scan&solve/scan_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:get/route_manager.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -44,14 +43,22 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      "Welcome back, ${Get.find<ProfileController>().profile.value?.name ?? 'User'}",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textColor,
-                      ),
-                    ),
+                    Obx(() {
+                      final name =
+                          Get.find<ProfileController>().profile.value?.name;
+                      final display =
+                          (name != null && name.trim().isNotEmpty)
+                              ? name.trim()
+                              : 'User';
+                      return Text(
+                        'Welcome back, $display',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textColor,
+                        ),
+                      );
+                    }),
                   ],
                 ),
                 InkWell(

@@ -9,6 +9,7 @@ class AiChatControllerTags {
   AiChatControllerTags._();
   static const mainTab = 'ai_chat_main_tab';
   static const homeModal = 'ai_chat_home_modal';
+  static const dataControl = 'ai_chat_data_control';
 }
 
 class AiModel {
