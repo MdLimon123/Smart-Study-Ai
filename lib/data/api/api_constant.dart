@@ -83,4 +83,8 @@ class ApiConstant {
 static const String chatHistoryDeleteEndpoint = '/chat/ask/';   
 
 static const String scanHistoryEndpoint = '/scan/history/';
+
+static const String aiPersonalizationEndpoint = '/scan/ai-personalization/';
+
+
 }

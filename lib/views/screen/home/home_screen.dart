@@ -8,6 +8,7 @@ import 'package:flutter_extension/views/screen/chat/ai_chat_screen.dart';
 import 'package:flutter_extension/views/screen/home/subscreen/subject_screen.dart';
 import 'package:flutter_extension/views/screen/library/library_screen.dart';
 import 'package:flutter_extension/views/screen/notifications/notification1_screen.dart';
+import 'package:flutter_extension/views/screen/profile/dataControl/scan_history_screen.dart';
 import 'package:flutter_extension/views/screen/scan&solve/scan_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -20,6 +21,16 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.isRegistered<ProfileController>()) {
+        Get.find<ProfileController>().fetchScanHistory();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -776,45 +787,72 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: AppColors.textColor,
                         ),
                       ),
-                      const Text(
-                        "See all",
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Lato',
-                          color: Color(0xFFA78BFA),
+                      InkWell(
+                        onTap: () => Get.to(() => const ScanHistoryScreen()),
+                        borderRadius: BorderRadius.circular(8),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 2,
+                          ),
+                          child: Text(
+                            "See all",
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Lato',
+                              color: Color(0xFFA78BFA),
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
-
-                  _customContainer(
-                    title: "Mathematics",
-                    subtitle: "Quadratic Equations",
-                    backgroundColor: const Color(
-                      0xFFD6C8FF,
-                    ).withValues(alpha: 0.30),
-                    icon: 'assets/images/math.png',
-                  ),
-                  const SizedBox(height: 8),
-                  _customContainer(
-                    title: "Chemistry",
-                    subtitle: "Organic Reactions",
-                    backgroundColor: const Color(
-                      0xFF60A5FA,
-                    ).withValues(alpha: 0.30),
-                    icon: 'assets/images/che.png',
-                  ),
-                  const SizedBox(height: 8),
-                  _customContainer(
-                    title: "Physics",
-                    subtitle: "Wave Mechanics",
-                    backgroundColor: const Color(
-                      0xFF34D399,
-                    ).withValues(alpha: 0.30),
-                    icon: 'assets/images/phy.png',
-                  ),
+                  Obx(() {
+                    final pc = Get.find<ProfileController>();
+                    if (pc.isScanHistoryLoading.value &&
+                        pc.scanHistory.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Center(
+                          child: SizedBox(
+                            height: 28,
+                            width: 28,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Color(0xFFA78BFA),
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                    final items = pc.scanHistory.take(5).toList();
+                    if (items.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          'No recent activity yet',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                            fontFamily: 'Lato',
+                            color: AppColors.textColor.withValues(alpha: 0.45),
+                          ),
+                        ),
+                      );
+                    }
+                    return Column(
+                      children: [
+                        for (var i = 0; i < items.length; i++) ...[
+                          _recentActivitySubjectTile(
+                            subject: items[i].subject,
+                          ),
+                          if (i < items.length - 1) const SizedBox(height: 8),
+                        ],
+                      ],
+                    );
+                  }),
                 ],
               ),
             ),
@@ -824,12 +862,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  _customContainer({
-    required Color backgroundColor,
-    required String icon,
-    required String title,
-    required String subtitle,
-  }) {
+  /// Same card layout as the old `_customContainer`, but only the subject line (API `subject`).
+  Widget _recentActivitySubjectTile({required String subject}) {
+    final style = _subjectIconAndColor(subject);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
@@ -847,49 +882,73 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 40,
             width: 40,
             decoration: BoxDecoration(
-              color: backgroundColor,
+              color: style.$1,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Center(child: Image.asset(icon)),
+            child: Center(child: Image.asset(style.$2)),
           ),
           const SizedBox(width: 12),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w400,
-                  fontFamily: 'Lato',
-                  color: AppColors.textColor.withValues(alpha: 0.45),
-                ),
+          Expanded(
+            child: Text(
+              _formatSubjectLabel(subject),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Lato',
+                color: AppColors.textColor,
               ),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Lato',
-                  color: AppColors.textColor,
-                ),
-              ),
-            ],
-          ),
-
-          const Spacer(),
-          Text(
-            "3 min ago",
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w400,
-              fontFamily: 'Lato',
-              color: AppColors.textColor.withValues(alpha: 0.30),
             ),
           ),
         ],
       ),
     );
+  }
+
+  /// Returns `(backgroundColor, iconAsset)`.
+  (Color, String) _subjectIconAndColor(String raw) {
+    final s = raw.toLowerCase().trim();
+    if (s.contains('math')) {
+      return (
+        const Color(0xFFD6C8FF).withValues(alpha: 0.30),
+        'assets/images/math.png',
+      );
+    }
+    if (s.contains('chem')) {
+      return (
+        const Color(0xFF60A5FA).withValues(alpha: 0.30),
+        'assets/images/che.png',
+      );
+    }
+    if (s.contains('phys')) {
+      return (
+        const Color(0xFF34D399).withValues(alpha: 0.30),
+        'assets/images/phy.png',
+      );
+    }
+    if (s.contains('bio')) {
+      return (
+        const Color(0xFF34D399).withValues(alpha: 0.22),
+        'assets/images/tree.png',
+      );
+    }
+    return (
+      AppColors.textColor.withValues(alpha: 0.08),
+      'assets/images/dummy.png',
+    );
+  }
+
+  String _formatSubjectLabel(String raw) {
+    final t = raw.trim();
+    if (t.isEmpty) return 'Scan';
+    return t
+        .split(RegExp(r'\s+'))
+        .where((w) => w.isNotEmpty)
+        .map(
+          (w) =>
+              '${w[0].toUpperCase()}${w.length > 1 ? w.substring(1).toLowerCase() : ''}',
+        )
+        .join(' ');
   }
 }

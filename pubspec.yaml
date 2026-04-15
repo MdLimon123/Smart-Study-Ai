@@ -17,6 +17,7 @@ dependencies:
   flutter_svg:
   flutter_spinkit:
   cached_network_image:
+  flutter_cache_manager: ^3.4.1
   shimmer: 
   image_picker: ^1.1.2
   file_picker: ^8.1.6

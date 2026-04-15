@@ -1,28 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_extension/controller/profile_controller.dart';
+import 'package:flutter_extension/data/model/scan_history_item_model.dart';
 import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-
-class SubjectData {
-  final String name;
-  final String icon;
-  final Color iconBgColor;
-  final Color progressColor;
-  final int percentage;
-  final int practiceQuestions;
-  final List<String> topics;
-
-  SubjectData({
-    required this.name,
-    required this.icon,
-    required this.iconBgColor,
-    required this.progressColor,
-    required this.percentage,
-    required this.practiceQuestions,
-    required this.topics,
-  });
-}
 
 class SubjectScreen extends StatefulWidget {
   const SubjectScreen({super.key});
@@ -34,91 +17,56 @@ class SubjectScreen extends StatefulWidget {
 class _SubjectScreenState extends State<SubjectScreen> {
   int? _expandedIndex;
   final TextEditingController _searchController = TextEditingController();
+  Timer? _searchDebounce;
+  /// True while waiting for debounce or in-flight `?subject=` request.
+  bool _searchSubjectPending = false;
 
-  final List<SubjectData> subjects = [
-    SubjectData(
-      name: 'Mathematics',
-      icon: '∫',
-      iconBgColor: const Color(0xFF7C3AED),
-      progressColor: const Color(0xFF397DFF),
-      percentage: 72,
-      practiceQuestions: 248,
-      topics: ['Algebra', 'Calculus', 'Geometry', 'Statistics', 'Trigonometry'],
-    ),
-    SubjectData(
-      name: 'Physics',
-      icon: '⚡',
-      iconBgColor: const Color(0xFFEAB308),
-      progressColor: const Color(0xFF7C3AED),
-      percentage: 58,
-      practiceQuestions: 186,
-      topics: ['Mechanics', 'Thermodynamics', 'Optics', 'Electromagnetism'],
-    ),
-    SubjectData(
-      name: 'Chemistry',
-      icon: '🧪',
-      iconBgColor: const Color(0xFF22C55E),
-      progressColor: const Color(0xFF22C55E),
-      percentage: 45,
-      practiceQuestions: 201,
-      topics: ['Organic', 'Inorganic', 'Physical', 'Analytical'],
-    ),
-    SubjectData(
-      name: 'Biology',
-      icon: '🧬',
-      iconBgColor: const Color(0xFFF97316),
-      progressColor: const Color(0xFFF97316),
-      percentage: 63,
-      practiceQuestions: 177,
-      topics: ['Cell Biology', 'Genetics', 'Ecology', 'Anatomy'],
-    ),
-    SubjectData(
-      name: 'History',
-      icon: '📚',
-      iconBgColor: const Color(0xFF6366F1),
-      progressColor: const Color(0xFFEF4444),
-      percentage: 30,
-      practiceQuestions: 142,
-      topics: ['Ancient', 'Medieval', 'Modern', 'World Wars'],
-    ),
-    SubjectData(
-      name: 'Computer Science',
-      icon: '💻',
-      iconBgColor: const Color(0xFF06B6D4),
-      progressColor: const Color(0xFF06B6D4),
-      percentage: 55,
-      practiceQuestions: 195,
-      topics: ['Algorithms', 'Data Structures', 'Databases', 'Networking'],
-    ),
-    SubjectData(
-      name: 'English',
-      icon: '📝',
-      iconBgColor: const Color(0xFFEC4899),
-      progressColor: const Color(0xFFEC4899),
-      percentage: 68,
-      practiceQuestions: 160,
-      topics: ['Grammar', 'Literature', 'Writing', 'Vocabulary'],
-    ),
-    SubjectData(
-      name: 'Geography',
-      icon: '🌍',
-      iconBgColor: const Color(0xFF14B8A6),
-      progressColor: const Color(0xFF14B8A6),
-      percentage: 40,
-      practiceQuestions: 130,
-      topics: ['Physical', 'Human', 'Cartography', 'Climate'],
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.isRegistered<ProfileController>()) {
+        Get.find<ProfileController>().fetchScanHistory();
+      }
+    });
+  }
 
-  final List<Map<String, dynamic>> mostStudied = [
-    {'name': 'Mathematics', 'icon': '∫', 'color': Color(0xFF7C3AED)},
-    {'name': 'Computer Science', 'icon': '💻', 'color': Color(0xFF06B6D4)},
-    {'name': 'Chemistry', 'icon': '🧪', 'color': Color(0xFF22C55E)},
-    {'name': 'Physics', 'icon': '⚡', 'color': Color(0xFFEAB308)},
-  ];
+  void _onSearchChanged() {
+    final q = _searchController.text.trim();
+    if (q.isEmpty) {
+      _searchDebounce?.cancel();
+      setState(() {
+        _expandedIndex = null;
+        _searchSubjectPending = false;
+      });
+      return;
+    }
+    setState(() {
+      _expandedIndex = null;
+      _searchSubjectPending = true;
+    });
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 450), () async {
+      if (!mounted) return;
+      final trimmed = _searchController.text.trim();
+      if (trimmed.isEmpty) {
+        if (mounted) {
+          setState(() => _searchSubjectPending = false);
+        }
+        return;
+      }
+      await Get.find<ProfileController>().fetchScanHistory(subject: trimmed);
+      if (mounted) {
+        setState(() => _searchSubjectPending = false);
+      }
+    });
+  }
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
   }
@@ -153,34 +101,39 @@ class _SubjectScreenState extends State<SubjectScreen> {
               ),
             ),
             const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Subjects",
-                  style: TextStyle(
-                    fontSize: 22.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textColor,
+            Obx(() {
+              final pc = Get.find<ProfileController>();
+              final n = pc.scanHistory.length;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Subjects',
+                    style: TextStyle(
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textColor,
+                    ),
                   ),
-                ),
-                Text(
-                  '${subjects.length} subjects available',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textColor.withValues(alpha: 0.50),
+                  Text(
+                    n == 0
+                        ? 'Your scan history'
+                        : '$n from scan history',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.textColor.withValues(alpha: 0.50),
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              );
+            }),
           ],
         ),
       ),
       body: SafeArea(
         child: Column(
           children: [
-            // Search Bar
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               child: Container(
@@ -195,7 +148,7 @@ class _SubjectScreenState extends State<SubjectScreen> {
                   controller: _searchController,
                   style: TextStyle(color: AppColors.textColor, fontSize: 14.sp),
                   decoration: InputDecoration(
-                    hintText: 'Search subjects...',
+                    hintText: 'Search by subject (e.g. math)',
                     hintStyle: TextStyle(
                       color: AppColors.textColor.withValues(alpha: 0.35),
                       fontSize: 14.sp,
@@ -214,88 +167,98 @@ class _SubjectScreenState extends State<SubjectScreen> {
                 ),
               ),
             ),
+            Expanded(
+              child: Obx(() {
+                final pc = Get.find<ProfileController>();
+                final hasSearch = _searchController.text.trim().isNotEmpty;
+                final items =
+                    hasSearch ? pc.scanHistoryQuery : pc.scanHistory;
+                final searchBusy =
+                    hasSearch &&
+                    (_searchSubjectPending || pc.isScanHistoryLoading.value);
 
-            // Most Studied Section
-            Padding(
-              padding: EdgeInsets.only(left: 16.w, bottom: 12.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      SvgPicture.asset('assets/icon/most.svg'),
-                      SizedBox(width: 6.w),
-                      Text(
-                        'MOST STUDIED',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textColor.withValues(alpha: 0.50),
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10.h),
-                  SizedBox(
-                    height: 38.h,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: mostStudied.length,
-                      separatorBuilder: (_, __) => SizedBox(width: 8.w),
-                      padding: EdgeInsets.only(right: 16.w),
-                      itemBuilder: (context, index) {
-                        final item = mostStudied[index];
-                        return Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 14.w,
-                            vertical: 8.h,
+                if (pc.isScanHistoryLoading.value &&
+                    !hasSearch &&
+                    pc.scanHistory.isEmpty) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: Color(0xFFA78BFA),
+                    ),
+                  );
+                }
+                if (hasSearch && searchBusy) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: Color(0xFFA78BFA),
+                    ),
+                  );
+                }
+
+                final err = pc.scanHistoryError.value;
+                final listEmptyForMode =
+                    hasSearch ? pc.scanHistoryQuery.isEmpty : pc.scanHistory.isEmpty;
+                if (err != null && err.isNotEmpty && listEmptyForMode) {
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24.w),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            err,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: AppColors.textColor.withValues(alpha: 0.70),
+                            ),
                           ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1A1A2E),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: AppColors.surfaceBorder.withValues(
-                                alpha: 0.5,
+                          SizedBox(height: 16.h),
+                          TextButton(
+                            onPressed: () {
+                              final q = _searchController.text.trim();
+                              if (q.isNotEmpty) {
+                                pc.fetchScanHistory(subject: q);
+                              } else {
+                                pc.fetchScanHistory();
+                              }
+                            },
+                            child: Text(
+                              'Retry',
+                              style: TextStyle(
+                                color: AppColors.textColor.withValues(
+                                  alpha: 0.90,
+                                ),
                               ),
                             ),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                item['icon'],
-                                style: TextStyle(fontSize: 14.sp),
-                              ),
-                              SizedBox(width: 6.w),
-                              Text(
-                                item['name'],
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.textColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
+                  );
+                }
 
-            // Subject List
-            Expanded(
-              child: ListView.separated(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
-                itemCount: subjects.length,
-                separatorBuilder: (_, __) => SizedBox(height: 10.h),
-                itemBuilder: (context, index) {
-                  return _buildSubjectCard(subjects[index], index);
-                },
-              ),
+                if (items.isEmpty) {
+                  return Center(
+                    child: Text(
+                      hasSearch
+                          ? 'No results for this subject'
+                          : 'No scan history yet',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: AppColors.textColor.withValues(alpha: 0.45),
+                      ),
+                    ),
+                  );
+                }
+                return ListView.separated(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+                  itemCount: items.length,
+                  separatorBuilder: (_, __) => SizedBox(height: 10.h),
+                  itemBuilder: (context, index) {
+                    return _buildScanHistoryCard(items[index], index);
+                  },
+                );
+              }),
             ),
           ],
         ),
@@ -303,8 +266,9 @@ class _SubjectScreenState extends State<SubjectScreen> {
     );
   }
 
-  Widget _buildSubjectCard(SubjectData subject, int index) {
+  Widget _buildScanHistoryCard(ScanHistoryItemModel item, int index) {
     final isExpanded = _expandedIndex == index;
+    final accent = _accentForSubject(item.subject);
 
     return GestureDetector(
       onTap: () {
@@ -321,69 +285,60 @@ class _SubjectScreenState extends State<SubjectScreen> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isExpanded
-                ? subject.progressColor.withValues(alpha: 0.3)
+                ? accent.withValues(alpha: 0.35)
                 : AppColors.surfaceBorder.withValues(alpha: 0.3),
           ),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Main row
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Subject icon
                 Container(
                   width: 44.w,
                   height: 44.w,
                   decoration: BoxDecoration(
-                    color: subject.iconBgColor.withValues(alpha: 0.15),
+                    color: accent.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
                     child: Text(
-                      subject.icon,
+                      _emojiForSubject(item.subject),
                       style: TextStyle(fontSize: 20.sp),
                     ),
                   ),
                 ),
                 SizedBox(width: 12.w),
-
-                // Name and question count
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        subject.name,
+                        _formatSubjectLabel(item.subject),
                         style: TextStyle(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textColor,
                         ),
                       ),
-                      SizedBox(height: 2.h),
-                      Text(
-                        '${subject.practiceQuestions} practice questions',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          color: AppColors.textColor.withValues(alpha: 0.45),
+                      if (item.question.trim().isNotEmpty) ...[
+                        SizedBox(height: 4.h),
+                        Text(
+                          item.question,
+                          maxLines: isExpanded ? null : 2,
+                          overflow: isExpanded
+                              ? TextOverflow.visible
+                              : TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: AppColors.textColor.withValues(alpha: 0.45),
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
-
-                // Percentage
-                Text(
-                  '${subject.percentage}%',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
-                    color: subject.progressColor,
-                  ),
-                ),
-                SizedBox(width: 4.w),
-
-                // Arrow
                 AnimatedRotation(
                   turns: isExpanded ? 0.25 : 0,
                   duration: const Duration(milliseconds: 300),
@@ -395,31 +350,27 @@ class _SubjectScreenState extends State<SubjectScreen> {
                 ),
               ],
             ),
-
-            // Progress bar
-            SizedBox(height: 10.h),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: subject.percentage / 100,
-                backgroundColor: subject.progressColor.withValues(alpha: 0.12),
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  subject.progressColor,
-                ),
-                minHeight: 3.5,
-              ),
-            ),
-
-            // Expanded topics
             if (isExpanded) ...[
               SizedBox(height: 14.h),
-              Wrap(
-                spacing: 8.w,
-                runSpacing: 8.h,
-                children: [
-                  ...subject.topics.map((topic) => _buildTopicChip(topic)),
-                  _buildAskAiChip(),
-                ],
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(12.w),
+                decoration: BoxDecoration(
+                  color: AppColors.textColor.withValues(alpha: 0.04),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppColors.textColor.withValues(alpha: 0.08),
+                  ),
+                ),
+                child: SelectableText(
+                  item.aiResponse.isEmpty ? '—' : item.aiResponse,
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w400,
+                    height: 1.45,
+                    color: AppColors.textColor.withValues(alpha: 0.88),
+                  ),
+                ),
               ),
             ],
           ],
@@ -428,58 +379,34 @@ class _SubjectScreenState extends State<SubjectScreen> {
     );
   }
 
-  Widget _buildTopicChip(String label) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
-      decoration: BoxDecoration(
-        color: const Color(0xFF252540),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.surfaceBorder.withValues(alpha: 0.4),
-        ),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12.sp,
-          fontWeight: FontWeight.w500,
-          color: AppColors.textColor.withValues(alpha: 0.8),
-        ),
-      ),
-    );
+  Color _accentForSubject(String raw) {
+    final s = raw.toLowerCase();
+    if (s.contains('math')) return const Color(0xFF7C3AED);
+    if (s.contains('phys')) return const Color(0xFFEAB308);
+    if (s.contains('chem')) return const Color(0xFF22C55E);
+    if (s.contains('bio')) return const Color(0xFFF97316);
+    return const Color(0xFFA78BFA);
   }
 
-  Widget _buildAskAiChip() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.accent.withValues(alpha: 0.2),
-            AppColors.accentSecondary.withValues(alpha: 0.2),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.accent.withValues(alpha: 0.4)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Ask AI',
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
-              color: AppColors.accent,
-            ),
-          ),
-          SizedBox(width: 4.w),
-          Text(
-            '→',
-            style: TextStyle(fontSize: 12.sp, color: AppColors.accent),
-          ),
-        ],
-      ),
-    );
+  String _emojiForSubject(String raw) {
+    final s = raw.toLowerCase();
+    if (s.contains('math')) return '∫';
+    if (s.contains('phys')) return '⚡';
+    if (s.contains('chem')) return '🧪';
+    if (s.contains('bio')) return '🧬';
+    return '📄';
+  }
+
+  String _formatSubjectLabel(String raw) {
+    final t = raw.trim();
+    if (t.isEmpty) return 'Scan';
+    return t
+        .split(RegExp(r'\s+'))
+        .where((w) => w.isNotEmpty)
+        .map(
+          (w) =>
+              '${w[0].toUpperCase()}${w.length > 1 ? w.substring(1).toLowerCase() : ''}',
+        )
+        .join(' ');
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_extension/util/app_colors.dart';
+import 'package:flutter_extension/views/base/custom_snackbar.dart';
 import 'package:flutter_extension/views/screen/profile/dataControl/chat_history_screen.dart';
 import 'package:flutter_extension/views/screen/profile/dataControl/scan_history_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -13,6 +15,8 @@ class DataControlScreen extends StatefulWidget {
 }
 
 class _DataControlScreenState extends State<DataControlScreen> {
+  bool _clearingCache = false;
+
   static const List<String> _exploreKeys = [
     'Chat History',
     'Scan History',
@@ -145,8 +149,9 @@ class _DataControlScreenState extends State<DataControlScreen> {
               const SizedBox(height: 16),
 
               // Clear Cache button
+            
               InkWell(
-                onTap: () {},
+                onTap: _clearingCache ? null : _clearAppCache,
                 child: Container(
                   width: double.infinity,
                   height: 48,
@@ -175,6 +180,8 @@ class _DataControlScreenState extends State<DataControlScreen> {
                 ),
               ),
 
+           
+           
               const SizedBox(height: 24),
 
               // Privacy notice
@@ -211,6 +218,25 @@ class _DataControlScreenState extends State<DataControlScreen> {
   String _calculateTotalSize() {
     const total = 2.4 + 8.3;
     return "${total.toStringAsFixed(1)} MB";
+  }
+
+  Future<void> _clearAppCache() async {
+    if (_clearingCache) return;
+    setState(() => _clearingCache = true);
+    try {
+      await DefaultCacheManager().emptyCache();
+      imageCache.clear();
+      imageCache.clearLiveImages();
+      if (!mounted) return;
+      showCustomSnackBar('Cache cleared', isError: false);
+    } catch (e) {
+      if (!mounted) return;
+      showCustomSnackBar(e.toString(), isError: true);
+    } finally {
+      if (mounted) {
+        setState(() => _clearingCache = false);
+      }
+    }
   }
 
   void _openExploreDestination(String key) {

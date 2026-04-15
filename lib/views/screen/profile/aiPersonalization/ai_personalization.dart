@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_extension/controller/profile_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
+import 'package:flutter_extension/views/base/custom_snackbar.dart';
 import 'package:flutter_extension/views/base/custom_switch.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -12,6 +14,28 @@ class AiPersonalization extends StatefulWidget {
 }
 
 class _AiPersonalizationState extends State<AiPersonalization> {
+  late final ProfileController _profileController;
+
+  static const List<String> _modelApiIds = [
+    'gpt-4o',
+    'gemini-pro',
+    'claude-3-5-sonnet',
+  ];
+
+  static const List<String> _responseStyleApi = [
+    'concise',
+    'balanced',
+    'detailed',
+    'formal',
+  ];
+
+  static const List<String> _difficultyApi = [
+    'beginner',
+    'intermediate',
+    'advanced',
+    'expert',
+  ];
+
   bool _autoSelect = false;
   int _selectedModel = 0;
   int _selectedStyle = 1;
@@ -58,6 +82,53 @@ class _AiPersonalizationState extends State<AiPersonalization> {
     Icons.menu_book,
     Icons.trending_up,
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _profileController = Get.find<ProfileController>();
+  }
+
+  String _subjectToSlug(String label) {
+    switch (label) {
+      case 'Mathematics':
+        return 'mathematics';
+      case 'Physics':
+        return 'physics';
+      case 'Chemistry':
+        return 'chemistry';
+      case 'Biology':
+        return 'biology';
+      case 'History':
+        return 'history';
+      case 'CS':
+        return 'cs';
+      case 'Literature':
+        return 'literature';
+      case 'Economics':
+        return 'economics';
+      default:
+        return label.toLowerCase().replaceAll(' ', '_');
+    }
+  }
+
+  Future<void> _savePreferences() async {
+    if (_selectedSubjects.isEmpty) {
+      showCustomSnackBar('Select at least one subject focus area', isError: true);
+      return;
+    }
+    final modelIdx = _selectedModel.clamp(0, _modelApiIds.length - 1);
+    final styleIdx = _selectedStyle.clamp(0, _responseStyleApi.length - 1);
+    final diffIdx = _difficultyLevel.round().clamp(0, _difficultyApi.length - 1);
+    await _profileController.saveAiPersonalization(
+      model: _modelApiIds[modelIdx],
+      responseStyle: _responseStyleApi[styleIdx],
+      difficultyLevel: _difficultyApi[diffIdx],
+      language: _selectedLanguage.toLowerCase(),
+      subjectFocusArea:
+          _selectedSubjects.map(_subjectToSlug).join(','),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -545,38 +616,53 @@ class _AiPersonalizationState extends State<AiPersonalization> {
               const SizedBox(height: 30),
 
               // Save Preferences Button
-              InkWell(
-                onTap: () {},
-                child: Container(
-                  width: double.infinity,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.check_circle_outline,
-                        color: AppColors.textColor,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        "Save Preferences",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textColor,
+              Obx(
+                () {
+                  final loading =
+                      _profileController.isAiPersonalizationLoading.value;
+                  return InkWell(
+                    onTap: loading ? null : _savePreferences,
+                    child: Container(
+                      width: double.infinity,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
                         ),
                       ),
-                    ],
-                  ),
-                ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (loading)
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.textColor,
+                              ),
+                            )
+                          else
+                            Icon(
+                              Icons.check_circle_outline,
+                              color: AppColors.textColor,
+                              size: 20,
+                            ),
+                          const SizedBox(width: 8),
+                          Text(
+                            loading ? 'Saving…' : 'Save Preferences',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 20),

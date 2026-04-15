@@ -22,10 +22,15 @@ class ProfileController extends GetxController {
   final isDeletingChatHistory = false.obs;
   final chatHistoryError = RxnString();
   final scanHistory = <ScanHistoryItemModel>[].obs;
+  /// Results when `GET /scan/history/?subject=...` is used (Subject screen search).
+  final scanHistoryQuery = <ScanHistoryItemModel>[].obs;
   final isScanHistoryLoading = false.obs;
   final scanHistoryError = RxnString();
 
+  final isAiPersonalizationLoading = false.obs;
+
   Rx<File?> userProfileImage = Rx<File?>(null);
+  final isLoading = false.obs;
 
   @override
   void onInit() {
@@ -260,47 +265,138 @@ class ProfileController extends GetxController {
     }
   }
 
+  List<ScanHistoryItemModel> _parseScanHistoryResults(dynamic body) {
+    if (body is! Map) return [];
+    final outerData = body['data'];
+    if (outerData is! Map) return [];
+    final history = outerData['history'];
+    if (history is! Map) return [];
+    final historyData = history['data'];
+    if (historyData is! Map || historyData['results'] is! List) return [];
+    final list = historyData['results'] as List;
+    return list
+        .map(
+          (e) => ScanHistoryItemModel.fromJson(
+            Map<String, dynamic>.from(e as Map),
+          ),
+        )
+        .toList();
+  }
+
   /// GET `/scan/history/` — list of past scan results.
-  Future<void> fetchScanHistory() async {
+  /// Optional [subject] query param, e.g. `subject=math`.
+  Future<void> fetchScanHistory({String? subject}) async {
     isScanHistoryLoading.value = true;
     scanHistoryError.value = null;
+    final trimmed = subject?.trim();
+    final hasSubject = trimmed != null && trimmed.isNotEmpty;
     try {
-      final response = await ApiClient.getData(ApiConstant.scanHistoryEndpoint);
+      final response = await ApiClient.getData(
+        ApiConstant.scanHistoryEndpoint,
+        query: hasSubject ? {'subject': trimmed.toLowerCase()} : null,
+      );
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final body = response.body;
-        if (body is Map) {
-          final outerData = body['data'];
-          if (outerData is Map) {
-            final history = outerData['history'];
-            if (history is Map) {
-              final historyData = history['data'];
-              if (historyData is Map && historyData['results'] is List) {
-                final list = historyData['results'] as List;
-                scanHistory.assignAll(
-                  list
-                      .map(
-                        (e) => ScanHistoryItemModel.fromJson(
-                          Map<String, dynamic>.from(e as Map),
-                        ),
-                      )
-                      .toList(),
-                );
-                return;
-              }
-            }
-          }
+        final parsed = _parseScanHistoryResults(response.body);
+        if (hasSubject) {
+          scanHistoryQuery.assignAll(parsed);
+        } else {
+          scanHistory.assignAll(parsed);
         }
-        scanHistory.clear();
+        return;
+      }
+      if (hasSubject) {
+        scanHistoryQuery.clear();
       } else {
         scanHistory.clear();
-        scanHistoryError.value =
-            _msg(response.body) ?? 'Could not load scan history';
       }
+      scanHistoryError.value =
+          _msg(response.body) ?? 'Could not load scan history';
     } catch (e) {
-      scanHistory.clear();
+      if (hasSubject) {
+        scanHistoryQuery.clear();
+      } else {
+        scanHistory.clear();
+      }
       scanHistoryError.value = e.toString();
     } finally {
       isScanHistoryLoading.value = false;
     }
   }
+
+
+  /// POST `/scan/ai-personalization/` — saves AI tutoring preferences.
+  /// Body keys match backend (`response_sytel`, `dificulty_level`).
+  Future<void> saveAiPersonalization({
+    required String model,
+    required String responseStyle,
+    required String difficultyLevel,
+    required String language,
+    required String subjectFocusArea,
+  }) async {
+    if (isAiPersonalizationLoading.value) return;
+    isAiPersonalizationLoading.value = true;
+    try {
+      final response = await ApiClient.postData(
+        ApiConstant.aiPersonalizationEndpoint,
+        {
+          'model': model,
+          'response_sytel': responseStyle,
+          'dificulty_level': difficultyLevel,
+          'language': language,
+          'subject_focus_area': subjectFocusArea,
+        },
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        showCustomSnackBar(
+          _msg(response.body) ?? 'AI preferences saved',
+          isError: false,
+        );
+      } else {
+        showCustomSnackBar(
+          _msg(response.body) ?? 'Could not save preferences',
+          isError: true,
+        );
+      }
+    } catch (e) {
+      showCustomSnackBar(e.toString(), isError: true);
+    } finally {
+      isAiPersonalizationLoading.value = false;
+    }
+  }
+
+  Future<void> changePassword({required String newPassword}) async {
+    if (isLoading.value) return;
+    isLoading.value = true;
+    try {
+      final response = await ApiClient.postData(
+        ApiConstant.resetPassword,
+        {'new_password': newPassword},
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        showCustomSnackBar(
+          _msg(response.body) ?? 'Password changed successfully',
+          isError: false,
+        );
+        Get.back();
+      } else {
+        showCustomSnackBar(
+          _msg(response.body) ?? 'Could not change password',
+          isError: true,
+        );
+      }
+    } catch (e) {
+      showCustomSnackBar(e.toString(), isError: true);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+
+
+
+
 }

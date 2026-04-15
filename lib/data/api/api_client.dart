@@ -46,6 +46,18 @@ class ApiClient extends GetxService {
     return {..._mainHeaders!, ...override};
   }
 
+  static Uri _buildUri(String path, Map<String, dynamic>? query) {
+    final base = Uri.parse(baseUrl + path);
+    if (query == null || query.isEmpty) return base;
+    final q = <String, String>{...base.queryParameters};
+    for (final e in query.entries) {
+      final v = e.value;
+      if (v == null) continue;
+      q[e.key] = v is String ? v : v.toString();
+    }
+    return base.replace(queryParameters: q);
+  }
+
   static Future<Response> getData(
     String uri, {
     Map<String, dynamic>? query,
@@ -54,9 +66,10 @@ class ApiClient extends GetxService {
     try {
       await loadPrefs();
       final h = _resolveHeaders(headers);
-      debugPrint('====> API Call: $uri\nHeader: $h');
+      final requestUri = _buildUri(uri, query);
+      debugPrint('====> API Call: $requestUri\nHeader: $h');
       http.Response response = await client
-          .get(Uri.parse(baseUrl + uri), headers: h)
+          .get(requestUri, headers: h)
           .timeout(Duration(seconds: timeoutInSeconds));
       return handleResponse(response, uri);
     } catch (e) {

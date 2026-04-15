@@ -18,7 +18,11 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen> {
   void initState() {
     super.initState();
     _profileController = Get.find<ProfileController>();
-    _profileController.fetchScanHistory();
+    // Defer so Rx updates don’t run during the first build (Obx / layout assert).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _profileController.fetchScanHistory();
+    });
   }
 
   @override
