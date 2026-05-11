@@ -171,9 +171,7 @@ class _SolutationScreenState extends State<SolutationScreen> {
                     color: AppColors.textColor.withValues(alpha: 0.08),
                   ),
                 ),
-                child: _SolutionMarkdown(
-                  text: r.aiResponse,
-                ),
+                child: _SolutionMarkdown(text: r.aiResponse),
               ),
             ],
           ),
@@ -211,51 +209,52 @@ class _SolutationScreenState extends State<SolutationScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            Expanded(
-              child: SizedBox(
-                height: 50,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
-                    ),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Save to Library",
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textColor,
-                            ),
-                          ),
-                          const SizedBox(width: 2),
-                          Icon(
-                            Icons.chevron_right,
-                            color: AppColors.textColor,
-                            size: 18,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+
+            // Expanded(
+            //   child: SizedBox(
+            //     height: 50,
+            //     child: DecoratedBox(
+            //       decoration: BoxDecoration(
+            //         gradient: const LinearGradient(
+            //           colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
+            //         ),
+            //         borderRadius: BorderRadius.circular(14),
+            //       ),
+            //       child: ElevatedButton(
+            //         onPressed: () {},
+            //         style: ElevatedButton.styleFrom(
+            //           backgroundColor: Colors.transparent,
+            //           shadowColor: Colors.transparent,
+            //           shape: RoundedRectangleBorder(
+            //             borderRadius: BorderRadius.circular(16),
+            //           ),
+            //         ),
+            //         child: FittedBox(
+            //           fit: BoxFit.scaleDown,
+            //           child: Row(
+            //             mainAxisAlignment: MainAxisAlignment.center,
+            //             children: [
+            //               Text(
+            //                 "Save to Library",
+            //                 style: TextStyle(
+            //                   fontSize: 15,
+            //                   fontWeight: FontWeight.w700,
+            //                   color: AppColors.textColor,
+            //                 ),
+            //               ),
+            //               const SizedBox(width: 2),
+            //               Icon(
+            //                 Icons.chevron_right,
+            //                 color: AppColors.textColor,
+            //                 size: 18,
+            //               ),
+            //             ],
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

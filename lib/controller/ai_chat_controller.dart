@@ -50,7 +50,7 @@ class AiChatController extends GetxController {
       apiValue: 'gemini',
     ),
     AiModel(
-      name: 'Claude 3',
+      name: 'Claude Sonnet 4.6',
       subtitle: 'Math',
       icon: 'assets/images/claudePro.png',
       apiValue: 'claude',

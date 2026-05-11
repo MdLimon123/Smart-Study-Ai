@@ -7,8 +7,7 @@ import 'package:flutter_extension/views/base/get_greeting.dart';
 import 'package:flutter_extension/views/screen/chat/ai_chat_screen.dart';
 import 'package:flutter_extension/views/screen/home/subscreen/subject_screen.dart';
 import 'package:flutter_extension/views/screen/library/library_screen.dart';
-import 'package:flutter_extension/views/screen/notifications/notification1_screen.dart';
-import 'package:flutter_extension/views/screen/profile/dataControl/scan_history_screen.dart';
+
 import 'package:flutter_extension/views/screen/scan&solve/scan_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -72,22 +71,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     }),
                   ],
                 ),
-                InkWell(
-                  onTap: () {
-                    Get.to(() => const Notification1Screen());
-                  },
-                  child: Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.textColor.withValues(alpha: 0.07),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: SvgPicture.asset('assets/icon/notifications.svg'),
-                    ),
-                  ),
-                ),
+                // InkWell(
+                //   onTap: () {
+                //     Get.to(() => const Notification1Screen());
+                //   },
+                //   child: Container(
+                //     height: 40,
+                //     width: 40,
+                //     decoration: BoxDecoration(
+                //       color: AppColors.textColor.withValues(alpha: 0.07),
+                //       shape: BoxShape.circle,
+                //     ),
+                //     child: Center(
+                //       child: SvgPicture.asset('assets/icon/notifications.svg'),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -744,7 +743,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   const SizedBox(width: 6),
                                   Flexible(
                                     child: Text(
-                                      "Claude 3",
+                                      "Claude Sonnet4.6",
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         fontSize: 14,
@@ -787,25 +786,25 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: AppColors.textColor,
                         ),
                       ),
-                      InkWell(
-                        onTap: () => Get.to(() => const ScanHistoryScreen()),
-                        borderRadius: BorderRadius.circular(8),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 4,
-                            vertical: 2,
-                          ),
-                          child: Text(
-                            "See all",
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: 'Lato',
-                              color: Color(0xFFA78BFA),
-                            ),
-                          ),
-                        ),
-                      ),
+                      // InkWell(
+                      //   onTap: () => Get.to(() => const ScanHistoryScreen()),
+                      //   borderRadius: BorderRadius.circular(8),
+                      //   child: const Padding(
+                      //     padding: EdgeInsets.symmetric(
+                      //       horizontal: 4,
+                      //       vertical: 2,
+                      //     ),
+                      //     child: Text(
+                      //       "See all",
+                      //       style: TextStyle(
+                      //         fontSize: 13,
+                      //         fontWeight: FontWeight.w500,
+                      //         fontFamily: 'Lato',
+                      //         color: Color(0xFFA78BFA),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                   const SizedBox(height: 12),

@@ -28,6 +28,7 @@ class ProfileController extends GetxController {
   final scanHistoryError = RxnString();
 
   final isAiPersonalizationLoading = false.obs;
+  final isParentalControlLoading = false.obs;
 
   Rx<File?> userProfileImage = Rx<File?>(null);
   final isLoading = false.obs;
@@ -363,6 +364,52 @@ class ProfileController extends GetxController {
       showCustomSnackBar(e.toString(), isError: true);
     } finally {
       isAiPersonalizationLoading.value = false;
+    }
+  }
+
+  /// POST `/2fa/parental-control/` — body: `related_email`, `relation_type` (`parent` | `child`).
+  /// Returns `true` when the server accepts the invite (caller may clear the form).
+  Future<bool> sendParentalControlInvite({
+    required String relatedEmail,
+    required String relationType,
+  }) async {
+    if (isParentalControlLoading.value) return false;
+    final trimmed = relatedEmail.trim();
+    if (trimmed.isEmpty) {
+      showCustomSnackBar('Please enter an email', isError: true);
+      return false;
+    }
+    if (!GetUtils.isEmail(trimmed)) {
+      showCustomSnackBar('Please enter a valid email', isError: true);
+      return false;
+    }
+    isParentalControlLoading.value = true;
+    try {
+      final response = await ApiClient.postData(
+        ApiConstant.sendParentalControlEndpoint,
+        {
+          'related_email': trimmed,
+          'relation_type': relationType,
+        },
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        showCustomSnackBar(
+          _msg(response.body) ?? 'Invite sent',
+          isError: false,
+        );
+        return true;
+      }
+      showCustomSnackBar(
+        _msg(response.body) ?? 'Could not send invite',
+        isError: true,
+      );
+      return false;
+    } catch (e) {
+      showCustomSnackBar(e.toString(), isError: true);
+      return false;
+    } finally {
+      isParentalControlLoading.value = false;
     }
   }
 

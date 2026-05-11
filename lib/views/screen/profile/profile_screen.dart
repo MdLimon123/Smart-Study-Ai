@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/controller/profile_controller.dart';
+import 'package:flutter_extension/data/model/profile_badge_model.dart';
 import 'package:flutter_extension/data/api/api_client.dart';
 import 'package:flutter_extension/helper/prefs_helper.dart';
 import 'package:flutter_extension/helper/route_helper.dart';
@@ -324,14 +325,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Recent Badges",
+                    'Recent Badges',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textColor,
                     ),
                   ),
-               
+                  Obx(() {
+                    final badges = _profileController.profile.value?.badges ?? [];
+                    if (badges.isEmpty) return const SizedBox.shrink();
+                    return InkWell(
+                      onTap: () => _openAllBadgesSheet(badges),
+                      borderRadius: BorderRadius.circular(8),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        child: Text(
+                          'See all',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFFA78BFA),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
                 ],
               ),
 
@@ -355,25 +374,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   );
                 }
                 return SizedBox(
-                  height: 92,
+                  height: 124,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     itemCount: badges.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    separatorBuilder: (_, __) => const SizedBox(width: 10),
                     itemBuilder: (context, i) {
                       final b = badges[i];
-                      final title = b is Map
-                          ? (b['name'] ?? b['title'] ?? 'Badge').toString()
-                          : b.toString();
+                      final v = _badgeVisualForId(b.id);
                       return SizedBox(
-                        width: 76,
-                        child: _badgesContainer(
-                          bacgroundColor: const Color(0xFFA78BFA),
-                          borderColor: const Color(0xFFA78BFA),
-                          image: "assets/images/fire.png",
-                          title: title.length > 14
-                              ? '${title.substring(0, 12)}…'
-                              : title,
+                        width: 92,
+                        child: _badgeCard(
+                          borderColor: v.border,
+                          iconBg: v.iconBg,
+                          imageAsset: v.asset,
+                          label: b.label,
                         ),
                       );
                     },
@@ -777,49 +792,216 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _badgesContainer({
-    required Color bacgroundColor,
+  /// Border / icon tint / asset for known API `id` values (`bookworm`, `top_solver`, …).
+  ({Color border, Color iconBg, String asset}) _badgeVisualForId(String id) {
+    switch (id) {
+      case 'bookworm':
+        return (
+          border: const Color(0xFF34D399),
+          iconBg: const Color(0xFF34D399),
+          asset: 'assets/images/book3.png',
+        );
+      case 'dedicated':
+        return (
+          border: const Color(0xFFA78BFA),
+          iconBg: const Color(0xFFA78BFA),
+          asset: 'assets/images/book_fill.png',
+        );
+      case 'scholar':
+        return (
+          border: const Color(0xFF818CF8),
+          iconBg: const Color(0xFF818CF8),
+          asset: 'assets/images/data.png',
+        );
+      case 'top_solver':
+        return (
+          border: const Color(0xFF60A5FA),
+          iconBg: const Color(0xFF60A5FA),
+          asset: 'assets/images/star.png',
+        );
+      case 'marathon':
+        return (
+          border: const Color(0xFFA78BFA),
+          iconBg: const Color(0xFFF59E0B),
+          asset: 'assets/images/fire.png',
+        );
+      default:
+        return (
+          border: const Color(0xFFA78BFA),
+          iconBg: const Color(0xFFA78BFA),
+          asset: 'assets/images/badges.png',
+        );
+    }
+  }
+
+  Widget _badgeCard({
     required Color borderColor,
-    required String image,
-    required String title,
+    required Color iconBg,
+    required String imageAsset,
+    required String label,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(8, 10, 8, 8),
       decoration: BoxDecoration(
-        color: bacgroundColor.withValues(alpha: 0.12),
+        color: AppColors.textColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: borderColor.withValues(alpha: 0.12),
+          color: borderColor.withValues(alpha: 0.55),
           width: 1,
         ),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            height: 40,
+            height: 44,
+            width: 44,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              color: bacgroundColor.withValues(alpha: 0.13),
+              borderRadius: BorderRadius.circular(12),
+              color: iconBg.withValues(alpha: 0.16),
             ),
-            child: Image.asset(image),
+            padding: const EdgeInsets.all(6),
+            child: Image.asset(imageAsset, fit: BoxFit.contain),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
-            title,
+            label,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w400,
-              color: AppColors.textColor.withValues(alpha: 0.70),
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textColor,
+              height: 1.2,
             ),
           ),
         ],
       ),
+    );
+  }
+
+  void _openAllBadgesSheet(List<ProfileBadgeModel> badges) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF16161F),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        final h = MediaQuery.of(ctx).size.height * 0.52;
+        return SafeArea(
+          child: SizedBox(
+            height: h,
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 8, 8),
+                  child: Row(
+                    children: [
+                      Text(
+                        'All badges',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textColor,
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        icon: Icon(
+                          Icons.close,
+                          color: AppColors.textColor.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                    itemCount: badges.length,
+                    separatorBuilder: (_, __) => Divider(
+                      height: 1,
+                      color: AppColors.textColor.withValues(alpha: 0.06),
+                    ),
+                    itemBuilder: (context, i) {
+                      final b = badges[i];
+                      final v = _badgeVisualForId(b.id);
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 52,
+                              width: 52,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: v.border.withValues(alpha: 0.45),
+                                ),
+                                color: v.iconBg.withValues(alpha: 0.12),
+                              ),
+                              padding: const EdgeInsets.all(8),
+                              child: Image.asset(
+                                v.asset,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    b.label,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textColor,
+                                    ),
+                                  ),
+                                  if (b.description != null &&
+                                      b.description!.isNotEmpty) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      b.description!,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w400,
+                                        color: AppColors.textColor.withValues(
+                                          alpha: 0.50,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

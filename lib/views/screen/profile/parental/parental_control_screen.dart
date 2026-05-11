@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_extension/controller/profile_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_extension/views/base/custom_button.dart';
 import 'package:flutter_extension/views/base/custom_text_field.dart';
@@ -12,7 +13,36 @@ class ParentalControlScreen extends StatefulWidget {
 }
 
 class _ParentalControlScreenState extends State<ParentalControlScreen> {
+  late final ProfileController _profileController;
+  final TextEditingController _emailController = TextEditingController();
+
   int _selectedMethod = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _profileController = Get.find<ProfileController>();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  String get _relationType => _selectedMethod == 0 ? 'parent' : 'child';
+
+  Future<void> _sendInvite() async {
+    final ok = await _profileController.sendParentalControlInvite(
+      relatedEmail: _emailController.text,
+      relationType: _relationType,
+    );
+    if (!ok || !mounted) return;
+    setState(() {
+      _emailController.clear();
+      _selectedMethod = 0;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,16 +90,16 @@ class _ParentalControlScreenState extends State<ParentalControlScreen> {
                 ),
               ],
             ),
-            const Spacer(),
+            // const Spacer(),
 
-            Text(
-              "View All",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textColor,
-              ),
-            ),
+            // Text(
+            //   "View All",
+            //   style: TextStyle(
+            //     fontSize: 14,
+            //     fontWeight: FontWeight.w600,
+            //     color: AppColors.textColor,
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -83,14 +113,22 @@ class _ParentalControlScreenState extends State<ParentalControlScreen> {
               _methodCard(index: 1, title: 'Child'),
               const SizedBox(height: 20),
 
-              const CustomTextField(hintText: "Enter Email"),
+              CustomTextField(
+                controller: _emailController,
+                hintText: 'Enter Email',
+                keyboardType: TextInputType.emailAddress,
+                isEmail: true,
+              ),
               const SizedBox(height: 32),
-              CustomButton(
-                onTap: () {},
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
+              Obx(
+                () => CustomButton(
+                  onTap: _sendInvite,
+                  loading: _profileController.isParentalControlLoading.value,
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
+                  ),
+                  text: 'Send Invite',
                 ),
-                text: "Send Invite",
               ),
             ],
           ),

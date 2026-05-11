@@ -1,6 +1,6 @@
 class ApiConstant {
-  static const String BASE_URL = 'https://6zpmb4x8-8025.inc1.devtunnels.ms';
-  static const String imageBaseUrl = 'https://6zpmb4x8-8025.inc1.devtunnels.ms';
+  static const String BASE_URL = 'https://api.quizquestion.ai';
+  static const String imageBaseUrl = 'https://api.quizquestion.ai';
 
   ///
   static const String login = '/auth/login/';
@@ -19,6 +19,7 @@ class ApiConstant {
 
   static const String scanResultEndpoint = '/scan/';
   static const String aiResponseEndpoint = '/chat/ask/';
+
   /// GET ask history (same path as POST ask in some backends).
   static const String chatHistoryEndpoint = '/chat/ask/';
 
@@ -45,19 +46,15 @@ class ApiConstant {
   static String deleteNoteEndpoint({required String id}) =>
       '/library/notes/$id/';
 
-  /// PATCH rename / partial update — each library type has its own URL (body e.g. `{ "title": "..." }`).
   static String editFolderEndpoint({required String id}) =>
       '/library/folders/$id/';
 
-  static String editNoteEndpoint({required String id}) =>
-      '/library/notes/$id/';
+  static String editNoteEndpoint({required String id}) => '/library/notes/$id/';
 
   static String editImageEndpoint({required String id}) =>
       '/library/images/$id/';
 
-  static String editFileEndpoint({required String id}) =>
-      '/library/files/$id/';
-
+  static String editFileEndpoint({required String id}) => '/library/files/$id/';
 
   static const String twoFactorAuthEndpoint = '/2fa/send/';
 
@@ -80,11 +77,11 @@ class ApiConstant {
   static String getSpecificFileEndpoint({required String id}) =>
       '/library/files/$id/';
 
-static const String chatHistoryDeleteEndpoint = '/chat/ask/';   
+  static const String chatHistoryDeleteEndpoint = '/chat/ask/';
 
-static const String scanHistoryEndpoint = '/scan/history/';
+  static const String scanHistoryEndpoint = '/scan/history/';
 
-static const String aiPersonalizationEndpoint = '/scan/ai-personalization/';
+  static const String aiPersonalizationEndpoint = '/scan/ai-personalization/';
 
-
+  static const String sendParentalControlEndpoint = '/2fa/parental-control/';
 }

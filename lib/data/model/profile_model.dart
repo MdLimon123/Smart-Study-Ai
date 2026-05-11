@@ -1,3 +1,5 @@
+import 'package:flutter_extension/data/model/profile_badge_model.dart';
+
 class ProfileModel {
   final String id;
   final String email;
@@ -8,7 +10,7 @@ class ProfileModel {
   final int studyMinutes;
   final int activeDays;
   final bool twoFactorEnabled;
-  final List<dynamic> badges;
+  final List<ProfileBadgeModel> badges;
   final int level;
   final String? createdAt;
   final String? updatedAt;
@@ -40,7 +42,16 @@ class ProfileModel {
       studyMinutes: _parseInt(json['study_minutes']),
       activeDays: _parseInt(json['active_days']),
       twoFactorEnabled: json['two_factor_enabled'] == true,
-      badges: json['badges'] is List ? List<dynamic>.from(json['badges'] as List) : [],
+      badges: json['badges'] is List
+          ? (json['badges'] as List)
+                .whereType<Map>()
+                .map(
+                  (e) => ProfileBadgeModel.fromJson(
+                    Map<String, dynamic>.from(e),
+                  ),
+                )
+                .toList()
+          : [],
       level: _parseInt(json['level']),
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),
