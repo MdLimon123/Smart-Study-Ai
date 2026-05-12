@@ -169,62 +169,67 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     ),
 
                     const SizedBox(height: 16),
-                    Row(
-                      children: List.generate(_tabs.length, (index) {
-                        final isSelected = _selectedTab == index;
-                        return Padding(
-                          padding: EdgeInsets.only(
-                            right: index < _tabs.length - 1 ? 8 : 0,
-                          ),
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() => _selectedTab = index);
-                              _libraryController.fetchLibraryOverview();
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: isSelected
-                                    ? const Color(
-                                        0xFFA78BFA,
-                                      ).withValues(alpha: 0.20)
-                                    : AppColors.textColor.withValues(
-                                        alpha: 0.06,
-                                      ),
-                                border: Border.all(
+
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: List.generate(_tabs.length, (index) {
+                          final isSelected = _selectedTab == index;
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              right: index < _tabs.length - 1 ? 8 : 0,
+                            ),
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() => _selectedTab = index);
+                                _libraryController.fetchLibraryOverview();
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
                                   color: isSelected
                                       ? const Color(
                                           0xFFA78BFA,
-                                        ).withValues(alpha: 0.30)
-                                      : const Color(
-                                          0xFF000000,
-                                        ).withValues(alpha: 0.00),
-                                ),
-                              ),
-                              child: Text(
-                                _tabs[index],
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
-                                  color: isSelected
-                                      ? const Color(0xFFA78BFA)
+                                        ).withValues(alpha: 0.20)
                                       : AppColors.textColor.withValues(
-                                          alpha: 0.45,
+                                          alpha: 0.06,
                                         ),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? const Color(
+                                            0xFFA78BFA,
+                                          ).withValues(alpha: 0.30)
+                                        : const Color(
+                                            0xFF000000,
+                                          ).withValues(alpha: 0.00),
+                                  ),
+                                ),
+                                child: Text(
+                                  _tabs[index],
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
+                                    color: isSelected
+                                        ? const Color(0xFFA78BFA)
+                                        : AppColors.textColor.withValues(
+                                            alpha: 0.45,
+                                          ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
-                      }),
+                          );
+                        }),
+                      ),
                     ),
+
                     const SizedBox(height: 16),
                     Expanded(
                       child: _selectedTab == 4
@@ -277,7 +282,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   Widget _buildOverviewAllList() {
     return Obx(() {
-      final loading = _libraryController.isNotesLoading.value ||
+      final loading =
+          _libraryController.isNotesLoading.value ||
           _libraryController.isImagesLoading.value ||
           _libraryController.isFoldersLoading.value ||
           _libraryController.isFilesLoading.value;
@@ -286,7 +292,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
           child: CircularProgressIndicator(color: Color(0xFFA78BFA)),
         );
       }
-      final err = _libraryController.notesError.value ??
+      final err =
+          _libraryController.notesError.value ??
           _libraryController.imagesError.value ??
           _libraryController.foldersError.value ??
           _libraryController.filesError.value;
@@ -324,10 +331,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
       final images = _libraryController.images;
       final folders = _libraryController.folders;
       final files = _libraryController.files;
-      if (notes.isEmpty &&
-          images.isEmpty &&
-          folders.isEmpty &&
-          files.isEmpty) {
+      if (notes.isEmpty && images.isEmpty && folders.isEmpty && files.isEmpty) {
         return Center(
           child: Text(
             'Nothing in your library yet',
@@ -352,11 +356,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         'Notes',
         notes
             .map(
-              (n) => LibraryContentUi.noteTile(
-                context,
-                _libraryController,
-                n,
-              ),
+              (n) => LibraryContentUi.noteTile(context, _libraryController, n),
             )
             .toList(),
       );
@@ -364,35 +364,22 @@ class _LibraryScreenState extends State<LibraryScreen> {
         'Images',
         images
             .map(
-              (img) => LibraryContentUi.imageTile(
-                context,
-                _libraryController,
-                img,
-              ),
+              (img) =>
+                  LibraryContentUi.imageTile(context, _libraryController, img),
             )
             .toList(),
       );
-      appendSection(
-        'Folders',
-        folders.map(_folderListTile).toList(),
-      );
+      appendSection('Folders', folders.map(_folderListTile).toList());
       appendSection(
         'Uploads',
         files
             .map(
-              (f) => LibraryContentUi.fileTile(
-                context,
-                _libraryController,
-                f,
-              ),
+              (f) => LibraryContentUi.fileTile(context, _libraryController, f),
             )
             .toList(),
       );
 
-      return ListView(
-        padding: EdgeInsets.zero,
-        children: children,
-      );
+      return ListView(padding: EdgeInsets.zero, children: children);
     });
   }
 
@@ -991,8 +978,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
     });
   }
 
-
-
   Widget _buildFilesList() {
     const fileAccent = Color(0xFF10B981);
     return Obx(() {
@@ -1227,8 +1212,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
       );
     });
   }
-
-
 
   Widget _buildFoldersList() {
     return Obx(() {

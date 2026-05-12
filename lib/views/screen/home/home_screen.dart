@@ -99,106 +99,108 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.textColor.withValues(alpha: 0.06),
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(
-                            color: AppColors.textColor.withValues(alpha: 0.08),
-                            width: 1,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SvgPicture.asset('assets/icon/fire.svg'),
-                            const SizedBox(width: 6),
-                            Text(
-                              "7 day streak",
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w400,
-                                color: AppColors.textColor.withValues(
-                                  alpha: 0.61,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
 
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.textColor.withValues(alpha: 0.06),
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(
-                            color: AppColors.textColor.withValues(alpha: 0.08),
-                            width: 1,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SvgPicture.asset('assets/icon/star.svg'),
-                            const SizedBox(width: 6),
-                            Text(
-                              "3 scans left",
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w400,
-                                color: AppColors.textColor.withValues(
-                                  alpha: 0.61,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
 
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.textColor.withValues(alpha: 0.06),
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(
-                            color: AppColors.textColor.withValues(alpha: 0.08),
-                            width: 1,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SvgPicture.asset('assets/icon/level.svg'),
-                            const SizedBox(width: 6),
-                            Text(
-                              "Level 5",
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w400,
-                                color: AppColors.textColor.withValues(
-                                  alpha: 0.61,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     Container(
+                  //       padding: const EdgeInsets.symmetric(
+                  //         horizontal: 12,
+                  //         vertical: 8,
+                  //       ),
+                  //       decoration: BoxDecoration(
+                  //         color: AppColors.textColor.withValues(alpha: 0.06),
+                  //         borderRadius: BorderRadius.circular(999),
+                  //         border: Border.all(
+                  //           color: AppColors.textColor.withValues(alpha: 0.08),
+                  //           width: 1,
+                  //         ),
+                  //       ),
+                  //       child: Row(
+                  //         mainAxisSize: MainAxisSize.min,
+                  //         children: [
+                  //           SvgPicture.asset('assets/icon/fire.svg'),
+                  //           const SizedBox(width: 6),
+                  //           Text(
+                  //             "7 day streak",
+                  //             style: TextStyle(
+                  //               fontSize: 11,
+                  //               fontWeight: FontWeight.w400,
+                  //               color: AppColors.textColor.withValues(
+                  //                 alpha: 0.61,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ),
+
+                  //     Container(
+                  //       padding: const EdgeInsets.symmetric(
+                  //         horizontal: 12,
+                  //         vertical: 8,
+                  //       ),
+                  //       decoration: BoxDecoration(
+                  //         color: AppColors.textColor.withValues(alpha: 0.06),
+                  //         borderRadius: BorderRadius.circular(999),
+                  //         border: Border.all(
+                  //           color: AppColors.textColor.withValues(alpha: 0.08),
+                  //           width: 1,
+                  //         ),
+                  //       ),
+                  //       child: Row(
+                  //         mainAxisSize: MainAxisSize.min,
+                  //         children: [
+                  //           SvgPicture.asset('assets/icon/star.svg'),
+                  //           const SizedBox(width: 6),
+                  //           Text(
+                  //             "3 scans left",
+                  //             style: TextStyle(
+                  //               fontSize: 11,
+                  //               fontWeight: FontWeight.w400,
+                  //               color: AppColors.textColor.withValues(
+                  //                 alpha: 0.61,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ),
+
+                  //     Container(
+                  //       padding: const EdgeInsets.symmetric(
+                  //         horizontal: 12,
+                  //         vertical: 8,
+                  //       ),
+                  //       decoration: BoxDecoration(
+                  //         color: AppColors.textColor.withValues(alpha: 0.06),
+                  //         borderRadius: BorderRadius.circular(999),
+                  //         border: Border.all(
+                  //           color: AppColors.textColor.withValues(alpha: 0.08),
+                  //           width: 1,
+                  //         ),
+                  //       ),
+                  //       child: Row(
+                  //         mainAxisSize: MainAxisSize.min,
+                  //         children: [
+                  //           SvgPicture.asset('assets/icon/level.svg'),
+                  //           const SizedBox(width: 6),
+                  //           Text(
+                  //             "Level 5",
+                  //             style: TextStyle(
+                  //               fontSize: 11,
+                  //               fontWeight: FontWeight.w400,
+                  //               color: AppColors.textColor.withValues(
+                  //                 alpha: 0.61,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
 
                   const SizedBox(height: 20),
                   Container(

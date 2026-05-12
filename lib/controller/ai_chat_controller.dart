@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/data/api/api_client.dart';
 import 'package:flutter_extension/data/api/api_constant.dart';
@@ -74,6 +76,55 @@ class AiChatController extends GetxController {
     selectedIndex.value = index;
   }
 
+  // Future<void> sendMessage({String? presetMessage}) async {
+  //   final text = (presetMessage ?? messageController.text).trim();
+  //   if (text.isEmpty) return;
+
+  //   final model = selectedModel;
+  //   if (model == null) {
+  //     showCustomSnackBar('Please select a model first', isError: true);
+  //     return;
+  //   }
+  //   if (isSending.value) return;
+
+  //   messages.add(ChatMessage(role: 'user', content: text));
+  //   messageController.clear();
+  //   isSending.value = true;
+
+  //   try {
+  //     final response = await ApiClient.postData(
+  //       ApiConstant.aiResponseEndpoint,
+  //       {'message': text, 'model': model.apiValue},
+  //     );
+
+  //     if (response.statusCode == 200 || response.statusCode == 201) {
+  //       final body = response.body;
+  //       String? content;
+  //       if (body is Map && body['data'] is Map) {
+  //         final data = body['data'] as Map;
+  //         content = data['content']?.toString();
+  //       }
+
+  //       if (content != null && content.trim().isNotEmpty) {
+  //         messages.add(ChatMessage(role: 'assistant', content: content.trim()));
+  //       } else {
+  //         showCustomSnackBar('Invalid AI response', isError: true);
+  //       }
+  //     } else {
+  //       final body = response.body;
+  //       final message = body is Map ? body['message']?.toString() : null;
+  //       showCustomSnackBar(
+  //         message ?? 'Failed to get AI response',
+  //         isError: true,
+  //       );
+  //     }
+  //   } catch (e) {
+  //     showCustomSnackBar(e.toString(), isError: true);
+  //   } finally {
+  //     isSending.value = false;
+  //   }
+  // }
+
   Future<void> sendMessage({String? presetMessage}) async {
     final text = (presetMessage ?? messageController.text).trim();
     if (text.isEmpty) return;
@@ -96,25 +147,36 @@ class AiChatController extends GetxController {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final body = response.body;
-        String? content;
-        if (body is Map && body['data'] is Map) {
-          final data = body['data'] as Map;
-          content = data['content']?.toString();
-        }
+        try {
+          final raw = response.body is String
+              ? jsonDecode(response.body)
+              : response.body;
 
-        if (content != null && content.trim().isNotEmpty) {
-          messages.add(ChatMessage(role: 'assistant', content: content.trim()));
-        } else {
-          showCustomSnackBar('Invalid AI response', isError: true);
+          final content = raw['data']['content']?.toString();
+
+          if (content != null && content.trim().isNotEmpty) {
+            messages.add(
+              ChatMessage(role: 'assistant', content: content.trim()),
+            );
+          } else {
+            showCustomSnackBar('Invalid AI response', isError: true);
+          }
+        } catch (e) {
+          showCustomSnackBar('Parsing error: $e', isError: true);
         }
       } else {
-        final body = response.body;
-        final message = body is Map ? body['message']?.toString() : null;
-        showCustomSnackBar(
-          message ?? 'Failed to get AI response',
-          isError: true,
-        );
+        try {
+          final raw = response.body is String
+              ? jsonDecode(response.body)
+              : response.body;
+          final message = raw is Map ? raw['message']?.toString() : null;
+          showCustomSnackBar(
+            message ?? 'Failed to get AI response',
+            isError: true,
+          );
+        } catch (_) {
+          showCustomSnackBar('Failed to get AI response', isError: true);
+        }
       }
     } catch (e) {
       showCustomSnackBar(e.toString(), isError: true);

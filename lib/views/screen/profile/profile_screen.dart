@@ -461,17 +461,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: AppColors.textColor.withValues(alpha: 0.05),
                     ),
 
-                    const SizedBox(height: 10),
+                    // const SizedBox(height: 10),
 
-                    _customRow(
-                      onTap: () {
-                        Get.to(() => const AiPersonalization());
-                      },
-                      backgroundColor: const Color(0xFFA78BFA),
-                      image: "assets/images/groupUser.png",
-                      title: "AI Personalization",
-                      subtitle: "Model, style & subject focus",
-                    ),
+                    // _customRow(
+                    //   onTap: () {
+                    //     Get.to(() => const AiPersonalization());
+                    //   },
+                    //   backgroundColor: const Color(0xFFA78BFA),
+                    //   image: "assets/images/groupUser.png",
+                    //   title: "AI Personalization",
+                    //   subtitle: "Model, style & subject focus",
+                    // ),
 
                     const SizedBox(height: 10),
                     Divider(
@@ -527,15 +527,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _customRow(
-                      onTap: () {
-                        Get.to(() => const NotificationScreen());
-                      },
-                      backgroundColor: const Color(0xFF60A5FA),
-                      image: "assets/images/notification.png",
-                      title: "Notifications",
-                      subtitle: "Push & email alerts",
-                    ),
+                    // _customRow(
+                    //   onTap: () {
+                    //     Get.to(() => const NotificationScreen());
+                    //   },
+                    //   backgroundColor: const Color(0xFF60A5FA),
+                    //   image: "assets/images/notification.png",
+                    //   title: "Notifications",
+                    //   subtitle: "Push & email alerts",
+                    // ),
 
                     const SizedBox(height: 10),
                     Divider(
