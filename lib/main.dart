@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/theme/dark_theme.dart';
+import 'package:flutter_extension/theme/light_theme.dart';
 import 'package:flutter_extension/util/app_constants.dart';
 import 'package:flutter_extension/util/message.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -37,8 +38,9 @@ class MyApp extends StatelessWidget {
                   title: AppConstants.APP_NAME,
                   debugShowCheckedModeBanner: false,
                   navigatorKey: Get.key,
-                  //theme: themeController.darkTheme ?  dark() : light(),
-                  theme: dark(),
+                  theme: light(),
+                  darkTheme: dark(),
+                  themeMode: themeController.themeMode,
                   defaultTransition: Transition.topLevel,
                   locale: localizeController.locale,
                   translations: Messages(languages: languages),

@@ -7,14 +7,12 @@ import 'package:flutter_extension/helper/prefs_helper.dart';
 import 'package:flutter_extension/helper/route_helper.dart';
 import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_extension/util/app_constants.dart';
-import 'package:flutter_extension/views/screen/profile/aiPersonalization/ai_personalization.dart';
 import 'package:flutter_extension/views/screen/profile/change_password_screen.dart';
 import 'package:flutter_extension/views/screen/profile/dataControl/data_control_screen.dart';
-import 'package:flutter_extension/views/screen/profile/notification_screen.dart';
 import 'package:flutter_extension/views/screen/profile/parental/parental_control_screen.dart';
 import 'package:flutter_extension/views/screen/profile/help_support.dart';
-import 'package:flutter_extension/views/screen/profile/privacy_security.dart';
 import 'package:flutter_extension/views/screen/profile/twoFactorAuth/two_factor_auth.dart';
+import 'package:flutter_extension/views/screen/profile/twoFactorAuth/settings_page.dart'; 
 import 'package:get/get.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -29,7 +27,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0F1A),
+      backgroundColor: AppColors.backgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -398,7 +396,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 23),
 
               Text(
-                "Security & Privacy",
+                "security_privacy".tr,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -411,11 +409,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  color: AppColors.textColor.withValues(alpha: 0.04),
+                  color: AppColors.cardColor,
                   border: Border.all(
-                    color: AppColors.textColor.withValues(alpha: 0.07),
+                    color: AppColors.borderColor,
                     width: 1,
                   ),
+                  boxShadow: AppColors.isDark ? [] : [
+                    BoxShadow(
+                      color: const Color(0xFF000000).withValues(alpha: 0.02),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -428,12 +433,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                         backgroundColor: const Color(0xFF60A5FA),
                         image: "assets/images/lock.png",
-                        title: "Two-Factor Auth",
+                        title: "two_factor_auth".tr,
                         subtitle:
                             _profileController.profile.value?.twoFactorEnabled ==
                                 true
                             ? "Enabled"
-                            : "Add extra sign-in security",
+                            : "add_signin_security".tr,
                       ),
                     ),
 
@@ -451,8 +456,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                       backgroundColor: const Color(0xFFF59E0B),
                       image: "assets/images/groupUser.png",
-                      title: "Parental Control",
-                      subtitle: "Content & time restrictions",
+                      title: "parental_control".tr,
+                      subtitle: "content_time_restrictions".tr,
                     ),
 
                     const SizedBox(height: 10),
@@ -487,8 +492,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                       backgroundColor: const Color(0xFF34D399),
                       image: "assets/images/groupUser.png",
-                      title: "Data Control",
-                      subtitle: "Export data · Delete chat history",
+                      title: "data_control".tr,
+                      subtitle: "export_delete_history".tr,
                     ),
 
                     const SizedBox(height: 10),
@@ -503,7 +508,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 23),
 
               Text(
-                "General",
+                "general".tr,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -517,11 +522,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  color: AppColors.textColor.withValues(alpha: 0.04),
+                  color: AppColors.cardColor,
                   border: Border.all(
-                    color: AppColors.textColor.withValues(alpha: 0.07),
+                    color: AppColors.borderColor,
                     width: 1,
                   ),
+                  boxShadow: AppColors.isDark ? [] : [
+                    BoxShadow(
+                      color: const Color(0xFF000000).withValues(alpha: 0.02),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -545,14 +557,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     const SizedBox(height: 10),
 
+                    // _customRow(
+                    //   onTap: () {
+                    //     Get.to(() => const PrivacySecurity());
+                    //   },
+                    //   backgroundColor: const Color(0xFF34D399),
+                    //   image: "assets/images/privacy.png",
+                    //   title: "Privacy & Security",
+                    //   subtitle: "Manage data",
+                    // ),
+
                     _customRow(
                       onTap: () {
-                        Get.to(() => const PrivacySecurity());
+
+                        Get.to(() => const SettingsPage());
+                        
                       },
                       backgroundColor: const Color(0xFF34D399),
                       image: "assets/images/privacy.png",
-                      title: "Privacy & Security",
-                      subtitle: "Manage data",
+                      title: "settings".tr,
+                      subtitle: "manage_data".tr,
                     ),
 
                     const SizedBox(height: 10),
@@ -569,8 +593,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                       backgroundColor: const Color(0xFFF59E0B),
                       image: "assets/images/help.png",
-                      title: "Help & Support",
-                      subtitle: "FAQ & contact",
+                      title: "help_support".tr,
+                      subtitle: "faq_contact".tr,
                     ),
 
                     const SizedBox(height: 10),
@@ -587,8 +611,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                       backgroundColor: const Color(0xFFF87171),
                       image: "assets/images/lock.png",
-                      title: "Change Password",
-                      subtitle: "Update your password",
+                      title: "change_password".tr,
+                      subtitle: "update_password".tr,
                     ),
                     const SizedBox(height: 10),
                     _customRow(
@@ -597,7 +621,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                       backgroundColor: const Color(0xFF60A5FA),
                       image: "assets/images/logout.png",
-                      title: "Logout",
+                      title: "logout".tr,
                       subtitle: "",
                     ),
                   ],
@@ -631,7 +655,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Logout',
+                  'logout'.tr,
                   style: TextStyle(
                     color: AppColors.textColor,
                     fontSize: 22,
@@ -639,10 +663,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Are you sure you want to log out?',
+                Text(
+                  'logout_confirm'.tr,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.w400,
                     color: AppColors.textSecondary,
                     fontSize: 15,
@@ -675,7 +699,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                             child: Text(
-                              'Cancel',
+                              'cancel'.tr,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -714,7 +738,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                             child: Text(
-                              'Yes, log out',
+                              'yes_logout'.tr,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -844,12 +868,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(8, 10, 8, 8),
       decoration: BoxDecoration(
-        color: AppColors.textColor.withValues(alpha: 0.05),
+        color: AppColors.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: borderColor.withValues(alpha: 0.55),
           width: 1,
         ),
+        boxShadow: AppColors.isDark ? [] : [
+          BoxShadow(
+            color: const Color(0xFF000000).withValues(alpha: 0.02),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

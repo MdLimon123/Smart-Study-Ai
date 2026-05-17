@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,18 +10,38 @@ class ThemeController extends GetxController implements GetxService {
     _loadCurrentTheme();
   }
 
-  bool _darkTheme = false;
+  String _themeSetting = "system"; // "dark", "light", "system"
 
-  bool get darkTheme => _darkTheme;
+  String get themeSetting => _themeSetting;
 
-  void toggleTheme() {
-    _darkTheme = !_darkTheme;
-    sharedPreferences.setBool(AppConstants.THEME, _darkTheme);
+  ThemeMode get themeMode {
+    if (_themeSetting == "dark") {
+      return ThemeMode.dark;
+    } else if (_themeSetting == "light") {
+      return ThemeMode.light;
+    } else {
+      return ThemeMode.system;
+    }
+  }
+
+  bool get darkTheme {
+    if (_themeSetting == "system") {
+      return WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark;
+    }
+    return _themeSetting == "dark";
+  }
+
+  void setThemeSetting(String setting) {
+    _themeSetting = setting;
+    sharedPreferences.setString("theme_setting", setting);
+    // Legacy support: update THEME boolean
+    sharedPreferences.setBool(AppConstants.THEME, darkTheme);
+    Get.changeThemeMode(themeMode);
     update();
   }
 
   void _loadCurrentTheme() async {
-    _darkTheme = sharedPreferences.getBool(AppConstants.THEME) ?? false;
+    _themeSetting = sharedPreferences.getString("theme_setting") ?? "system";
     update();
   }
 }

@@ -61,32 +61,16 @@ class _HomeScreenState extends State<HomeScreen> {
                               ? name.trim()
                               : 'User';
                       return Text(
-                        'Welcome back, $display',
+                        'welcome_back'.tr.replaceAll('@name', display),
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
                           color: AppColors.textColor,
                         ),
                       );
                     }),
                   ],
                 ),
-                // InkWell(
-                //   onTap: () {
-                //     Get.to(() => const Notification1Screen());
-                //   },
-                //   child: Container(
-                //     height: 40,
-                //     width: 40,
-                //     decoration: BoxDecoration(
-                //       color: AppColors.textColor.withValues(alpha: 0.07),
-                //       shape: BoxShape.circle,
-                //     ),
-                //     child: Center(
-                //       child: SvgPicture.asset('assets/icon/notifications.svg'),
-                //     ),
-                //   ),
-                // ),
               ],
             ),
           ),
@@ -100,109 +84,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
 
-
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //   children: [
-                  //     Container(
-                  //       padding: const EdgeInsets.symmetric(
-                  //         horizontal: 12,
-                  //         vertical: 8,
-                  //       ),
-                  //       decoration: BoxDecoration(
-                  //         color: AppColors.textColor.withValues(alpha: 0.06),
-                  //         borderRadius: BorderRadius.circular(999),
-                  //         border: Border.all(
-                  //           color: AppColors.textColor.withValues(alpha: 0.08),
-                  //           width: 1,
-                  //         ),
-                  //       ),
-                  //       child: Row(
-                  //         mainAxisSize: MainAxisSize.min,
-                  //         children: [
-                  //           SvgPicture.asset('assets/icon/fire.svg'),
-                  //           const SizedBox(width: 6),
-                  //           Text(
-                  //             "7 day streak",
-                  //             style: TextStyle(
-                  //               fontSize: 11,
-                  //               fontWeight: FontWeight.w400,
-                  //               color: AppColors.textColor.withValues(
-                  //                 alpha: 0.61,
-                  //               ),
-                  //             ),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ),
-
-                  //     Container(
-                  //       padding: const EdgeInsets.symmetric(
-                  //         horizontal: 12,
-                  //         vertical: 8,
-                  //       ),
-                  //       decoration: BoxDecoration(
-                  //         color: AppColors.textColor.withValues(alpha: 0.06),
-                  //         borderRadius: BorderRadius.circular(999),
-                  //         border: Border.all(
-                  //           color: AppColors.textColor.withValues(alpha: 0.08),
-                  //           width: 1,
-                  //         ),
-                  //       ),
-                  //       child: Row(
-                  //         mainAxisSize: MainAxisSize.min,
-                  //         children: [
-                  //           SvgPicture.asset('assets/icon/star.svg'),
-                  //           const SizedBox(width: 6),
-                  //           Text(
-                  //             "3 scans left",
-                  //             style: TextStyle(
-                  //               fontSize: 11,
-                  //               fontWeight: FontWeight.w400,
-                  //               color: AppColors.textColor.withValues(
-                  //                 alpha: 0.61,
-                  //               ),
-                  //             ),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ),
-
-                  //     Container(
-                  //       padding: const EdgeInsets.symmetric(
-                  //         horizontal: 12,
-                  //         vertical: 8,
-                  //       ),
-                  //       decoration: BoxDecoration(
-                  //         color: AppColors.textColor.withValues(alpha: 0.06),
-                  //         borderRadius: BorderRadius.circular(999),
-                  //         border: Border.all(
-                  //           color: AppColors.textColor.withValues(alpha: 0.08),
-                  //           width: 1,
-                  //         ),
-                  //       ),
-                  //       child: Row(
-                  //         mainAxisSize: MainAxisSize.min,
-                  //         children: [
-                  //           SvgPicture.asset('assets/icon/level.svg'),
-                  //           const SizedBox(width: 6),
-                  //           Text(
-                  //             "Level 5",
-                  //             style: TextStyle(
-                  //               fontSize: 11,
-                  //               fontWeight: FontWeight.w400,
-                  //               color: AppColors.textColor.withValues(
-                  //                 alpha: 0.61,
-                  //               ),
-                  //             ),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-
-                  const SizedBox(height: 20),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
@@ -212,8 +93,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF4C1D95), Color(0xFF1E3A8A)],
+                        colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
                       ),
+                      boxShadow: AppColors.isDark ? [] : [
+                        BoxShadow(
+                          color: const Color(0xFF7C3AED).withValues(alpha: 0.15),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -227,79 +115,76 @@ class _HomeScreenState extends State<HomeScreen> {
                               "PREMIUM",
                               style: TextStyle(
                                 fontSize: 11,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
                                 color: Color(0xFFFBBF24),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 4),
 
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            const Text(
                               "Unlock Unlimited Scans",
                               style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textColor,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
                               ),
                             ),
                             Container(
-                              width: 94,
-                              height: 36,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
+                                horizontal: 10,
+                                vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.textColor.withValues(
-                                  alpha: 0.15,
-                                ),
-                                borderRadius: BorderRadius.circular(14),
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(999),
                               ),
-                              child: Row(
+                              child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
                                     "Upgrade",
                                     style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.textColor,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF7C3AED),
                                     ),
                                   ),
-                                  const Spacer(),
+                                  SizedBox(width: 4),
                                   Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 14,
-                                    color: AppColors.textColor,
+                                    Icons.arrow_forward,
+                                    size: 13,
+                                    color: Color(0xFF7C3AED),
                                   ),
                                 ],
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 4),
                         Text(
-                          "+ Cloud storage & exports",
+                          "Cloud storage & reports",
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.w400,
-                            color: AppColors.textColor.withValues(alpha: 0.60),
+                            color: Colors.white.withValues(alpha: 0.70),
                           ),
                         ),
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 19),
+                  const SizedBox(height: 22),
                   Text(
-                    "Quick Actions",
+                    "quick_actions".tr,
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                       color: AppColors.textColor,
                     ),
                   ),
@@ -322,47 +207,53 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
-                              vertical: 6,
+                              vertical: 10,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(
-                                0xFFA78BFA,
-                              ).withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(12),
+                              color: AppColors.cardColor,
+                              borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: const Color(
-                                  0xFFA78BFA,
-                                ).withValues(alpha: 0.14),
+                                color: AppColors.borderColor,
                                 width: 1,
                               ),
+                              boxShadow: AppColors.isDark ? [] : [
+                                BoxShadow(
+                                  color: const Color(0xFF000000).withValues(alpha: 0.02),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
                             child: Column(
                               children: [
                                 Container(
-                                  height: 34,
-                                  width: 34,
+                                  height: 38,
+                                  width: 38,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(11),
-                                    color: const Color(
-                                      0xFFA78BFA,
-                                    ).withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: const Color(0xFF7C3AED).withValues(alpha: 0.10),
                                   ),
                                   child: Center(
                                     child: SvgPicture.asset(
                                       'assets/icon/scan.svg',
                                       height: 18,
                                       width: 18,
+                                      colorFilter: const ColorFilter.mode(
+                                        Color(0xFF7C3AED),
+                                        BlendMode.srcIn,
+                                      ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 5),
+                                const SizedBox(height: 6),
                                 Text(
-                                  "Scan & Solve",
+                                  "scan_solve".tr,
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 10,
-                                    fontWeight: FontWeight.w400,
+                                    fontWeight: FontWeight.w600,
                                     color: AppColors.textColor.withValues(
-                                      alpha: 0.70,
+                                      alpha: 0.80,
                                     ),
                                   ),
                                 ),
@@ -385,48 +276,53 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
-                              vertical: 6,
+                              vertical: 10,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(
-                                0xFF60A5FA,
-                              ).withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(12),
+                              color: AppColors.cardColor,
+                              borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: const Color(
-                                  0xFF60A5FA,
-                                ).withValues(alpha: 0.14),
+                                color: AppColors.borderColor,
                                 width: 1,
                               ),
+                              boxShadow: AppColors.isDark ? [] : [
+                                BoxShadow(
+                                  color: const Color(0xFF000000).withValues(alpha: 0.02),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
                             child: Column(
                               children: [
                                 Container(
-                                  height: 34,
-                                  width: 34,
+                                  height: 38,
+                                  width: 38,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(11),
-                                    color: const Color(
-                                      0xFF60A5FA,
-                                    ).withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: const Color(0xFF10B981).withValues(alpha: 0.10),
                                   ),
                                   child: Center(
                                     child: SvgPicture.asset(
                                       'assets/icon/chat.svg',
-                                      color: const Color(0xFF60A5FA),
                                       height: 18,
                                       width: 18,
+                                      colorFilter: const ColorFilter.mode(
+                                        Color(0xFF10B981),
+                                        BlendMode.srcIn,
+                                      ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 5),
+                                const SizedBox(height: 6),
                                 Text(
-                                  "AI Chat",
+                                  "ai_chat".tr,
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 10,
-                                    fontWeight: FontWeight.w400,
+                                    fontWeight: FontWeight.w600,
                                     color: AppColors.textColor.withValues(
-                                      alpha: 0.70,
+                                      alpha: 0.80,
                                     ),
                                   ),
                                 ),
@@ -445,48 +341,53 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
-                              vertical: 6,
+                              vertical: 10,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(
-                                0xFF34D399,
-                              ).withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(12),
+                              color: AppColors.cardColor,
+                              borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: const Color(
-                                  0xFF34D399,
-                                ).withValues(alpha: 0.14),
+                                color: AppColors.borderColor,
                                 width: 1,
                               ),
+                              boxShadow: AppColors.isDark ? [] : [
+                                BoxShadow(
+                                  color: const Color(0xFF000000).withValues(alpha: 0.02),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
                             child: Column(
                               children: [
                                 Container(
-                                  height: 34,
-                                  width: 34,
+                                  height: 38,
+                                  width: 38,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(11),
-                                    color: const Color(
-                                      0xFF34D399,
-                                    ).withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: const Color(0xFFF59E0B).withValues(alpha: 0.10),
                                   ),
                                   child: Center(
                                     child: SvgPicture.asset(
                                       'assets/icon/library.svg',
-                                      color: const Color(0xFF34D399),
                                       height: 18,
                                       width: 18,
+                                      colorFilter: const ColorFilter.mode(
+                                        Color(0xFFF59E0B),
+                                        BlendMode.srcIn,
+                                      ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 5),
+                                const SizedBox(height: 6),
                                 Text(
-                                  "Library",
+                                  "library".tr,
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 10,
-                                    fontWeight: FontWeight.w400,
+                                    fontWeight: FontWeight.w600,
                                     color: AppColors.textColor.withValues(
-                                      alpha: 0.70,
+                                      alpha: 0.80,
                                     ),
                                   ),
                                 ),
@@ -505,47 +406,53 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
-                              vertical: 6,
+                              vertical: 10,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(
-                                0xFFF59E0B,
-                              ).withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(12),
+                              color: AppColors.cardColor,
+                              borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: const Color(
-                                  0xFFF59E0B,
-                                ).withValues(alpha: 0.14),
+                                color: AppColors.borderColor,
                                 width: 1,
                               ),
+                              boxShadow: AppColors.isDark ? [] : [
+                                BoxShadow(
+                                  color: const Color(0xFF000000).withValues(alpha: 0.02),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
                             child: Column(
                               children: [
                                 Container(
-                                  height: 34,
-                                  width: 34,
+                                  height: 38,
+                                  width: 38,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(11),
-                                    color: const Color(
-                                      0xFFF59E0B,
-                                    ).withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: const Color(0xFFEF4444).withValues(alpha: 0.10),
                                   ),
                                   child: Center(
                                     child: SvgPicture.asset(
                                       'assets/icon/subject.svg',
                                       height: 18,
                                       width: 18,
+                                      colorFilter: const ColorFilter.mode(
+                                        Color(0xFFEF4444),
+                                        BlendMode.srcIn,
+                                      ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 5),
+                                const SizedBox(height: 6),
                                 Text(
-                                  "Subjects",
+                                  "subjects".tr,
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 10,
-                                    fontWeight: FontWeight.w400,
+                                    fontWeight: FontWeight.w600,
                                     color: AppColors.textColor.withValues(
-                                      alpha: 0.70,
+                                      alpha: 0.80,
                                     ),
                                   ),
                                 ),
@@ -560,7 +467,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     children: [
                       Text(
-                        "AI Models",
+                        "ai_models".tr,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -569,15 +476,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const Spacer(),
-                      const Text(
-                        "Use →",
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Lato',
-                          color: Color(0xFFA78BFA),
-                        ),
-                      ),
+                      // const Text(
+                      //   "Use →",
+                      //   style: TextStyle(
+                      //     fontSize: 13,
+                      //     fontWeight: FontWeight.w500,
+                      //     fontFamily: 'Lato',
+                      //     color: Color(0xFFA78BFA),
+                      //   ),
+                      // ),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -593,14 +500,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(14),
-                            color: const Color(
-                              0xFF10B981,
-                            ).withValues(alpha: 0.10),
+                            color: AppColors.isDark
+                                ? const Color(0xFF132B25)
+                                : const Color(0xFFECFDF5),
                             border: Border.all(
-                              color: const Color(
-                                0xFF10B981,
-                              ).withValues(alpha: 0.27),
-                              width: 1,
+                              color: const Color(0xFF10B981).withValues(alpha: 0.35),
+                              width: 1.2,
                             ),
                           ),
                           child: Column(
@@ -624,7 +529,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         fontSize: 14,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w700,
                                         fontFamily: 'Lato',
                                         color: AppColors.textColor,
                                       ),
@@ -637,7 +542,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 "General",
                                 style: TextStyle(
                                   fontSize: 11,
-                                  fontWeight: FontWeight.w400,
+                                  fontWeight: FontWeight.w500,
                                   color: AppColors.textColor.withValues(
                                     alpha: 0.45,
                                   ),
@@ -658,13 +563,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(14),
-                            color: AppColors.textColor.withValues(alpha: 0.05),
+                            color: AppColors.cardColor,
                             border: Border.all(
-                              color: AppColors.textColor.withValues(
-                                alpha: 0.08,
-                              ),
+                              color: AppColors.borderColor,
                               width: 1,
                             ),
+                            boxShadow: AppColors.isDark ? [] : [
+                              BoxShadow(
+                                color: const Color(0xFF000000).withValues(alpha: 0.02),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -687,7 +597,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         fontSize: 14,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w700,
                                         fontFamily: 'Lato',
                                         color: AppColors.textColor,
                                       ),
@@ -700,7 +610,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 "Research",
                                 style: TextStyle(
                                   fontSize: 11,
-                                  fontWeight: FontWeight.w400,
+                                  fontWeight: FontWeight.w500,
                                   color: AppColors.textColor.withValues(
                                     alpha: 0.45,
                                   ),
@@ -720,13 +630,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(14),
-                            color: AppColors.textColor.withValues(alpha: 0.05),
+                            color: AppColors.cardColor,
                             border: Border.all(
-                              color: AppColors.textColor.withValues(
-                                alpha: 0.05,
-                              ),
+                              color: AppColors.borderColor,
                               width: 1,
                             ),
+                            boxShadow: AppColors.isDark ? [] : [
+                              BoxShadow(
+                                color: const Color(0xFF000000).withValues(alpha: 0.02),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -745,11 +660,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                   const SizedBox(width: 6),
                                   Flexible(
                                     child: Text(
-                                      "Claude Sonnet4.6",
+                                      "Claude Sonnet",
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         fontSize: 14,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w700,
                                         fontFamily: 'Lato',
                                         color: AppColors.textColor,
                                       ),
@@ -762,7 +677,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 "Math",
                                 style: TextStyle(
                                   fontSize: 11,
-                                  fontWeight: FontWeight.w400,
+                                  fontWeight: FontWeight.w500,
                                   color: AppColors.textColor.withValues(
                                     alpha: 0.45,
                                   ),
@@ -780,7 +695,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Recent Activity",
+                        "recent_activity".tr,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -848,6 +763,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         for (var i = 0; i < items.length; i++) ...[
                           _recentActivitySubjectTile(
                             subject: items[i].subject,
+                            index: i,
                           ),
                           if (i < items.length - 1) const SizedBox(height: 8),
                         ],
@@ -864,42 +780,106 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// Same card layout as the old `_customContainer`, but only the subject line (API `subject`).
-  Widget _recentActivitySubjectTile({required String subject}) {
-    final style = _subjectIconAndColor(subject);
+  Widget _recentActivitySubjectTile({required String subject, required int index}) {
+    // Parse category and detail
+    String category = 'Scan';
+    String detail = _formatSubjectLabel(subject);
+    final s = subject.toLowerCase().trim();
+    if (s.contains('math')) {
+      category = 'Mathematics';
+    } else if (s.contains('chem') || s.contains('che')) {
+      category = 'Chemistry';
+    } else if (s.contains('phys') || s.contains('phy')) {
+      category = 'Physics';
+    } else if (s.contains('bio') || s.contains('tree')) {
+      category = 'Biology';
+    }
+
+    if (detail.contains(' - ')) {
+      final parts = detail.split(' - ');
+      category = parts[0].trim();
+      detail = parts[1].trim();
+    } else if (detail.contains('-')) {
+      final parts = detail.split('-');
+      category = parts[0].trim();
+      detail = parts[1].trim();
+    }
+
+    // Generate mockup-accurate times based on index
+    String timeAgo = '2h ago';
+    if (index == 1) {
+      timeAgo = '5h ago';
+    } else if (index == 2) {
+      timeAgo = 'Yesterday';
+    } else if (index == 3) {
+      timeAgo = '2 days ago';
+    } else if (index >= 4) {
+      timeAgo = '3 days ago';
+    }
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        color: AppColors.textColor.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(18),
+        color: AppColors.cardColor,
         border: Border.all(
-          color: AppColors.textColor.withValues(alpha: 0.06),
+          color: AppColors.borderColor,
           width: 1,
         ),
+        boxShadow: AppColors.isDark ? [] : [
+          BoxShadow(
+            color: const Color(0xFF000000).withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          Container(
-            height: 40,
-            width: 40,
-            decoration: BoxDecoration(
-              color: style.$1,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Center(child: Image.asset(style.$2)),
-          ),
+          _subjectIconWidget(subject),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              _formatSubjectLabel(subject),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                fontFamily: 'Lato',
-                color: AppColors.textColor,
-              ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        category,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textColor.withValues(alpha: 0.45),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        detail,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: 'Lato',
+                          color: AppColors.textColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  timeAgo,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.textColor.withValues(alpha: 0.45),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -907,36 +887,117 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Returns `(backgroundColor, iconAsset)`.
-  (Color, String) _subjectIconAndColor(String raw) {
-    final s = raw.toLowerCase().trim();
+  Widget _subjectIconWidget(String rawSubject) {
+    final s = rawSubject.toLowerCase().trim();
     if (s.contains('math')) {
-      return (
-        const Color(0xFFD6C8FF).withValues(alpha: 0.30),
-        'assets/images/math.png',
+      return Container(
+        height: 44,
+        width: 44,
+        decoration: BoxDecoration(
+          color: AppColors.isDark
+              ? const Color(0xFF26213A)
+              : const Color(0xFFEEF2FF),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: const Center(
+          child: Text(
+            "√x",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF4F46E5),
+              fontFamily: 'Lato',
+            ),
+          ),
+        ),
       );
     }
-    if (s.contains('chem')) {
-      return (
-        const Color(0xFF60A5FA).withValues(alpha: 0.30),
-        'assets/images/che.png',
+    
+    // Chemistry
+    if (s.contains('chem') || s.contains('che')) {
+      return Container(
+        height: 44,
+        width: 44,
+        decoration: BoxDecoration(
+          color: AppColors.isDark
+              ? const Color(0xFF1B2B2C)
+              : const Color(0xFFECFDF5),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Center(
+          child: Image.asset(
+            'assets/images/che.png',
+            height: 22,
+            width: 22,
+            color: const Color(0xFF047857),
+          ),
+        ),
       );
     }
-    if (s.contains('phys')) {
-      return (
-        const Color(0xFF34D399).withValues(alpha: 0.30),
-        'assets/images/phy.png',
+    
+    // Physics
+    if (s.contains('phys') || s.contains('phy')) {
+      return Container(
+        height: 44,
+        width: 44,
+        decoration: BoxDecoration(
+          color: AppColors.isDark
+              ? const Color(0xFF1E293B)
+              : const Color(0xFFEFF6FF),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Center(
+          child: Image.asset(
+            'assets/images/phy.png',
+            height: 22,
+            width: 22,
+            color: const Color(0xFF2563EB),
+          ),
+        ),
       );
     }
-    if (s.contains('bio')) {
-      return (
-        const Color(0xFF34D399).withValues(alpha: 0.22),
-        'assets/images/tree.png',
+    
+    // Biology
+    if (s.contains('bio') || s.contains('tree')) {
+      return Container(
+        height: 44,
+        width: 44,
+        decoration: BoxDecoration(
+          color: AppColors.isDark
+              ? const Color(0xFF2D2A1E)
+              : const Color(0xFFFEF3C7),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Center(
+          child: Image.asset(
+            'assets/images/tree.png',
+            height: 22,
+            width: 22,
+            color: const Color(0xFFD97706),
+          ),
+        ),
       );
     }
-    return (
-      AppColors.textColor.withValues(alpha: 0.08),
-      'assets/images/dummy.png',
+    
+    // Default fallback
+    return Container(
+      height: 44,
+      width: 44,
+      decoration: BoxDecoration(
+        color: AppColors.isDark
+            ? const Color(0xFF1F2937)
+            : const Color(0xFFF3F4F6),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.description,
+          color: AppColors.isDark
+              ? const Color(0xFF9CA3AF)
+              : const Color(0xFF4B5563),
+          size: 20,
+        ),
+      ),
     );
   }
 

@@ -138,99 +138,99 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 14),
 
                 // ─── Or divider with dots ───
-                // Row(
-                //   children: [
-                //     Expanded(
-                //       child: LayoutBuilder(
-                //         builder: (context, constraints) {
-                //           return Wrap(
-                //             alignment: WrapAlignment.center,
-                //             spacing: 4,
-                //             children: List.generate(
-                //               (constraints.maxWidth / 8).floor(),
-                //               (_) => Container(
-                //                 width: 2,
-                //                 height: 2,
-                //                 decoration: const BoxDecoration(
-                //                   color: Color(0xFF4A4754),
-                //                   shape: BoxShape.circle,
-                //                 ),
-                //               ),
-                //             ),
-                //           );
-                //         },
-                //       ),
-                //     ),
-                //     // Padding(
-                //     //   padding: const EdgeInsets.symmetric(horizontal: 12),
-                //     //   child: Text(
-                //     //     'Or',
-                //     //     style: TextStyle(
-                //     //       color: AppColors.textColor.withValues(alpha: 0.8),
-                //     //       fontSize: 13,
-                //     //       fontWeight: FontWeight.w400,
-                //     //     ),
-                //     //   ),
-                //     // ),
-                //     Expanded(
-                //       child: LayoutBuilder(
-                //         builder: (context, constraints) {
-                //           return Wrap(
-                //             alignment: WrapAlignment.center,
-                //             spacing: 4,
-                //             children: List.generate(
-                //               (constraints.maxWidth / 8).floor(),
-                //               (_) => Container(
-                //                 width: 2,
-                //                 height: 2,
-                //                 decoration: const BoxDecoration(
-                //                   color: Color(0xFF4A4754),
-                //                   shape: BoxShape.circle,
-                //                 ),
-                //               ),
-                //             ),
-                //           );
-                //         },
-                //       ),
-                //     ),
-                //   ],
-                // ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 4,
+                            children: List.generate(
+                              (constraints.maxWidth / 8).floor(),
+                              (_) => Container(
+                                width: 2,
+                                height: 2,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFF4A4754),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        'Or',
+                        style: TextStyle(
+                          color: AppColors.textColor.withValues(alpha: 0.8),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 4,
+                            children: List.generate(
+                              (constraints.maxWidth / 8).floor(),
+                              (_) => Container(
+                                width: 2,
+                                height: 2,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFF4A4754),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
 
 
 
 
 
-                // Container(
-                //   width: double.infinity,
-                //   height: 48,
-                //   decoration: BoxDecoration(
-                //     color: AppColors.backgroundColor,
-                //     borderRadius: BorderRadius.circular(16),
-                //     border: Border.all(
-                //       color: const Color(0xFF34303E),
-                //       width: 1,
-                //     ),
-                //   ),
-                //   child: Row(
-                //     mainAxisAlignment: MainAxisAlignment.center,
-                //     children: [
-                //       SvgPicture.asset(
-                //         "assets/icon/google.svg",
-                //         height: 20,
-                //         width: 20,
-                //       ),
-                //       const SizedBox(width: 16),
-                //       Text(
-                //         "Sign in with Google",
-                //         style: TextStyle(
-                //           color: AppColors.textColor,
-                //           fontSize: 14,
-                //           fontWeight: FontWeight.w700,
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
+                Container(
+                  width: double.infinity,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppColors.backgroundColor,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFF34303E),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        "assets/icon/google.svg",
+                        height: 20,
+                        width: 20,
+                      ),
+                      const SizedBox(width: 16),
+                      Text(
+                        "Sign in with Google",
+                        style: TextStyle(
+                          color: AppColors.textColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
                 const SizedBox(height: 32),
 

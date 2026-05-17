@@ -48,10 +48,10 @@ class _AiChatScreenState extends State<AiChatScreen> {
         Rect.fromLTWH(button.size.width - 20, 100, 0, 0),
         Offset.zero & overlay.size,
       ),
-      color: const Color(0xFF1A1A2E),
+      color: AppColors.cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: AppColors.textColor.withValues(alpha: 0.10)),
+        side: BorderSide(color: AppColors.borderColor),
       ),
       elevation: 12,
       items: List.generate(_aiChatController.models.length, (index) {
@@ -107,7 +107,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0F1A),
+      backgroundColor: AppColors.backgroundColor,
       body: SafeArea(
         child: Column(
         children: [
@@ -441,7 +441,7 @@ class _AiMarkdown extends StatelessWidget {
 
     return GptMarkdownTheme(
       gptThemeData: GptMarkdownThemeData(
-        brightness: Brightness.dark,
+        brightness: Theme.of(context).brightness,
         h1: baseStyle.copyWith(fontSize: 20, fontWeight: FontWeight.w800),
         h2: baseStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w800),
         h3: baseStyle.copyWith(fontSize: 17, fontWeight: FontWeight.w700),

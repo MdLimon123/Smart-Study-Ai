@@ -87,7 +87,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       cursorColor: AppColors.primaryColor,
       maxLines: widget.maxLines,
       obscureText: widget.isPassword ? obscureText : false,
-      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+      style: TextStyle(color: AppColors.textColor, fontSize: 16.sp),
       decoration: InputDecoration(
         contentPadding: EdgeInsets.symmetric(
           horizontal: widget.contentPaddingHorizontal ?? 20.w,

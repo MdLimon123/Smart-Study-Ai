@@ -35,7 +35,7 @@ class BottomMenu extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-            color: isSelected ? Colors.white : const Color(0xFF6B6B7B),
+            color: isSelected ? AppColors.textColor : const Color(0xFF6B6B7B),
           ),
         ),
       ],
@@ -68,7 +68,7 @@ class BottomMenu extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F0F1A).withValues(alpha: 0.95),
+        color: AppColors.bottomBarColor.withValues(alpha: 0.95),
         border: Border.all(
           color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
         ),

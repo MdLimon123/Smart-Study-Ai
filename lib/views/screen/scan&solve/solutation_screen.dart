@@ -62,26 +62,7 @@ class _SolutationScreenState extends State<SolutationScreen> {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                color: AppColors.textColor.withValues(alpha: 0.07),
-                shape: BoxShape.circle,
-              ),
-              child: Center(child: SvgPicture.asset('assets/icon/touch.svg')),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                color: AppColors.textColor.withValues(alpha: 0.07),
-                shape: BoxShape.circle,
-              ),
-              child: Center(child: SvgPicture.asset('assets/icon/attch.svg')),
-            ),
+
           ],
         ),
       ),

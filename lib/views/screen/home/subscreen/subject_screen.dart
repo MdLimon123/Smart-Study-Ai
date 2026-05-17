@@ -74,7 +74,7 @@ class _SubjectScreenState extends State<SubjectScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0F1A),
+      backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -138,10 +138,10 @@ class _SubjectScreenState extends State<SubjectScreen> {
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1A1A2E),
+                  color: AppColors.cardColor,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: AppColors.surfaceBorder.withValues(alpha: 0.5),
+                    color: AppColors.borderColor,
                   ),
                 ),
                 child: TextField(
@@ -281,13 +281,20 @@ class _SubjectScreenState extends State<SubjectScreen> {
         curve: Curves.easeInOut,
         padding: EdgeInsets.all(14.w),
         decoration: BoxDecoration(
-          color: const Color(0xFF1A1A2E),
+          color: AppColors.cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isExpanded
                 ? accent.withValues(alpha: 0.35)
-                : AppColors.surfaceBorder.withValues(alpha: 0.3),
+                : AppColors.borderColor,
           ),
+          boxShadow: AppColors.isDark ? [] : [
+            BoxShadow(
+              color: const Color(0xFF000000).withValues(alpha: 0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -295,20 +302,7 @@ class _SubjectScreenState extends State<SubjectScreen> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 44.w,
-                  height: 44.w,
-                  decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: Text(
-                      _emojiForSubject(item.subject),
-                      style: TextStyle(fontSize: 20.sp),
-                    ),
-                  ),
-                ),
+                _subjectIconWidget(item.subject),
                 SizedBox(width: 12.w),
                 Expanded(
                   child: Column(
@@ -388,13 +382,119 @@ class _SubjectScreenState extends State<SubjectScreen> {
     return const Color(0xFFA78BFA);
   }
 
-  String _emojiForSubject(String raw) {
-    final s = raw.toLowerCase();
-    if (s.contains('math')) return '∫';
-    if (s.contains('phys')) return '⚡';
-    if (s.contains('chem')) return '🧪';
-    if (s.contains('bio')) return '🧬';
-    return '📄';
+
+  Widget _subjectIconWidget(String rawSubject) {
+    final s = rawSubject.toLowerCase().trim();
+    if (s.contains('math')) {
+      return Container(
+        height: 44.w,
+        width: 44.w,
+        decoration: BoxDecoration(
+          color: AppColors.isDark
+              ? const Color(0xFF26213A)
+              : const Color(0xFFEEF2FF),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: const Center(
+          child: Text(
+            "√x",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF4F46E5),
+              fontFamily: 'Lato',
+            ),
+          ),
+        ),
+      );
+    }
+    
+    // Chemistry
+    if (s.contains('chem') || s.contains('che')) {
+      return Container(
+        height: 44.w,
+        width: 44.w,
+        decoration: BoxDecoration(
+          color: AppColors.isDark
+              ? const Color(0xFF1B2B2C)
+              : const Color(0xFFECFDF5),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Center(
+          child: Image.asset(
+            'assets/images/che.png',
+            height: 22,
+            width: 22,
+            color: const Color(0xFF047857),
+          ),
+        ),
+      );
+    }
+    
+    // Physics
+    if (s.contains('phys') || s.contains('phy')) {
+      return Container(
+        height: 44.w,
+        width: 44.w,
+        decoration: BoxDecoration(
+          color: AppColors.isDark
+              ? const Color(0xFF1E293B)
+              : const Color(0xFFEFF6FF),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Center(
+          child: Image.asset(
+            'assets/images/phy.png',
+            height: 22,
+            width: 22,
+            color: const Color(0xFF2563EB),
+          ),
+        ),
+      );
+    }
+    
+    // Biology
+    if (s.contains('bio') || s.contains('tree')) {
+      return Container(
+        height: 44.w,
+        width: 44.w,
+        decoration: BoxDecoration(
+          color: AppColors.isDark
+              ? const Color(0xFF2D2A1E)
+              : const Color(0xFFFEF3C7),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Center(
+          child: Image.asset(
+            'assets/images/tree.png',
+            height: 22,
+            width: 22,
+            color: const Color(0xFFD97706),
+          ),
+        ),
+      );
+    }
+    
+    // Default fallback
+    return Container(
+      height: 44.w,
+      width: 44.w,
+      decoration: BoxDecoration(
+        color: AppColors.isDark
+            ? const Color(0xFF1F2937)
+            : const Color(0xFFF3F4F6),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.description,
+          color: AppColors.isDark
+              ? const Color(0xFF9CA3AF)
+              : const Color(0xFF4B5563),
+          size: 20,
+        ),
+      ),
+    );
   }
 
   String _formatSubjectLabel(String raw) {

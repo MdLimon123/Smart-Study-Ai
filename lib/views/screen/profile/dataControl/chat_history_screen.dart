@@ -9,7 +9,10 @@ import 'package:flutter_extension/views/base/custom_snackbar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:get/get.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class ChatHistoryScreen extends StatefulWidget {
   const ChatHistoryScreen({super.key});
@@ -38,7 +41,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0F1A),
+      backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
@@ -399,8 +402,11 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
     showDialog<void>(
       context: context,
       builder: (context) => Dialog(
-        backgroundColor: const Color(0xFF1A1A2E),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: AppColors.cardColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: AppColors.borderColor),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -543,8 +549,11 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
     showDialog<void>(
       context: context,
       builder: (context) => Dialog(
-        backgroundColor: const Color(0xFF1A1A2E),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: AppColors.cardColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: AppColors.borderColor),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -641,39 +650,53 @@ class _ExportProgressDialogState extends State<_ExportProgressDialog> {
     return iso.isEmpty ? '—' : iso;
   }
 
-  static String _buildTxtContent(List<ChatHistoryItemModel> items) {
-    final buf = StringBuffer();
-    buf.writeln('Quick Question — Chat history export');
-    buf.writeln('Exported: ${DateTime.now().toUtc().toIso8601String()}');
-    buf.writeln('Conversations: ${items.length}');
-    buf.writeln('');
-    if (items.isEmpty) {
-      buf.writeln('(No conversations to export.)');
-      return buf.toString();
-    }
-    var i = 0;
-    for (final e in items) {
-      i++;
-      buf.writeln(''.padRight(80, '='));
-      buf.writeln('Conversation $i');
-      buf.writeln('Date: ${_dateLabelForExport(e.createdAt)}');
-      buf.writeln(''.padRight(80, '-'));
-      buf.writeln('You:');
-      buf.writeln(e.prompt.isEmpty ? '—' : e.prompt);
-      buf.writeln('');
-      buf.writeln('Assistant:');
-      buf.writeln(e.aiResponse.isEmpty ? '—' : e.aiResponse);
-      buf.writeln('');
-    }
-    return buf.toString();
-  }
-
   static String _formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) {
       return '${(bytes / 1024).toStringAsFixed(1)} KB';
     }
     return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+
+  List<pw.Widget> _splitLongText(String text, pw.TextStyle style) {
+    final List<pw.Widget> result = [];
+    final lines = text.split('\n');
+    for (final line in lines) {
+      if (line.trim().isEmpty) {
+        result.add(pw.SizedBox(height: 4));
+        continue;
+      }
+      if (line.length > 500) {
+        var start = 0;
+        while (start < line.length) {
+          var end = start + 500;
+          if (end > line.length) end = line.length;
+          
+          if (end < line.length) {
+            final lastSpace = line.substring(start, end).lastIndexOf(' ');
+            if (lastSpace > 100) {
+              end = start + lastSpace + 1;
+            }
+          }
+          
+          result.add(
+            pw.Text(
+              line.substring(start, end),
+              style: style,
+            ),
+          );
+          start = end;
+        }
+      } else {
+        result.add(
+          pw.Text(
+            line,
+            style: style,
+          ),
+        );
+      }
+    }
+    return result;
   }
 
   @override
@@ -684,23 +707,227 @@ class _ExportProgressDialogState extends State<_ExportProgressDialog> {
 
   Future<void> _startExport() async {
     setState(() {
-      _progress = 0.15;
+      _progress = 0.10;
       _exportError = null;
     });
     try {
+      final pdf = pw.Document();
+
+      // Load Lato font from assets so we support standard characters beautifully
+      final fontData = await rootBundle.load("assets/fonts/Lato-Regular.ttf");
+      final font = pw.Font.ttf(fontData);
+      
+      setState(() {
+        _progress = 0.35;
+      });
+
+      final boldFontData = await rootBundle.load("assets/fonts/Lato-Bold.ttf");
+      final boldFont = pw.Font.ttf(boldFontData);
+
+      setState(() {
+        _progress = 0.55;
+      });
+
+      final theme = pw.ThemeData.withFont(
+        base: font,
+        bold: boldFont,
+      );
+
+      pdf.addPage(
+        pw.MultiPage(
+          theme: theme,
+          pageFormat: PdfPageFormat.a4,
+          maxPages: 10000,
+          margin: const pw.EdgeInsets.all(36),
+          build: (pw.Context context) {
+            final List<pw.Widget> widgets = [];
+            
+            // Beautiful Header Banner
+            widgets.add(
+              pw.Container(
+                padding: const pw.EdgeInsets.only(bottom: 12),
+                decoration: const pw.BoxDecoration(
+                  border: pw.Border(
+                    bottom: pw.BorderSide(color: PdfColors.purple100, width: 2),
+                  ),
+                ),
+                child: pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: pw.CrossAxisAlignment.end,
+                  children: [
+                    pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text(
+                          'Quick Question AI',
+                          style: pw.TextStyle(
+                            fontSize: 24,
+                            fontWeight: pw.FontWeight.bold,
+                            color: PdfColor.fromHex('#7C3AED'),
+                          ),
+                        ),
+                        pw.SizedBox(height: 2),
+                        pw.Text(
+                          'Smart Study Companion — Chat History Export',
+                          style: const pw.TextStyle(
+                            fontSize: 10,
+                            color: PdfColors.grey700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.end,
+                      children: [
+                        pw.Text(
+                          'Conversations: ${widget.items.length}',
+                          style: pw.TextStyle(
+                            fontSize: 10,
+                            fontWeight: pw.FontWeight.bold,
+                            color: PdfColors.grey700,
+                          ),
+                        ),
+                        pw.SizedBox(height: 2),
+                        pw.Text(
+                          'Date: ${_dateLabelForExport(DateTime.now().toUtc().toIso8601String())}',
+                          style: const pw.TextStyle(
+                            fontSize: 8,
+                            color: PdfColors.grey500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+            
+            widgets.add(pw.SizedBox(height: 20));
+
+            if (widget.items.isEmpty) {
+              widgets.add(
+                pw.Center(
+                  child: pw.Text(
+                    'No conversations to export.',
+                    style: const pw.TextStyle(fontSize: 14, color: PdfColors.grey500),
+                  ),
+                ),
+              );
+            } else {
+              for (var index = 0; index < widget.items.length; index++) {
+                final e = widget.items[index];
+                
+                // Add conversation title and date bar
+                widgets.add(
+                  pw.Container(
+                    width: double.infinity,
+                    padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: pw.BoxDecoration(
+                      color: PdfColor.fromHex('#F3F4F6'),
+                      borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+                      border: pw.Border.all(color: PdfColor.fromHex('#E5E7EB'), width: 0.5),
+                    ),
+                    child: pw.Row(
+                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                      children: [
+                        pw.Text(
+                          'Conversation ${index + 1}',
+                          style: pw.TextStyle(
+                            fontSize: 11,
+                            fontWeight: pw.FontWeight.bold,
+                            color: PdfColors.grey900,
+                          ),
+                        ),
+                        pw.Text(
+                          _dateLabelForExport(e.createdAt),
+                          style: const pw.TextStyle(
+                            fontSize: 9,
+                            color: PdfColors.grey500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+                
+                widgets.add(pw.SizedBox(height: 8));
+                
+                // User Prompt
+                widgets.add(
+                  pw.Text(
+                    'YOU',
+                    style: pw.TextStyle(
+                      fontSize: 8,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.grey600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                );
+                widgets.add(pw.SizedBox(height: 3));
+                widgets.addAll(
+                  _splitLongText(
+                    e.prompt.isEmpty ? '—' : e.prompt,
+                    const pw.TextStyle(
+                      fontSize: 11,
+                      color: PdfColors.black,
+                    ),
+                  ),
+                );
+                widgets.add(pw.SizedBox(height: 12));
+
+                // AI Response
+                widgets.add(
+                  pw.Text(
+                    'ASSISTANT',
+                    style: pw.TextStyle(
+                      fontSize: 8,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColor.fromHex('#7C3AED'),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                );
+                widgets.add(pw.SizedBox(height: 3));
+                widgets.addAll(
+                  _splitLongText(
+                    e.aiResponse.isEmpty ? '—' : e.aiResponse,
+                    pw.TextStyle(
+                      fontSize: 10.5,
+                      color: PdfColor.fromHex('#1F2937'),
+                    ),
+                  ),
+                );
+                
+                widgets.add(pw.SizedBox(height: 14));
+                widgets.add(pw.Divider(color: PdfColor.fromHex('#E5E7EB'), thickness: 0.5));
+                widgets.add(pw.SizedBox(height: 14));
+              }
+            }
+            
+            return widgets;
+          },
+        ),
+      );
+
+      setState(() {
+        _progress = 0.85;
+      });
+
       final dir = await getTemporaryDirectory();
       final stamp = DateTime.now().toUtc().toIso8601String().replaceAll(
         RegExp(r'[:.]'),
         '-',
       );
-      final path = '${dir.path}/chat_history_export_$stamp.txt';
+      final path = '${dir.path}/chat_history_export_$stamp.pdf';
       final file = File(path);
-      final content = _buildTxtContent(widget.items);
-      await file.writeAsString(content, flush: true);
+      final bytes = await pdf.save();
+      await file.writeAsBytes(bytes, flush: true);
+
       if (!mounted) return;
       final len = await file.length();
       setState(() {
-        _progress = 1;
+        _progress = 1.0;
         _isComplete = true;
         _exportFilePath = path;
         _fileSizeBytes = len;
@@ -715,7 +942,7 @@ class _ExportProgressDialogState extends State<_ExportProgressDialog> {
     }
   }
 
-  Future<void> _downloadTxtFile() async {
+  Future<void> _downloadPdfFile() async {
     final path = _exportFilePath;
     if (path == null) return;
     final bytes = await File(path).readAsBytes();
@@ -729,8 +956,8 @@ class _ExportProgressDialogState extends State<_ExportProgressDialog> {
       final savedPath = await FileSaver.instance.saveAs(
         name: baseName,
         bytes: bytes,
-        fileExtension: 'txt',
-        mimeType: MimeType.text,
+        fileExtension: 'pdf',
+        mimeType: MimeType.pdf,
       );
       if (!mounted) return;
       if (savedPath == null || savedPath.isEmpty) {
@@ -744,6 +971,7 @@ class _ExportProgressDialogState extends State<_ExportProgressDialog> {
       }
       _showSavedLocation(savedPath);
       Navigator.of(context).pop();
+      await OpenFile.open(savedPath);
     } catch (e) {
       showCustomSnackBar('Could not save file: $e', isError: true);
     }
@@ -763,8 +991,11 @@ class _ExportProgressDialogState extends State<_ExportProgressDialog> {
     if (_isComplete) {
       if (_exportError != null) {
         return Dialog(
-          backgroundColor: const Color(0xFF1A1A2E),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          backgroundColor: AppColors.cardColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(color: AppColors.borderColor),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -823,8 +1054,11 @@ class _ExportProgressDialogState extends State<_ExportProgressDialog> {
       }
 
       return Dialog(
-        backgroundColor: const Color(0xFF1A1A2E),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: AppColors.cardColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: AppColors.borderColor),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -850,7 +1084,7 @@ class _ExportProgressDialogState extends State<_ExportProgressDialog> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Your chat history is ready as a .txt file (${_formatFileSize(_fileSizeBytes)}). Tap Download to save it to your device.',
+                'Your chat history is ready as a PDF file (${_formatFileSize(_fileSizeBytes)}). Tap Download to save it to your device.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,
@@ -886,7 +1120,7 @@ class _ExportProgressDialogState extends State<_ExportProgressDialog> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: InkWell(
-                      onTap: _downloadTxtFile,
+                      onTap: _downloadPdfFile,
                       child: Container(
                         height: 44,
                         decoration: BoxDecoration(
@@ -898,18 +1132,18 @@ class _ExportProgressDialogState extends State<_ExportProgressDialog> {
                           children: [
                             SvgPicture.asset(
                               'assets/icon/download.svg',
-                              colorFilter: const ColorFilter.mode(
-                                Color(0xFF0F0F1A),
+                              colorFilter: ColorFilter.mode(
+                                AppColors.backgroundColor,
                                 BlendMode.srcIn,
                               ),
                             ),
                             const SizedBox(width: 9),
-                            const Text(
+                            Text(
                               'Download',
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF0F0F1A),
+                                color: AppColors.backgroundColor,
                               ),
                             ),
                           ],
@@ -926,8 +1160,11 @@ class _ExportProgressDialogState extends State<_ExportProgressDialog> {
     }
 
     return Dialog(
-      backgroundColor: const Color(0xFF1A1A2E),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      backgroundColor: AppColors.cardColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: AppColors.borderColor),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -947,7 +1184,7 @@ class _ExportProgressDialogState extends State<_ExportProgressDialog> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Preparing Your Export...',
+              'Preparing Your PDF Export...',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,

@@ -36,7 +36,7 @@ class _HelpSupportState extends State<HelpSupport> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0F1A),
+      backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
@@ -89,86 +89,86 @@ class _HelpSupportState extends State<HelpSupport> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Email Support
-              Text(
-                "Email Support",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textColor,
-                ),
-              ),
-              const SizedBox(height: 12),
+              // Text(
+              //   "Email Support",
+              //   style: TextStyle(
+              //     fontSize: 16,
+              //     fontWeight: FontWeight.w600,
+              //     color: AppColors.textColor,
+              //   ),
+              // ),
+              // const SizedBox(height: 12),
 
-              InkWell(
-                onTap: () {},
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: AppColors.textColor.withValues(alpha: 0.04),
-                    border: Border.all(
-                      color: AppColors.textColor.withValues(alpha: 0.07),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: const Color(
-                            0xFF34D399,
-                          ).withValues(alpha: 0.08),
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.email_outlined,
-                            color: Color(0xFF34D399),
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Email Support",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.textColor,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              "Send us an email",
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w400,
-                                color: AppColors.textColor.withValues(
-                                  alpha: 0.40,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Icon(
-                        Icons.navigate_next,
-                        color: AppColors.textColor.withValues(alpha: 0.25),
-                        size: 20,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              // InkWell(
+              //   onTap: () {},
+              //   borderRadius: BorderRadius.circular(16),
+              //   child: Container(
+              //     width: double.infinity,
+              //     padding: const EdgeInsets.all(14),
+              //     decoration: BoxDecoration(
+              //       borderRadius: BorderRadius.circular(16),
+              //       color: AppColors.textColor.withValues(alpha: 0.04),
+              //       border: Border.all(
+              //         color: AppColors.textColor.withValues(alpha: 0.07),
+              //       ),
+              //     ),
+              //     child: Row(
+              //       children: [
+              //         Container(
+              //           height: 40,
+              //           width: 40,
+              //           decoration: BoxDecoration(
+              //             borderRadius: BorderRadius.circular(12),
+              //             color: const Color(
+              //               0xFF34D399,
+              //             ).withValues(alpha: 0.08),
+              //           ),
+              //           child: const Center(
+              //             child: Icon(
+              //               Icons.email_outlined,
+              //               color: Color(0xFF34D399),
+              //               size: 20,
+              //             ),
+              //           ),
+              //         ),
+              //         const SizedBox(width: 12),
+              //         Expanded(
+              //           child: Column(
+              //             crossAxisAlignment: CrossAxisAlignment.start,
+              //             children: [
+              //               Text(
+              //                 "Email Support",
+              //                 style: TextStyle(
+              //                   fontSize: 14,
+              //                   fontWeight: FontWeight.w500,
+              //                   color: AppColors.textColor,
+              //                 ),
+              //               ),
+              //               const SizedBox(height: 2),
+              //               Text(
+              //                 "Send us an email",
+              //                 style: TextStyle(
+              //                   fontSize: 11,
+              //                   fontWeight: FontWeight.w400,
+              //                   color: AppColors.textColor.withValues(
+              //                     alpha: 0.40,
+              //                   ),
+              //                 ),
+              //               ),
+              //             ],
+              //           ),
+              //         ),
+              //         Icon(
+              //           Icons.navigate_next,
+              //           color: AppColors.textColor.withValues(alpha: 0.25),
+              //           size: 20,
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
 
-              const SizedBox(height: 24),
+              // const SizedBox(height: 24),
 
               // FAQ
               Text(
@@ -251,115 +251,115 @@ class _HelpSupportState extends State<HelpSupport> {
               const SizedBox(height: 24),
 
               // App Information's
-              Text(
-                "App Information's",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textColor,
-                ),
-              ),
-              const SizedBox(height: 12),
+              // Text(
+              //   "App Information's",
+              //   style: TextStyle(
+              //     fontSize: 16,
+              //     fontWeight: FontWeight.w600,
+              //     color: AppColors.textColor,
+              //   ),
+              // ),
+              // const SizedBox(height: 12),
 
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: AppColors.textColor.withValues(alpha: 0.04),
-                  border: Border.all(
-                    color: AppColors.textColor.withValues(alpha: 0.07),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    _infoRow("Version", "2.4.1"),
-                    Divider(
-                      height: 1,
-                      color: AppColors.textColor.withValues(alpha: 0.05),
-                    ),
-                    _infoRow("Last Updated", "Feb 20, 2026"),
-                    Divider(
-                      height: 1,
-                      color: AppColors.textColor.withValues(alpha: 0.05),
-                    ),
-                    _infoRow("Build", "241.2024"),
-                  ],
-                ),
-              ),
+              // Container(
+              //   width: double.infinity,
+              //   padding: const EdgeInsets.symmetric(
+              //     horizontal: 16,
+              //     vertical: 6,
+              //   ),
+              //   decoration: BoxDecoration(
+              //     borderRadius: BorderRadius.circular(16),
+              //     color: AppColors.textColor.withValues(alpha: 0.04),
+              //     border: Border.all(
+              //       color: AppColors.textColor.withValues(alpha: 0.07),
+              //     ),
+              //   ),
+              //   child: Column(
+              //     children: [
+              //       _infoRow("Version", "2.4.1"),
+              //       Divider(
+              //         height: 1,
+              //         color: AppColors.textColor.withValues(alpha: 0.05),
+              //       ),
+              //       _infoRow("Last Updated", "Feb 20, 2026"),
+              //       Divider(
+              //         height: 1,
+              //         color: AppColors.textColor.withValues(alpha: 0.05),
+              //       ),
+              //       _infoRow("Build", "241.2024"),
+              //     ],
+              //   ),
+              // ),
 
-              const SizedBox(height: 24),
+              // const SizedBox(height: 24),
 
-              // Rate Now banner
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.star, color: Color(0xFFFBBF24), size: 24),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Enjoying the app?",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textColor,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            "Rate us on the app store",
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.textColor.withValues(
-                                alpha: 0.60,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {},
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.white,
-                        ),
-                        child: const Text(
-                          "Rate Now",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF7C3AED),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // // Rate Now banner
+              // Container(
+              //   width: double.infinity,
+              //   padding: const EdgeInsets.symmetric(
+              //     horizontal: 20,
+              //     vertical: 16,
+              //   ),
+              //   decoration: BoxDecoration(
+              //     borderRadius: BorderRadius.circular(16),
+              //     gradient: const LinearGradient(
+              //       colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
+              //     ),
+              //   ),
+              //   child: Row(
+              //     children: [
+              //       const Icon(Icons.star, color: Color(0xFFFBBF24), size: 24),
+              //       const SizedBox(width: 12),
+              //       Expanded(
+              //         child: Column(
+              //           crossAxisAlignment: CrossAxisAlignment.start,
+              //           children: [
+              //             Text(
+              //               "Enjoying the app?",
+              //               style: TextStyle(
+              //                 fontSize: 14,
+              //                 fontWeight: FontWeight.w600,
+              //                 color: AppColors.textColor,
+              //               ),
+              //             ),
+              //             const SizedBox(height: 2),
+              //             Text(
+              //               "Rate us on the app store",
+              //               style: TextStyle(
+              //                 fontSize: 11,
+              //                 fontWeight: FontWeight.w400,
+              //                 color: AppColors.textColor.withValues(
+              //                   alpha: 0.60,
+              //                 ),
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //       InkWell(
+              //         onTap: () {},
+              //         child: Container(
+              //           padding: const EdgeInsets.symmetric(
+              //             horizontal: 16,
+              //             vertical: 8,
+              //           ),
+              //           decoration: BoxDecoration(
+              //             borderRadius: BorderRadius.circular(10),
+              //             color: Colors.white,
+              //           ),
+              //           child: const Text(
+              //             "Rate Now",
+              //             style: TextStyle(
+              //               fontSize: 12,
+              //               fontWeight: FontWeight.w700,
+              //               color: Color(0xFF7C3AED),
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
 
               const SizedBox(height: 20),
             ],

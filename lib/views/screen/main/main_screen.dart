@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_extension/controller/theme_controller.dart';
 import 'package:flutter_extension/controller/profile_activity_controller.dart';
 import 'package:flutter_extension/views/base/bottom_menu.dart';
+import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_extension/views/screen/chat/ai_chat_screen.dart';
 import 'package:flutter_extension/views/screen/home/home_screen.dart';
 import 'package:flutter_extension/views/screen/library/library_screen.dart';
@@ -47,29 +49,33 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF0F0F1A),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: [
-          const HomeScreen(),
-          ScanScreen(
-            isActive: _currentIndex == 1,
-            controllerTag: ScanControllerTags.mainTab,
+    return GetBuilder<ThemeController>(
+      builder: (themeController) {
+        return Scaffold(
+          backgroundColor: AppColors.backgroundColor,
+          body: IndexedStack(
+            index: _currentIndex,
+            children: [
+              HomeScreen(),
+              ScanScreen(
+                isActive: _currentIndex == 1,
+                controllerTag: ScanControllerTags.mainTab,
+              ),
+              AiChatScreen(),
+              LibraryScreen(),
+              ProfileScreen(),
+            ],
           ),
-          const AiChatScreen(),
-          const LibraryScreen(),
-          const ProfileScreen(),
-        ],
-      ),
-      bottomNavigationBar: BottomMenu(
-        menuIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-      ),
+          bottomNavigationBar: BottomMenu(
+            menuIndex: _currentIndex,
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+          ),
+        );
+      },
     );
   }
 }

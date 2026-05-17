@@ -55,7 +55,7 @@ class _ScanScreenState extends State<ScanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0F1A),
+      backgroundColor: AppColors.backgroundColor,
       body: SafeArea(
         child: Column(
         children: [
@@ -86,30 +86,7 @@ class _ScanScreenState extends State<ScanScreen> {
                     ),
                   ],
                 ),
-                const Spacer(),
-                Container(
-                  height: 40,
-                  width: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.textColor.withValues(alpha: 0.07),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: SvgPicture.asset('assets/icon/touch.svg'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  height: 40,
-                  width: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.textColor.withValues(alpha: 0.07),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: SvgPicture.asset('assets/icon/attch.svg'),
-                  ),
-                ),
+
               ],
             ),
           ),
