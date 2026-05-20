@@ -206,32 +206,7 @@ class AuthController extends GetxController {
 
 
 
-  // Future<void> signup({required String email, required String password}) async {
-  //   isLoading(true);
-  //   try {
-  //     final response = await ApiClient.postData(
-  //       ApiConstant.register,
-  //       {'email': email, 'password': password},
-  //       headers: {'Content-Type': 'application/json'},
-  //     );
-  //     if (response.statusCode == 200 || response.statusCode == 201) {
-  //       showCustomSnackBar(
-  //         _messageFromBody(response.body) ?? 'Success',
-  //         isError: false,
-  //       );
-  //       Get.to(() => EmailOtpVerifyScreen(email: email));
-  //     } else {
-  //       showCustomSnackBar(
-  //         _messageFromBody(response.body) ?? 'Sign up failed',
-  //         isError: true,
-  //       );
-  //     }
-  //   } catch (e) {
-  //     showCustomSnackBar(e.toString(), isError: true);
-  //   } finally {
-  //     isLoading(false);
-  //   }
-  // }
+
 
   /// Forgot-password flow: request OTP to email, then open [OtpVerifyScreen].
   Future<void> requestForgotPasswordOtp(String email) async {

@@ -10,6 +10,8 @@ import 'package:flutter_extension/views/base/custom_snackbar.dart';
 import 'package:flutter_extension/views/screen/scan&solve/solutation_screen.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_extension/util/image_utils.dart';
+import 'package:file_picker/file_picker.dart';
 
 /// [Get.put] / [Get.delete] tags — shell tab and [Get.to] scan must not share one instance.
 class ScanControllerTags {
@@ -136,7 +138,7 @@ class ScanController extends GetxController
 
       newController = CameraController(
         cameras.first,
-        ResolutionPreset.medium,
+        ResolutionPreset.high,
         enableAudio: false,
       );
 
@@ -224,10 +226,6 @@ class ScanController extends GetxController
   }
 
   Future<void> captureAndScan() async {
-    if (selectedSubject.value == null || selectedSubject.value!.trim().isEmpty) {
-      showCustomSnackBar('Please select a subject', isError: true);
-      return;
-    }
     if (cameraController == null || !cameraController!.value.isInitialized) {
       return;
     }
@@ -249,7 +247,7 @@ class ScanController extends GetxController
     try {
       final response = await ApiClient.postMultipartData(
         ApiConstant.scanResultEndpoint,
-        {'subject': _subjectToApi(selectedSubject.value!)},
+        {'subject': selectedSubject.value != null ? _subjectToApi(selectedSubject.value!) : ''},
         multipartBody: [MultipartBody('image', File(imagePath))],
       );
 
@@ -284,6 +282,35 @@ class ScanController extends GetxController
       }
     }
   }
+
+  Future<void> pickAndScanImage() async {
+    try {
+      final File? image = await ImageUtils.pickAndCropImage(fromCamera: false);
+      if (image == null) return;
+      await _submitScan(image.path);
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      showCustomSnackBar('Could not pick image', isError: true);
+    }
+  }
+
+  Future<void> pickAndScanFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx', 'txt'],
+        withData: false,
+      );
+      if (result == null || result.files.isEmpty) return;
+      final path = result.files.single.path;
+      if (path == null) return;
+      await _submitScan(path);
+    } catch (e) {
+      debugPrint('Error picking file: $e');
+      showCustomSnackBar('Could not pick file', isError: true);
+    }
+  }
+
 
   @override
   void onClose() {

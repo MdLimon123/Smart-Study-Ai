@@ -56,99 +56,98 @@ class _ScanScreenState extends State<ScanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      body: SafeArea(
-        child: Column(
-        children: [
-          // ─── App Bar ───
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Scan & Solve",
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textColor,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      "3 scans remaining today",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textColor.withValues(alpha: 0.40),
-                      ),
-                    ),
-                  ],
-                ),
-
-              ],
+      body: Obx(() {
+        if (controller.isAnalyzing.value) {
+          return SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                child: _buildAnalyzingView(),
+              ),
             ),
-          ),
+          );
+        }
 
-          // ─── Body ───
-          Obx(() {
-            if (controller.isAnalyzing.value) {
-              return Column(
-                children: [
-                  const SizedBox(height: 40),
-                  _buildAnalyzingView(),
-                ],
-              );
-            }
-            return Column(
-              children: [
-                _buildCameraSection(),
-                _buildSubjectSection(),
-                const SizedBox(height: 16),
-                _buildScanButton(),
-                const SizedBox(height: 20),
-              ],
-            );
-          }),
-        ],
-        ),
-      ),
+        return Stack(
+          children: [
+            // ─── Camera Preview Full Screen ───
+            Positioned.fill(
+              child: _buildCameraPreviewFullScreen(),
+            ),
+
+            // ─── Top App Bar Overlay ───
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                bottom: false,
+                child: _buildTopBar(),
+              ),
+            ),
+
+            // ─── Scan Target Box (Centered) ───
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.center,
+                child: _buildScanFocusArea(),
+              ),
+            ),
+
+            // ─── Bottom Controls Container (Glassmorphic) ───
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: _buildBottomControls(),
+            ),
+          ],
+        );
+      }),
     );
   }
 
-  // ─── Camera Section ───
-  Widget _buildCameraSection() {
+  // ─── Top App Bar ───
+  Widget _buildTopBar() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Row(
         children: [
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 280,
-            child: CustomPaint(
-              painter: _CornerBracketPainter(
-                color: const Color(0xFFA78BFA),
-                cornerLength: 30,
-                strokeWidth: 3,
-                borderRadius: 16,
-              ),
-              child: Container(
-                width: double.infinity,
-                margin: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF050508),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: const Color(0xFFA78BFA).withValues(alpha: 0.20),
-                    width: 1,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Scan & Solve",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black38,
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
+                      ),
+                    ],
                   ),
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(23),
-                  child: _buildCameraPreview(),
+                const SizedBox(height: 4),
+                Text(
+                  "3 scans remaining today",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withValues(alpha: 0.75),
+                    shadows: const [
+                      Shadow(
+                        color: Colors.black38,
+                        offset: Offset(0, 1),
+                        blurRadius: 2,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ],
@@ -156,62 +155,85 @@ class _ScanScreenState extends State<ScanScreen> {
     );
   }
 
-  Widget _buildCameraPreview() {
+  // ─── Camera Preview Full Screen ───
+  Widget _buildCameraPreviewFullScreen() {
     return Obx(() {
       if (controller.hasCameraError.value) {
-        return _buildPlaceholder("Camera not available");
+        return _buildPlaceholderFullScreen("Camera not available");
       }
       if (!controller.isCameraReady.value ||
           controller.cameraController == null) {
-        return _buildPlaceholder(null);
+        return _buildPlaceholderFullScreen(null);
       }
-      return Stack(
-        alignment: Alignment.center,
-        children: [
-          SizedBox.expand(
-            child: FittedBox(
-              fit: BoxFit.cover,
-              child: SizedBox(
-                width: controller
-                        .cameraController!.value.previewSize?.height ??
-                    1,
-                height:
-                    controller.cameraController!.value.previewSize?.width ?? 1,
-                child: CameraPreview(controller.cameraController!),
-              ),
-            ),
+      return SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.cover,
+          child: SizedBox(
+            width: controller.cameraController!.value.previewSize?.height ?? 1,
+            height: controller.cameraController!.value.previewSize?.width ?? 1,
+            child: CameraPreview(controller.cameraController!),
           ),
-          _buildScanLine(),
-        ],
+        ),
       );
     });
   }
 
-  Widget _buildPlaceholder(String? message) {
-    return Stack(
-      children: [
-        Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SvgPicture.asset('assets/icon/camera_fill.svg'),
-              const SizedBox(height: 14),
-              Text(
-                message ?? "Point camera at your problem",
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textColor.withValues(alpha: 0.30),
-                ),
+  // ─── Full Screen Loading/Error Placeholder ───
+  Widget _buildPlaceholderFullScreen(String? message) {
+    return Container(
+      color: const Color(0xFF09090E),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SvgPicture.asset(
+              'assets/icon/camera_fill.svg',
+              colorFilter: ColorFilter.mode(
+                Colors.white.withValues(alpha: 0.3),
+                BlendMode.srcIn,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              message ?? "Point camera at your problem",
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Colors.white.withValues(alpha: 0.35),
+              ),
+            ),
+          ],
         ),
-        _buildScanLine(),
-      ],
+      ),
     );
   }
 
+  // ─── Scan Focus Box (Middle of the screen) ───
+  Widget _buildScanFocusArea() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: SizedBox(
+        height: 280,
+        width: double.infinity,
+        child: CustomPaint(
+          painter: _CornerBracketPainter(
+            color: const Color(0xFFA78BFA),
+            cornerLength: 30,
+            strokeWidth: 3,
+            borderRadius: 16,
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              _buildScanLine(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ─── Scan Line Animation ───
   Widget _buildScanLine() {
     return AnimatedBuilder(
       animation: controller.scanLineAnimation,
@@ -247,122 +269,258 @@ class _ScanScreenState extends State<ScanScreen> {
     );
   }
 
-  // ─── Subject Section ───
-  Widget _buildSubjectSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 20),
-          Text(
-            "Select subject (required)",
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              color: AppColors.textColor.withValues(alpha: 0.40),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Obx(
-            () => Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: controller.subjects.map((subject) {
-                final isSelected =
-                    controller.selectedSubject.value == subject;
-                return GestureDetector(
-                  onTap: () => controller
-                      .selectSubject(isSelected ? null : subject),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? const Color(0xFFA78BFA).withValues(alpha: 0.20)
-                          : AppColors.textColor.withValues(alpha: 0.06),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: isSelected
-                            ? const Color(0xFFA78BFA)
-                                .withValues(alpha: 0.30)
-                            : AppColors.textColor.withValues(alpha: 0.08),
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      subject,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: isSelected
-                            ? const Color(0xFFA78BFA)
-                            : AppColors.textColor.withValues(alpha: 0.50),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
+  // ─── Bottom Controls Panel ───
+  Widget _buildBottomControls() {
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(32),
+        topRight: Radius.circular(32),
       ),
-    );
-  }
-
-  // ─── Scan Button ───
-  Widget _buildScanButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: SizedBox(
+      child: Container(
         width: double.infinity,
-        height: 54,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
-            ),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: const Color(0xFF7C3AED).withValues(alpha: 0.40),
-              width: 1,
-            ),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.65), // Stronger dark overlay for premium high contrast
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(32),
+            topRight: Radius.circular(32),
           ),
-          child: Obx(
-            () => ElevatedButton.icon(
-              onPressed: controller.isCameraReady.value
-                  ? controller.captureAndScan
-                  : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.1),
+            width: 1.5,
+          ),
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Pull indicator visual accent
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-              icon: SvgPicture.asset(
-                'assets/icon/camera_fill.svg',
-                colorFilter: ColorFilter.mode(
-                  AppColors.textColor,
-                  BlendMode.srcIn,
-                ),
-              ),
-              label: Text(
-                "Scan Problem",
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textColor,
-                ),
-              ),
-            ),
+              const SizedBox(height: 10),
+              _buildSubjectSectionCustom(),
+              const SizedBox(height: 16),
+              _buildScanButtonCustom(),
+              const SizedBox(height: 12),
+              _buildUploadOptionsCustom(),
+            ],
           ),
         ),
       ),
     );
   }
+
+  // ─── Custom Gallery & File Picker Row ───
+  Widget _buildUploadOptionsCustom() {
+    return Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: controller.pickAndScanImage,
+            child: Container(
+              height: 44,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.photo_library_outlined,
+                    color: Colors.white.withValues(alpha: 0.85),
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Gallery",
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white.withValues(alpha: 0.85),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: GestureDetector(
+            onTap: controller.pickAndScanFile,
+            child: Container(
+              height: 44,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.picture_as_pdf_outlined,
+                    color: Colors.white.withValues(alpha: 0.85),
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Upload File",
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white.withValues(alpha: 0.85),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ─── Bottom Subject Tag List ───
+  Widget _buildSubjectSectionCustom() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Select subject (required)",
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: Colors.white.withValues(alpha: 0.50),
+          ),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 38,
+          child: Obx(
+            () {
+              final selected = controller.selectedSubject.value;
+              return ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: controller.subjects.length,
+                separatorBuilder: (context, index) => const SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  final subject = controller.subjects[index];
+                  final isSelected = selected == subject;
+                  return GestureDetector(
+                    onTap: () => controller.selectSubject(isSelected ? null : subject),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                      ),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? const Color(0xFFA78BFA).withValues(alpha: 0.25)
+                            : Colors.white.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: isSelected
+                              ? const Color(0xFFA78BFA)
+                              : Colors.white.withValues(alpha: 0.12),
+                          width: 1,
+                        ),
+                      ),
+                      child: Text(
+                        subject,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: isSelected
+                              ? const Color(0xFFA78BFA)
+                              : Colors.white.withValues(alpha: 0.70),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ─── Custom Scan Button ───
+  Widget _buildScanButtonCustom() {
+    return SizedBox(
+      width: double.infinity,
+      height: 54,
+      child: Obx(() {
+        final isReady = controller.isCameraReady.value;
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: isReady
+                ? const LinearGradient(
+                    colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
+                  )
+                : null,
+            color: isReady ? null : Colors.white.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: isReady
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFF7C3AED).withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    )
+                  ]
+                : [],
+          ),
+          child: ElevatedButton.icon(
+            onPressed: isReady ? controller.captureAndScan : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            icon: SvgPicture.asset(
+              'assets/icon/camera_fill.svg',
+              colorFilter: ColorFilter.mode(
+                isReady ? Colors.white : Colors.white.withValues(alpha: 0.35),
+                BlendMode.srcIn,
+              ),
+            ),
+            label: Text(
+              "Scan Problem",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: isReady ? Colors.white : Colors.white.withValues(alpha: 0.35),
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
 
   // ─── Analyzing View ───
   Widget _buildAnalyzingView() {

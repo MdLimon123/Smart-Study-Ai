@@ -7,12 +7,14 @@ import 'package:flutter_extension/helper/prefs_helper.dart';
 import 'package:flutter_extension/helper/route_helper.dart';
 import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_extension/util/app_constants.dart';
+import 'package:flutter_extension/views/screen/profile/aiPersonalization/ai_personalization.dart';
 import 'package:flutter_extension/views/screen/profile/change_password_screen.dart';
 import 'package:flutter_extension/views/screen/profile/dataControl/data_control_screen.dart';
 import 'package:flutter_extension/views/screen/profile/parental/parental_control_screen.dart';
 import 'package:flutter_extension/views/screen/profile/help_support.dart';
 import 'package:flutter_extension/views/screen/profile/twoFactorAuth/two_factor_auth.dart';
 import 'package:flutter_extension/views/screen/profile/twoFactorAuth/settings_page.dart'; 
+ 
 import 'package:get/get.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -466,17 +468,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: AppColors.textColor.withValues(alpha: 0.05),
                     ),
 
-                    // const SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
-                    // _customRow(
-                    //   onTap: () {
-                    //     Get.to(() => const AiPersonalization());
-                    //   },
-                    //   backgroundColor: const Color(0xFFA78BFA),
-                    //   image: "assets/images/groupUser.png",
-                    //   title: "AI Personalization",
-                    //   subtitle: "Model, style & subject focus",
-                    // ),
+                    _customRow(
+                      onTap: () {
+                        Get.to(() => const AiPersonalization());
+                      },
+                      backgroundColor: const Color(0xFFA78BFA),
+                      image: "assets/images/groupUser.png",
+                      title: "AI Personalization",
+                      subtitle: "Model, style & subject focus",
+                    ),
 
                     const SizedBox(height: 10),
                     Divider(
