@@ -18,8 +18,6 @@ class _Subject {
   });
 }
 
-
-
 class CreateNoteScreen extends StatefulWidget {
   const CreateNoteScreen({super.key});
 
@@ -28,9 +26,6 @@ class CreateNoteScreen extends StatefulWidget {
 }
 
 class _CreateNoteScreenState extends State<CreateNoteScreen> {
-
-
-
   late final LibraryController _libraryController;
 
   final _titleController = TextEditingController();

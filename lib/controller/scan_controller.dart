@@ -232,14 +232,14 @@ class ScanController extends GetxController
 
     try {
       final image = await cameraController!.takePicture();
-      await _submitScan(image.path);
+      await _submitScan(image.path, isImage: true);
     } catch (e) {
       debugPrint('Error capturing image: $e');
       showCustomSnackBar('Could not capture image', isError: true);
     }
   }
 
-  Future<void> _submitScan(String imagePath) async {
+  Future<void> _submitScan(String filePath, {required bool isImage}) async {
     _disposeCamera();
     scanLineController.stop();
     _startAnalyzingUi();
@@ -248,7 +248,7 @@ class ScanController extends GetxController
       final response = await ApiClient.postMultipartData(
         ApiConstant.scanResultEndpoint,
         {'subject': selectedSubject.value != null ? _subjectToApi(selectedSubject.value!) : ''},
-        multipartBody: [MultipartBody('image', File(imagePath))],
+        multipartBody: [MultipartBody(isImage ? 'image' : 'file', File(filePath))],
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -287,7 +287,7 @@ class ScanController extends GetxController
     try {
       final File? image = await ImageUtils.pickAndCropImage(fromCamera: false);
       if (image == null) return;
-      await _submitScan(image.path);
+      await _submitScan(image.path, isImage: true);
     } catch (e) {
       debugPrint('Error picking image: $e');
       showCustomSnackBar('Could not pick image', isError: true);
@@ -304,7 +304,7 @@ class ScanController extends GetxController
       if (result == null || result.files.isEmpty) return;
       final path = result.files.single.path;
       if (path == null) return;
-      await _submitScan(path);
+      await _submitScan(path, isImage: false);
     } catch (e) {
       debugPrint('Error picking file: $e');
       showCustomSnackBar('Could not pick file', isError: true);

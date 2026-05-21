@@ -7,7 +7,6 @@ import 'package:flutter_extension/views/base/get_greeting.dart';
 import 'package:flutter_extension/views/screen/chat/ai_chat_screen.dart';
 import 'package:flutter_extension/views/screen/home/subscreen/subject_screen.dart';
 import 'package:flutter_extension/views/screen/library/library_screen.dart';
-
 import 'package:flutter_extension/views/screen/scan&solve/scan_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -25,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (Get.isRegistered<ProfileController>()) {
+        Get.find<ProfileController>().fetchProfile();
         Get.find<ProfileController>().fetchScanHistory();
       }
     });
@@ -59,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       final display =
                           (name != null && name.trim().isNotEmpty)
                               ? name.trim()
-                              : 'User';
+                              : '';
                       return Text(
                         'welcome_back'.tr.replaceAll('@name', display),
                         style: TextStyle(

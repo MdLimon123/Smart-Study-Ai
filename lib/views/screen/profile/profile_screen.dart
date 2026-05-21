@@ -26,6 +26,15 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late final ProfileController _profileController = Get.find<ProfileController>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _profileController.fetchProfile();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

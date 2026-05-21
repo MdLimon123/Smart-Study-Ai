@@ -4,6 +4,7 @@ import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
+import 'package:get/get.dart';
 
 class SolutationScreen extends StatefulWidget {
   final ScanResultModel result;
@@ -31,6 +32,19 @@ class _SolutationScreenState extends State<SolutationScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
+        leadingWidth: 56,
+        leading: InkWell(
+          onTap: () => Get.back(),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: AppColors.textColor.withValues(alpha: 0.04),
+            ),
+            child: Icon(Icons.arrow_back, color: AppColors.textColor),
+          ),
+        ),
         title: Row(
           children: [
             Expanded(
@@ -90,24 +104,26 @@ class _SolutationScreenState extends State<SolutationScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Subject",
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.textColor.withValues(alpha: 0.40),
+                    if (r.subject.trim().isNotEmpty && r.subject.trim().toLowerCase() != 'general') ...[
+                      Text(
+                        "Subject",
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.textColor.withValues(alpha: 0.40),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subjectLabel,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textColor,
+                      const SizedBox(height: 4),
+                      Text(
+                        subjectLabel,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textColor,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
+                      const SizedBox(height: 8),
+                    ],
                     Row(
                       children: [
                         SvgPicture.asset('assets/icon/right.svg'),
