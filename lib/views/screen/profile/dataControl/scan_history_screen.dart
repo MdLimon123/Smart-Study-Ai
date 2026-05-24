@@ -63,62 +63,159 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen> {
         ),
       ),
       body: SafeArea(
-        child: Obx(() {
-          if (_profileController.isScanHistoryLoading.value) {
-            return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF34D399)),
-            );
-          }
-          final err = _profileController.scanHistoryError.value;
-          if (err != null && err.isNotEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      err,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textColor.withValues(alpha: 0.70),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: () => _profileController.fetchScanHistory(),
-                      child: Text(
-                        'Retry',
-                        style: TextStyle(
-                          color: AppColors.textColor.withValues(alpha: 0.90),
+        child: Stack(
+          children: [
+            Obx(() {
+              if (_profileController.isScanHistoryLoading.value) {
+                return const Center(
+                  child: CircularProgressIndicator(color: Color(0xFF34D399)),
+                );
+              }
+              final err = _profileController.scanHistoryError.value;
+              if (err != null && err.isNotEmpty) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          err,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textColor.withValues(alpha: 0.70),
+                          ),
                         ),
+                        const SizedBox(height: 16),
+                        TextButton(
+                          onPressed: () => _profileController.fetchScanHistory(),
+                          child: Text(
+                            'Retry',
+                            style: TextStyle(
+                              color: AppColors.textColor.withValues(alpha: 0.90),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+              final items = _profileController.scanHistory;
+              if (items.isEmpty) {
+                return Center(
+                  child: Text(
+                    'No scan history yet',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textColor.withValues(alpha: 0.45),
+                    ),
+                  ),
+                );
+              }
+              return ListView.separated(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 90), // Added bottom padding to not overlap with the floating button
+                itemBuilder: (context, index) => _historyCard(items[index]),
+                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                itemCount: items.length,
+              );
+            }),
+            
+            // ─── Floating Delete All Button ───
+            Positioned(
+              left: 20,
+              right: 20,
+              bottom: 20,
+              child: Obx(() {
+                final items = _profileController.scanHistory;
+                if (items.isEmpty || _profileController.isScanHistoryLoading.value) {
+                  return const SizedBox.shrink();
+                }
+                return InkWell(
+                  onTap: () {
+                    Get.dialog(
+                      AlertDialog(
+                        backgroundColor: AppColors.backgroundColor,
+                        title: Text(
+                          'Delete History',
+                          style: TextStyle(color: AppColors.textColor),
+                        ),
+                        content: Text(
+                          'Are you sure you want to clear all scan history?',
+                          style: TextStyle(color: AppColors.textColor.withValues(alpha: 0.8)),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Get.back(),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(color: AppColors.textColor.withValues(alpha: 0.6)),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              Get.back();
+                              await _profileController.deleteAllScanHistory();
+                            },
+                            child: const Text(
+                              'Delete',
+                              style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEF4444).withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color(0xFFEF4444).withValues(alpha: 0.20),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            );
-          }
-          final items = _profileController.scanHistory;
-          if (items.isEmpty) {
-            return Center(
-              child: Text(
-                'No scan history yet',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textColor.withValues(alpha: 0.45),
-                ),
-              ),
-            );
-          }
-          return ListView.separated(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-            itemBuilder: (context, index) => _historyCard(items[index]),
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
-            itemCount: items.length,
-          );
-        }),
+                    child: Center(
+                      child: Obx(() {
+                        if (_profileController.isDeletingScanHistory.value) {
+                          return const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Color(0xFFEF4444),
+                              strokeWidth: 2,
+                            ),
+                          );
+                        }
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.delete_outline_rounded,
+                              color: Color(0xFFF87171),
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Delete All Scan History',
+                              style: TextStyle(
+                                color: const Color(0xFFF87171),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ],
+        ),
       ),
     );
   }

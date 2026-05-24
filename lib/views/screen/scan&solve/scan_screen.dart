@@ -269,257 +269,163 @@ class _ScanScreenState extends State<ScanScreen> {
     );
   }
 
-  // ─── Bottom Controls Panel ───
+  // ─── Bottom Controls Panel ─── (Camera-app minimal style)
   Widget _buildBottomControls() {
-    return ClipRRect(
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(32),
-        topRight: Radius.circular(32),
-      ),
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.65), // Stronger dark overlay for premium high contrast
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(32),
-            topRight: Radius.circular(32),
-          ),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.1),
-            width: 1.5,
-          ),
-        ),
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-        child: SafeArea(
-          top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Pull indicator visual accent
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              _buildSubjectSectionCustom(),
-              const SizedBox(height: 16),
-              _buildScanButtonCustom(),
-              const SizedBox(height: 12),
-              _buildUploadOptionsCustom(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ─── Custom Gallery & File Picker Row ───
-  Widget _buildUploadOptionsCustom() {
-    return Row(
-      children: [
-        Expanded(
-          child: GestureDetector(
-            onTap: controller.pickAndScanImage,
-            child: Container(
-              height: 44,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  width: 1,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.photo_library_outlined,
-                    color: Colors.white.withValues(alpha: 0.85),
-                    size: 18,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Gallery",
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white.withValues(alpha: 0.85),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: GestureDetector(
-            onTap: controller.pickAndScanFile,
-            child: Container(
-              height: 44,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  width: 1,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.picture_as_pdf_outlined,
-                    color: Colors.white.withValues(alpha: 0.85),
-                    size: 18,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Upload File",
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white.withValues(alpha: 0.85),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ─── Bottom Subject Tag List ───
-  Widget _buildSubjectSectionCustom() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Select subject (required)",
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: Colors.white.withValues(alpha: 0.50),
-          ),
-        ),
-        const SizedBox(height: 10),
-        SizedBox(
-          height: 38,
-          child: Obx(
-            () {
-              final selected = controller.selectedSubject.value;
-              return ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: controller.subjects.length,
-                separatorBuilder: (context, index) => const SizedBox(width: 10),
-                itemBuilder: (context, index) {
-                  final subject = controller.subjects[index];
-                  final isSelected = selected == subject;
-                  return GestureDetector(
-                    onTap: () => controller.selectSubject(isSelected ? null : subject),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                      ),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? const Color(0xFFA78BFA).withValues(alpha: 0.25)
-                            : Colors.white.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isSelected
-                              ? const Color(0xFFA78BFA)
-                              : Colors.white.withValues(alpha: 0.12),
-                          width: 1,
-                        ),
-                      ),
-                      child: Text(
-                        subject,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: isSelected
-                              ? const Color(0xFFA78BFA)
-                              : Colors.white.withValues(alpha: 0.70),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ─── Custom Scan Button ───
-  Widget _buildScanButtonCustom() {
-    return SizedBox(
+    return Container(
       width: double.infinity,
-      height: 54,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.55),
+      ),
+      padding: const EdgeInsets.only(top: 10, bottom: 0),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildSubjectSectionCustom(),
+            const SizedBox(height: 16),
+            _buildCameraRow(),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─── Camera Row: Gallery | Shutter | Clear ───
+  Widget _buildCameraRow() {
+    return Obx(() {
+      final isReady = controller.isCameraReady.value;
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Gallery icon button
+            GestureDetector(
+              onTap: controller.pickAndScanImage,
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(
+                  Icons.photo_library_outlined,
+                  color: Colors.white.withValues(alpha: 0.85),
+                  size: 22,
+                ),
+              ),
+            ),
+
+            // Big circular shutter button
+            GestureDetector(
+              onTap: isReady ? controller.captureAndScan : null,
+              child: Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: isReady
+                      ? const LinearGradient(
+                          colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        )
+                      : null,
+                  color: isReady ? null : Colors.white.withValues(alpha: 0.15),
+                  boxShadow: isReady
+                      ? [
+                          BoxShadow(
+                            color: const Color(0xFF7C3AED).withValues(alpha: 0.5),
+                            blurRadius: 20,
+                            spreadRadius: 2,
+                          )
+                        ]
+                      : [],
+                ),
+                child: Icon(
+                  Icons.document_scanner_outlined,
+                  color: isReady ? Colors.white : Colors.white.withValues(alpha: 0.35),
+                  size: 30,
+                ),
+              ),
+            ),
+
+            // File upload button
+            GestureDetector(
+              onTap: controller.pickAndScanFile,
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(
+                  Icons.picture_as_pdf_outlined,
+                  color: Colors.white.withValues(alpha: 0.85),
+                  size: 22,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  // ─── Subject Tab Row (flat text tabs, no cards) ───
+  Widget _buildSubjectSectionCustom() {
+    return SizedBox(
+      height: 36,
       child: Obx(() {
-        final isReady = controller.isCameraReady.value;
-        return DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: isReady
-                ? const LinearGradient(
-                    colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
-                  )
-                : null,
-            color: isReady ? null : Colors.white.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: isReady
-                ? [
-                    BoxShadow(
-                      color: const Color(0xFF7C3AED).withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    )
-                  ]
-                : [],
-          ),
-          child: ElevatedButton.icon(
-            onPressed: isReady ? controller.captureAndScan : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+        final selected = controller.selectedSubject.value;
+        return ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          itemCount: controller.subjects.length,
+          separatorBuilder: (context, index) => const SizedBox(width: 24),
+          itemBuilder: (context, index) {
+            final subject = controller.subjects[index];
+            final isSelected = selected == subject;
+            return GestureDetector(
+              onTap: () => controller.selectSubject(isSelected ? null : subject),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    subject,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w400,
+                      color: isSelected
+                          ? Colors.white
+                          : Colors.white.withValues(alpha: 0.45),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: isSelected ? 20 : 0,
+                    height: 2.5,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF7C3AED),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            icon: SvgPicture.asset(
-              'assets/icon/camera_fill.svg',
-              colorFilter: ColorFilter.mode(
-                isReady ? Colors.white : Colors.white.withValues(alpha: 0.35),
-                BlendMode.srcIn,
-              ),
-            ),
-            label: Text(
-              "Scan Problem",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: isReady ? Colors.white : Colors.white.withValues(alpha: 0.35),
-              ),
-            ),
-          ),
+            );
+          },
         );
       }),
     );
   }
+
+
 
 
   // ─── Analyzing View ───

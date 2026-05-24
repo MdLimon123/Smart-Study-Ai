@@ -275,7 +275,7 @@ class _FolderDetailsState extends State<FolderDetails> {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1B2E),
+            color: AppColors.cardColor,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(

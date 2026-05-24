@@ -25,10 +25,19 @@ class ProfileController extends GetxController {
   /// Results when `GET /scan/history/?subject=...` is used (Subject screen search).
   final scanHistoryQuery = <ScanHistoryItemModel>[].obs;
   final isScanHistoryLoading = false.obs;
+  final isDeletingScanHistory = false.obs;
   final scanHistoryError = RxnString();
 
   final isAiPersonalizationLoading = false.obs;
   final isParentalControlLoading = false.obs;
+
+  // Children Activity Data
+  final childScans = <dynamic>[].obs;
+  final childChats = <dynamic>[].obs;
+  final isChildScansLoading = false.obs;
+  final isChildChatsLoading = false.obs;
+  final childScansError = RxnString();
+  final childChatsError = RxnString();
 
   Rx<File?> userProfileImage = Rx<File?>(null);
   final isLoading = false.obs;
@@ -324,6 +333,39 @@ class ProfileController extends GetxController {
     }
   }
 
+  /// DELETE `/scan/history/` — clears all scan history entries.
+  Future<bool> deleteAllScanHistory() async {
+    if (isDeletingScanHistory.value) return false;
+    isDeletingScanHistory.value = true;
+    try {
+      final response = await ApiClient.deleteData(
+        ApiConstant.scanHistoryEndpoint,
+      );
+      if (response.statusCode == 200 ||
+          response.statusCode == 201 ||
+          response.statusCode == 204) {
+        scanHistory.clear();
+        scanHistoryQuery.clear();
+        scanHistoryError.value = null;
+        showCustomSnackBar(
+          _msg(response.body) ?? 'Scan history deleted successfully',
+          isError: false,
+        );
+        return true;
+      }
+      showCustomSnackBar(
+        _msg(response.body) ?? 'Could not delete scan history',
+        isError: true,
+      );
+      return false;
+    } catch (e) {
+      showCustomSnackBar(e.toString(), isError: true);
+      return false;
+    } finally {
+      isDeletingScanHistory.value = false;
+    }
+  }
+
 
   /// POST `/scan/ai-personalization/` — saves AI tutoring preferences.
   /// Body keys match backend (`response_sytel`, `dificulty_level`).
@@ -439,6 +481,84 @@ class ProfileController extends GetxController {
       showCustomSnackBar(e.toString(), isError: true);
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchChildScans() async {
+    isChildScansLoading.value = true;
+    childScansError.value = null;
+    try {
+      final response = await ApiClient.getData(ApiConstant.childScansEndpoint);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final body = response.body;
+        if (body is Map && body['data'] is Map) {
+          final data = Map<String, dynamic>.from(body['data'] as Map);
+          final List<dynamic> flattened = [];
+          data.forEach((email, list) {
+            if (list is List) {
+              for (var item in list) {
+                if (item is Map) {
+                  final itemMap = Map<String, dynamic>.from(item);
+                  itemMap['child_email'] = email;
+                  flattened.add(itemMap);
+                } else {
+                  flattened.add(item);
+                }
+              }
+            }
+          });
+          childScans.assignAll(flattened);
+        } else {
+          childScans.clear();
+        }
+      } else {
+        childScans.clear();
+        childScansError.value = _msg(response.body) ?? 'Could not load child scans';
+      }
+    } catch (e) {
+      childScans.clear();
+      childScansError.value = e.toString();
+    } finally {
+      isChildScansLoading.value = false;
+    }
+  }
+
+  Future<void> fetchChildChats() async {
+    isChildChatsLoading.value = true;
+    childChatsError.value = null;
+    try {
+      final response = await ApiClient.getData(ApiConstant.childChatsEndpoint);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final body = response.body;
+        if (body is Map && body['data'] is Map) {
+          final data = Map<String, dynamic>.from(body['data'] as Map);
+          final List<dynamic> flattened = [];
+          data.forEach((email, list) {
+            if (list is List) {
+              for (var item in list) {
+                if (item is Map) {
+                  final itemMap = Map<String, dynamic>.from(item);
+                  itemMap['child_email'] = email;
+                  flattened.add(itemMap);
+                } else {
+                  flattened.add(item);
+                }
+              }
+            }
+          });
+          childChats.assignAll(flattened);
+        } else {
+          childChats.clear();
+        }
+      } else {
+        childChats.clear();
+        childChatsError.value = _msg(response.body) ?? 'Could not load child chats';
+      }
+    } catch (e) {
+      childChats.clear();
+      childChatsError.value = e.toString();
+    } finally {
+      isChildChatsLoading.value = false;
     }
   }
 

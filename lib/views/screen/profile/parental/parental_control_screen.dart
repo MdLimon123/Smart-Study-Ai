@@ -3,6 +3,7 @@ import 'package:flutter_extension/controller/profile_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
 import 'package:flutter_extension/views/base/custom_button.dart';
 import 'package:flutter_extension/views/base/custom_text_field.dart';
+import 'package:flutter_extension/views/screen/profile/parental/see_childer_activity.dart';
 import 'package:get/get.dart';
 
 class ParentalControlScreen extends StatefulWidget {
@@ -130,6 +131,41 @@ class _ParentalControlScreenState extends State<ParentalControlScreen> {
                   text: 'Send Invite',
                 ),
               ),
+
+              Obx(() {
+                final isParent = _profileController.profile.value?.isParent ?? false;
+                if (!isParent) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: InkWell(
+                    onTap: () {
+                      Get.to(() => const SeeChilderActivity());
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      width: double.infinity,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF7C3AED),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          "See children's activity",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+
+
+
             ],
           ),
         ),

@@ -438,7 +438,7 @@ class _AiPersonalizationState extends State<AiPersonalization> {
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _selectedLanguage,
-                    dropdownColor: const Color(0xFF1D1929),
+                    dropdownColor: AppColors.cardColor,
                     icon: Icon(
                       Icons.keyboard_arrow_down,
                       color: AppColors.textColor.withValues(alpha: 0.50),

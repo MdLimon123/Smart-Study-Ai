@@ -14,6 +14,7 @@ class ProfileModel {
   final int level;
   final String? createdAt;
   final String? updatedAt;
+  final bool isParent;
 
   ProfileModel({
     required this.id,
@@ -29,6 +30,7 @@ class ProfileModel {
     required this.level,
     this.createdAt,
     this.updatedAt,
+    required this.isParent,
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
@@ -55,6 +57,7 @@ class ProfileModel {
       level: _parseInt(json['level']),
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),
+      isParent: json['is_parent'] == true,
     );
   }
 
@@ -70,6 +73,7 @@ class ProfileModel {
   ProfileModel copyWith({
     int? studyMinutes,
     int? activeDays,
+    bool? isParent,
   }) {
     return ProfileModel(
       id: id,
@@ -85,6 +89,7 @@ class ProfileModel {
       level: level,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      isParent: isParent ?? this.isParent,
     );
   }
 

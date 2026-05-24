@@ -84,4 +84,6 @@ class ApiConstant {
   static const String aiPersonalizationEndpoint = '/scan/ai-personalization/';
 
   static const String sendParentalControlEndpoint = '/2fa/parental-control/';
+  static const String childScansEndpoint = '/2fa/parental-control/child-scans/';
+  static const String childChatsEndpoint = '/2fa/parental-control/child-chats/';
 }
