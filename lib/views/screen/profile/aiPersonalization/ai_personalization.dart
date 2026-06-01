@@ -20,6 +20,7 @@ class _AiPersonalizationState extends State<AiPersonalization> {
     'gpt-4o',
     'gemini-pro',
     'claude-3-5-sonnet',
+    'qqai',
   ];
 
   static const List<String> _responseStyleApi = [
@@ -87,6 +88,74 @@ class _AiPersonalizationState extends State<AiPersonalization> {
   void initState() {
     super.initState();
     _profileController = Get.find<ProfileController>();
+    _loadSavedPreferences();
+    _fetchFreshPreferences();
+  }
+
+  Future<void> _fetchFreshPreferences() async {
+    await _profileController.fetchAiPersonalization();
+    if (mounted) {
+      setState(() {
+        _loadSavedPreferences();
+      });
+    }
+  }
+
+  String _slugToSubject(String slug) {
+    switch (slug.toLowerCase()) {
+      case 'mathematics':
+        return 'Mathematics';
+      case 'physics':
+        return 'Physics';
+      case 'chemistry':
+        return 'Chemistry';
+      case 'biology':
+        return 'Biology';
+      case 'history':
+        return 'History';
+      case 'cs':
+        return 'CS';
+      case 'literature':
+        return 'Literature';
+      case 'economics':
+        return 'Economics';
+      default:
+        return slug.capitalizeFirst ?? slug;
+    }
+  }
+
+  void _loadSavedPreferences() {
+    final prefs = _profileController.personalization.value;
+    if (prefs != null) {
+      final modelIdx = _modelApiIds.indexOf(prefs.model);
+      if (modelIdx != -1) {
+        _selectedModel = modelIdx;
+      }
+      final styleIdx = _responseStyleApi.indexOf(prefs.responseStyle);
+      if (styleIdx != -1) {
+        _selectedStyle = styleIdx;
+      }
+      final diffIdx = _difficultyApi.indexOf(prefs.difficultyLevel);
+      if (diffIdx != -1) {
+        _difficultyLevel = diffIdx.toDouble();
+      }
+
+      final parsedLanguage = _languages.firstWhere(
+        (lang) => lang.toLowerCase() == prefs.language.toLowerCase(),
+        orElse: () => "English",
+      );
+      _selectedLanguage = parsedLanguage;
+
+      if (prefs.subjectFocusArea.isNotEmpty) {
+        _selectedSubjects.clear();
+        final slugs = prefs.subjectFocusArea.split(',');
+        for (var slug in slugs) {
+          if (slug.trim().isNotEmpty) {
+            _selectedSubjects.add(_slugToSubject(slug.trim()));
+          }
+        }
+      }
+    }
   }
 
   String _subjectToSlug(String label) {
@@ -263,7 +332,7 @@ class _AiPersonalizationState extends State<AiPersonalization> {
               const SizedBox(height: 12),
 
               _modelCard(
-                icon: "assets/images/gptPro.png",
+                icon: "assets/images/gpt_fill.png",
                 index: 0,
                 title: "GPT 4o",
                 badgeText: "OpenAI",
@@ -272,7 +341,7 @@ class _AiPersonalizationState extends State<AiPersonalization> {
               ),
               const SizedBox(height: 10),
               _modelCard(
-                icon: "assets/images/geminiPro.png",
+                icon: "assets/images/gemini_fill.png",
                 index: 1,
                 title: "Gemini Pro",
                 badgeText: "Google",
@@ -281,12 +350,21 @@ class _AiPersonalizationState extends State<AiPersonalization> {
               ),
               const SizedBox(height: 10),
               _modelCard(
-                icon: "assets/images/claudePro.png",
+                icon: "assets/images/claude.jpg",
                 index: 2,
                 title: "Claude 3.5",
                 badgeText: "Anthropic",
                 badgeColor: const Color(0xFFF59E0B),
                 subtitle: "Great for writing, analysis & nuanced\nanswers",
+              ),
+                    const SizedBox(height: 10),
+              _modelCard(
+                icon: "assets/images/app_logo.png",
+                index: 3,
+                title: " QQAI",
+                badgeText: "QQA",
+                badgeColor: const Color(0xFFF59E0B),
+                subtitle: "Quick, Accurate & Always Improving",
               ),
 
               const SizedBox(height: 24),
@@ -411,128 +489,128 @@ class _AiPersonalizationState extends State<AiPersonalization> {
 
               const SizedBox(height: 24),
 
-              // Language
-              Text(
-                "Language",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textColor,
-                ),
-              ),
-              const SizedBox(height: 12),
+              // // Language
+              // Text(
+              //   "Language",
+              //   style: TextStyle(
+              //     fontSize: 16,
+              //     fontWeight: FontWeight.w600,
+              //     color: AppColors.textColor,
+              //   ),
+              // ),
+              // const SizedBox(height: 12),
 
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: AppColors.textColor.withValues(alpha: 0.04),
-                  border: Border.all(
-                    color: AppColors.textColor.withValues(alpha: 0.07),
-                  ),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _selectedLanguage,
-                    dropdownColor: AppColors.cardColor,
-                    icon: Icon(
-                      Icons.keyboard_arrow_down,
-                      color: AppColors.textColor.withValues(alpha: 0.50),
-                    ),
-                    isExpanded: true,
-                    items:
-                        [
-                              "English",
-                              "Spanish",
-                              "French",
-                              "German",
-                              "Arabic",
-                              "Mandarin",
-                              "Hindi",
-                              "Portuguese",
-                            ]
-                            .map(
-                              (lang) => DropdownMenuItem(
-                                value: lang,
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.language,
-                                      color: Color(0xFFA78BFA),
-                                      size: 18,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      lang,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: AppColors.textColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                            .toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        _selectedLanguage = val!;
-                      });
-                    },
-                  ),
-                ),
-              ),
+              // Container(
+              //   width: double.infinity,
+              //   padding: const EdgeInsets.symmetric(
+              //     horizontal: 16,
+              //     vertical: 4,
+              //   ),
+              //   decoration: BoxDecoration(
+              //     borderRadius: BorderRadius.circular(16),
+              //     color: AppColors.textColor.withValues(alpha: 0.04),
+              //     border: Border.all(
+              //       color: AppColors.textColor.withValues(alpha: 0.07),
+              //     ),
+              //   ),
+              //   child: DropdownButtonHideUnderline(
+              //     child: DropdownButton<String>(
+              //       value: _selectedLanguage,
+              //       dropdownColor: AppColors.cardColor,
+              //       icon: Icon(
+              //         Icons.keyboard_arrow_down,
+              //         color: AppColors.textColor.withValues(alpha: 0.50),
+              //       ),
+              //       isExpanded: true,
+              //       items:
+              //           [
+              //                 "English",
+              //                 "Spanish",
+              //                 "French",
+              //                 "German",
+              //                 "Arabic",
+              //                 "Mandarin",
+              //                 "Hindi",
+              //                 "Portuguese",
+              //               ]
+              //               .map(
+              //                 (lang) => DropdownMenuItem(
+              //                   value: lang,
+              //                   child: Row(
+              //                     children: [
+              //                       const Icon(
+              //                         Icons.language,
+              //                         color: Color(0xFFA78BFA),
+              //                         size: 18,
+              //                       ),
+              //                       const SizedBox(width: 10),
+              //                       Text(
+              //                         lang,
+              //                         style: TextStyle(
+              //                           fontSize: 14,
+              //                           color: AppColors.textColor,
+              //                         ),
+              //                       ),
+              //                     ],
+              //                   ),
+              //                 ),
+              //               )
+              //               .toList(),
+              //       onChanged: (val) {
+              //         setState(() {
+              //           _selectedLanguage = val!;
+              //         });
+              //       },
+              //     ),
+              //   ),
+              // ),
 
-              const SizedBox(height: 12),
+              // const SizedBox(height: 12),
 
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _languages.map((lang) {
-                  final isSelected = _selectedLanguage == lang;
-                  return InkWell(
-                    onTap: () {
-                      setState(() {
-                        _selectedLanguage = lang;
-                      });
-                    },
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: isSelected
-                            ? const Color(0xFFA78BFA).withValues(alpha: 0.15)
-                            : AppColors.textColor.withValues(alpha: 0.04),
-                        border: Border.all(
-                          color: isSelected
-                              ? const Color(0xFFA78BFA).withValues(alpha: 0.40)
-                              : AppColors.textColor.withValues(alpha: 0.07),
-                        ),
-                      ),
-                      child: Text(
-                        lang,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: isSelected
-                              ? const Color(0xFFA78BFA)
-                              : AppColors.textColor.withValues(alpha: 0.50),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
+              // Wrap(
+              //   spacing: 8,
+              //   runSpacing: 8,
+              //   children: _languages.map((lang) {
+              //     final isSelected = _selectedLanguage == lang;
+              //     return InkWell(
+              //       onTap: () {
+              //         setState(() {
+              //           _selectedLanguage = lang;
+              //         });
+              //       },
+              //       borderRadius: BorderRadius.circular(20),
+              //       child: Container(
+              //         padding: const EdgeInsets.symmetric(
+              //           horizontal: 16,
+              //           vertical: 8,
+              //         ),
+              //         decoration: BoxDecoration(
+              //           borderRadius: BorderRadius.circular(20),
+              //           color: isSelected
+              //               ? const Color(0xFFA78BFA).withValues(alpha: 0.15)
+              //               : AppColors.textColor.withValues(alpha: 0.04),
+              //           border: Border.all(
+              //             color: isSelected
+              //                 ? const Color(0xFFA78BFA).withValues(alpha: 0.40)
+              //                 : AppColors.textColor.withValues(alpha: 0.07),
+              //           ),
+              //         ),
+              //         child: Text(
+              //           lang,
+              //           style: TextStyle(
+              //             fontSize: 12,
+              //             fontWeight: FontWeight.w500,
+              //             color: isSelected
+              //                 ? const Color(0xFFA78BFA)
+              //                 : AppColors.textColor.withValues(alpha: 0.50),
+              //           ),
+              //         ),
+              //       ),
+              //     );
+              //   }).toList(),
+              // ),
 
-              const SizedBox(height: 24),
+              // const SizedBox(height: 24),
 
               // Subject Focus Area
               Text(

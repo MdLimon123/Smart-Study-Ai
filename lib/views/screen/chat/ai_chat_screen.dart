@@ -106,6 +106,157 @@ class _AiChatScreenState extends State<AiChatScreen> {
     });
   }
 
+  void _showAttachmentOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.cardColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Drag handle
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: AppColors.textColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  "Add Attachment",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textColor,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildAttachmentOption(
+                  context,
+                  icon: Icons.camera_alt_outlined,
+                  title: "Live Camera",
+                  subtitle: "Take a picture of your question directly",
+                  iconColor: const Color(0xFF10B981),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _aiChatController.pickImageFromCamera();
+                  },
+                ),
+                const SizedBox(height: 12),
+                _buildAttachmentOption(
+                  context,
+                  icon: Icons.photo_library_outlined,
+                  title: "Image Upload",
+                  subtitle: "Select images from your gallery",
+                  iconColor: const Color(0xFF7C3AED),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _aiChatController.pickImage();
+                  },
+                ),
+                const SizedBox(height: 12),
+                _buildAttachmentOption(
+                  context,
+                  icon: Icons.picture_as_pdf_outlined,
+                  title: "File/Document Upload",
+                  subtitle: "Upload PDF, Word, or Text files",
+                  iconColor: const Color(0xFFEF4444),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _aiChatController.pickFile();
+                  },
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAttachmentOption(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color iconColor,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppColors.textColor.withValues(alpha: 0.08),
+            width: 1,
+          ),
+          color: AppColors.textColor.withValues(alpha: 0.02),
+        ),
+        child: Row(
+          children: [
+            Container(
+              height: 44,
+              width: 44,
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: iconColor,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textColor,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.textColor.withValues(alpha: 0.45),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.textColor.withValues(alpha: 0.35),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -201,7 +352,11 @@ class _AiChatScreenState extends State<AiChatScreen> {
                     padding: const EdgeInsets.only(right: 10),
                     child: GestureDetector(
                       onTap: () {
-                        _aiChatController.selectSubject(isSelected ? null : subject);
+                        if (isSelected) {
+                          if (subject != 'All Subjects') _aiChatController.selectSubject('All Subjects');
+                        } else {
+                          _aiChatController.selectSubject(subject);
+                        }
                       },
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
@@ -261,7 +416,25 @@ class _AiChatScreenState extends State<AiChatScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  if (m.imagePath != null)
+                                  if (m.imagePaths != null && m.imagePaths!.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 6),
+                                      child: Wrap(
+                                        spacing: 6,
+                                        runSpacing: 6,
+                                        alignment: WrapAlignment.end,
+                                        children: m.imagePaths!.map((path) => ClipRRect(
+                                          borderRadius: BorderRadius.circular(12),
+                                          child: Image.file(
+                                            File(path),
+                                            width: 150,
+                                            height: 150,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )).toList(),
+                                      ),
+                                    )
+                                  else if (m.imagePath != null)
                                     Padding(
                                       padding: const EdgeInsets.only(bottom: 6),
                                       child: ClipRRect(
@@ -404,67 +577,106 @@ class _AiChatScreenState extends State<AiChatScreen> {
           Obx(() {
             final path = _aiChatController.attachedFilePath.value;
             final name = _aiChatController.attachedFileName.value;
-            final isImage = _aiChatController.attachedIsImage.value;
-            if (path == null || name == null) return const SizedBox.shrink();
+            final images = _aiChatController.attachedImages;
+            
+            if (path == null && images.isEmpty) return const SizedBox.shrink();
+            
             return Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF7C3AED).withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: const Color(0xFF7C3AED).withValues(alpha: 0.25),
-                  ),
-                ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    if (isImage)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
-                        child: Image.file(
-                          File(path),
-                          width: 36,
-                          height: 36,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    else
+                    if (path != null && name != null)
                       Container(
-                        width: 36,
-                        height: 36,
+                        margin: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF7C3AED).withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(8),
+                          color: const Color(0xFF7C3AED).withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: const Color(0xFF7C3AED).withValues(alpha: 0.25),
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.picture_as_pdf_outlined,
-                          color: Color(0xFF7C3AED),
-                          size: 20,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF7C3AED).withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(
+                                Icons.picture_as_pdf_outlined,
+                                color: Color(0xFF7C3AED),
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              name.length > 15 ? '${name.substring(0, 15)}...' : name,
+                              maxLines: 1,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textColor.withValues(alpha: 0.75),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            GestureDetector(
+                              onTap: () {
+                                _aiChatController.attachedFilePath.value = null;
+                                _aiChatController.attachedFileName.value = null;
+                              },
+                              child: Icon(
+                                Icons.close_rounded,
+                                size: 16,
+                                color: AppColors.textColor.withValues(alpha: 0.45),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textColor.withValues(alpha: 0.75),
+                    ...images.asMap().entries.map((entry) {
+                      final idx = entry.key;
+                      final imgPath = entry.value;
+                      return Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF7C3AED).withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: const Color(0xFF7C3AED).withValues(alpha: 0.25),
+                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    GestureDetector(
-                      onTap: _aiChatController.clearAttachment,
-                      child: Icon(
-                        Icons.close_rounded,
-                        size: 16,
-                        color: AppColors.textColor.withValues(alpha: 0.45),
-                      ),
-                    ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: Image.file(
+                                File(imgPath),
+                                width: 36,
+                                height: 36,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            GestureDetector(
+                              onTap: () => _aiChatController.removeImage(idx),
+                              child: Icon(
+                                Icons.close_rounded,
+                                size: 16,
+                                color: AppColors.textColor.withValues(alpha: 0.45),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
                   ],
                 ),
               ),
@@ -487,23 +699,11 @@ class _AiChatScreenState extends State<AiChatScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Image attach button
+                  // File/Upload button
                   GestureDetector(
-                    onTap: _aiChatController.pickImage,
+                    onTap: () => _showAttachmentOptions(context),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
-                      child: Icon(
-                        Icons.image_outlined,
-                        size: 22,
-                        color: AppColors.textColor.withValues(alpha: 0.45),
-                      ),
-                    ),
-                  ),
-                  // File attach button
-                  GestureDetector(
-                    onTap: _aiChatController.pickFile,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                       child: Icon(
                         Icons.attach_file_rounded,
                         size: 22,

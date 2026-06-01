@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_extension/controller/profile_controller.dart';
 import 'package:flutter_extension/data/api/api_client.dart';
 import 'package:flutter_extension/data/api/api_constant.dart';
 import 'package:flutter_extension/views/base/custom_snackbar.dart';
@@ -37,6 +38,7 @@ class ChatMessage {
   final String? imagePath;  // local file path for image attachments
   final String? filePath;   // local file path for doc/pdf attachments
   final String? fileName;
+  final List<String>? imagePaths;
 
   const ChatMessage({
     required this.role,
@@ -44,6 +46,7 @@ class ChatMessage {
     this.imagePath,
     this.filePath,
     this.fileName,
+    this.imagePaths,
   });
 }
 
@@ -54,25 +57,25 @@ class AiChatController extends GetxController {
     AiModel(
       name: 'GPT-4o',
       subtitle: 'General',
-      icon: 'assets/images/gptPro.png',
+      icon: 'assets/images/gpt_fill.png',
       apiValue: 'gpt',
     ),
     AiModel(
       name: 'Gemini Pro',
       subtitle: 'Research',
-      icon: 'assets/images/geminiPro.png',
+      icon: 'assets/images/gemini_fill.png',
       apiValue: 'gemini',
     ),
     AiModel(
       name: 'Claude Sonnet 4.6',
       subtitle: 'Math',
-      icon: 'assets/images/claudePro.png',
+      icon: 'assets/images/claude.jpg',
       apiValue: 'claude',
     ),
       AiModel(
       name: 'QQ AI',
       subtitle: 'Quick Question',
-      icon: 'assets/images/claudePro.png',
+      icon: 'assets/images/app_logo.png',
       apiValue: 'gpt',
     ),
   ];
@@ -85,16 +88,21 @@ class AiChatController extends GetxController {
   final attachedFilePath = RxnString();
   final attachedFileName = RxnString();
   final attachedIsImage = false.obs;
+  final attachedImages = <String>[].obs;
 
   // Subjects
   final List<String> subjects = const [
+    'All Subjects',
     'Math',
     'Physics',
     'Chemistry',
     'Biology',
     'History',
+    'CS',
+    'Literature',
+    'Economics',
   ];
-  final selectedSubject = RxnString();
+  final selectedSubject = RxString('All Subjects');
 
   final _imagePicker = ImagePicker();
 
@@ -112,7 +120,7 @@ class AiChatController extends GetxController {
     selectedIndex.value = index;
   }
 
-  void selectSubject(String? subject) {
+  void selectSubject(String subject) {
     selectedSubject.value = subject;
   }
 
@@ -120,21 +128,39 @@ class AiChatController extends GetxController {
     attachedFilePath.value = null;
     attachedFileName.value = null;
     attachedIsImage.value = false;
+    attachedImages.clear();
+  }
+
+  void removeImage(int index) {
+    if (index >= 0 && index < attachedImages.length) {
+      attachedImages.removeAt(index);
+    }
   }
 
   Future<void> pickImage() async {
     try {
+      final picked = await _imagePicker.pickMultiImage(
+        imageQuality: 85,
+      );
+      if (picked.isNotEmpty) {
+        attachedImages.addAll(picked.map((e) => e.path));
+      }
+    } catch (e) {
+      showCustomSnackBar('Could not pick images', isError: true);
+    }
+  }
+
+  Future<void> pickImageFromCamera() async {
+    try {
       final picked = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
+        source: ImageSource.camera,
         imageQuality: 85,
       );
       if (picked != null) {
-        attachedFilePath.value = picked.path;
-        attachedFileName.value = picked.name;
-        attachedIsImage.value = true;
+        attachedImages.add(picked.path);
       }
     } catch (e) {
-      showCustomSnackBar('Could not pick image', isError: true);
+      showCustomSnackBar('Could not capture image', isError: true);
     }
   }
 
@@ -159,14 +185,15 @@ class AiChatController extends GetxController {
 
   Future<void> sendMessage({String? presetMessage}) async {
     final text = (presetMessage ?? messageController.text).trim();
-    final hasAttachment = attachedFilePath.value != null;
+    final hasAttachment = attachedFilePath.value != null || attachedImages.isNotEmpty;
     if (text.isEmpty && !hasAttachment) return;
 
     final model = selectedModel!; // always non-null — defaults to first model
     if (isSending.value) return;
 
     // Snapshot attachment before clearing
-    final imgPath = attachedIsImage.value ? attachedFilePath.value : null;
+    final imgPath = attachedIsImage.value ? attachedFilePath.value : null; // Keep for backward compat
+    final List<String> imgPaths = List.from(attachedImages);
     final fPath = (!attachedIsImage.value && attachedFilePath.value != null)
         ? attachedFilePath.value
         : null;
@@ -174,7 +201,7 @@ class AiChatController extends GetxController {
 
     // Build user message content (text only — image shown as thumbnail in UI)
     String userContent = text;
-    if (hasAttachment && !attachedIsImage.value) {
+    if (fPath != null) {
       final fname = fName ?? 'attachment';
       userContent = text.isEmpty ? '[File: $fname]' : '$text\n[File: $fname]';
     }
@@ -183,6 +210,7 @@ class AiChatController extends GetxController {
       role: 'user',
       content: userContent,
       imagePath: imgPath,
+      imagePaths: imgPaths,
       filePath: fPath,
       fileName: fName,
     ));
@@ -195,13 +223,16 @@ class AiChatController extends GetxController {
       final Map<String, String> body = {
         'message': text,
         'model': model.apiValue,
-        if (selectedSubject.value != null) 'subject': selectedSubject.value!.toLowerCase(),
+        if (selectedSubject.value != 'All' && selectedSubject.value != 'All Subjects') 'subject': selectedSubject.value.toLowerCase(),
       };
 
       // Build multipart body
       final List<MultipartBody> multipartBody = [];
       if (imgPath != null) {
         multipartBody.add(MultipartBody('image', File(imgPath)));
+      }
+      for (var path in imgPaths) {
+        multipartBody.add(MultipartBody('image', File(path)));
       }
       if (fPath != null) {
         multipartBody.add(MultipartBody('file', File(fPath)));
@@ -250,6 +281,48 @@ class AiChatController extends GetxController {
     } finally {
       isSending.value = false;
     }
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    _loadDefaultModelFromProfile();
+  }
+
+  void _loadDefaultModelFromProfile() {
+    try {
+      final profileController = Get.find<ProfileController>();
+      
+      // 1. Initial assignment if already loaded
+      if (profileController.personalization.value != null) {
+        _updateSelectedIndex(profileController.personalization.value!.model);
+      } else {
+        selectedIndex.value = 0; // Fallback default
+      }
+
+      // 2. Reactively listen to future personalization state updates
+      ever(profileController.personalization, (personalModel) {
+        if (personalModel != null) {
+          _updateSelectedIndex(personalModel.model);
+        }
+      });
+    } catch (_) {
+      selectedIndex.value = 0;
+    }
+  }
+
+  void _updateSelectedIndex(String savedModel) {
+    int index = 0;
+    if (savedModel == 'gpt-4o') {
+      index = 0;
+    } else if (savedModel == 'gemini-pro') {
+      index = 1;
+    } else if (savedModel == 'claude-3-5-sonnet') {
+      index = 2;
+    } else if (savedModel == 'qqai') {
+      index = 3;
+    }
+    selectedIndex.value = index;
   }
 
   @override

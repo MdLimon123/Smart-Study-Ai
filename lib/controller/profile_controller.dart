@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_extension/data/api/api_client.dart';
 import 'package:flutter_extension/data/api/api_constant.dart';
 import 'package:flutter_extension/data/model/chat_history_item_model.dart';
+import 'package:flutter_extension/data/model/ai_personalization_model.dart';
 import 'package:flutter_extension/data/model/profile_model.dart';
 import 'package:flutter_extension/data/model/scan_history_item_model.dart';
 import 'package:flutter_extension/util/image_utils.dart';
@@ -12,6 +14,7 @@ import 'package:get/get.dart';
 
 class ProfileController extends GetxController {
   final Rxn<ProfileModel> profile = Rxn<ProfileModel>();
+  final Rxn<AiPersonalizationModel> personalization = Rxn<AiPersonalizationModel>();
   final RxBool isProfileLoading = false.obs;
   final RxBool isUpdatingImage = false.obs;
   final RxBool isSendingTwoFactorCode = false.obs;
@@ -46,6 +49,7 @@ class ProfileController extends GetxController {
   void onInit() {
     super.onInit();
     fetchProfile();
+    fetchAiPersonalization();
   }
 
   Future<void> fetchProfile() async {
@@ -396,6 +400,7 @@ class ProfileController extends GetxController {
           _msg(response.body) ?? 'AI preferences saved',
           isError: false,
         );
+        fetchAiPersonalization();
       } else {
         showCustomSnackBar(
           _msg(response.body) ?? 'Could not save preferences',
@@ -404,6 +409,28 @@ class ProfileController extends GetxController {
       }
     } catch (e) {
       showCustomSnackBar(e.toString(), isError: true);
+    } finally {
+      isAiPersonalizationLoading.value = false;
+    }
+  }
+
+  Future<void> fetchAiPersonalization() async {
+    isAiPersonalizationLoading.value = true;
+    try {
+      final response = await ApiClient.getData(ApiConstant.aiPersonalizationEndpoint);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final body = response.body;
+        if (body is Map && body['data'] != null && body['data']['items'] is List) {
+          final items = body['data']['items'] as List;
+          if (items.isNotEmpty) {
+            personalization.value = AiPersonalizationModel.fromJson(
+              Map<String, dynamic>.from(items.first as Map),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching personalization: $e");
     } finally {
       isAiPersonalizationLoading.value = false;
     }

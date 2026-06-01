@@ -100,7 +100,7 @@ class ProfileModel {
     final h = studyMinutes ~/ 60;
     final m = studyMinutes % 60;
     if (m == 0) return '${h}h';
-    // Narrow no-break space so "13h 11m" stays one token and does not wrap mid-label.
+
     return '${h}h\u202F${m}m';
   }
 }

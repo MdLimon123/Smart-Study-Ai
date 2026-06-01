@@ -19,6 +19,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int _selectedModelIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -491,201 +493,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   Row(
                     children: [
-                      Expanded(
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 13,
-                            vertical: 16,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(14),
-                            color: AppColors.isDark
-                                ? const Color(0xFF132B25)
-                                : const Color(0xFFECFDF5),
-                            border: Border.all(
-                              color: const Color(0xFF10B981).withValues(alpha: 0.35),
-                              width: 1.2,
-                            ),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    height: 7,
-                                    width: 7,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Color(0xFF10B981),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Flexible(
-                                    child: Text(
-                                      "GPT-4o",
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        fontFamily: 'Lato',
-                                        color: AppColors.textColor,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                "General",
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.textColor.withValues(
-                                    alpha: 0.45,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      _buildAiModelCard(
+                        index: 0,
+                        title: "GPT-4o",
+                        subtitle: "General",
+                        dotColor: const Color(0xFF10B981),
                       ),
-                      const SizedBox(width: 12),
-
-                      Expanded(
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 13,
-                            vertical: 16,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(14),
-                            color: AppColors.cardColor,
-                            border: Border.all(
-                              color: AppColors.borderColor,
-                              width: 1,
-                            ),
-                            boxShadow: AppColors.isDark ? [] : [
-                              BoxShadow(
-                                color: const Color(0xFF000000).withValues(alpha: 0.02),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    height: 7,
-                                    width: 7,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Color(0xFF60A5FA),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Flexible(
-                                    child: Text(
-                                      "Gemini Pro",
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        fontFamily: 'Lato',
-                                        color: AppColors.textColor,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                "Research",
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.textColor.withValues(
-                                    alpha: 0.45,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      const SizedBox(width: 8),
+                      _buildAiModelCard(
+                        index: 1,
+                        title: "Gemini Pro",
+                        subtitle: "Research",
+                        dotColor: const Color(0xFF60A5FA),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 13,
-                            vertical: 16,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(14),
-                            color: AppColors.cardColor,
-                            border: Border.all(
-                              color: AppColors.borderColor,
-                              width: 1,
-                            ),
-                            boxShadow: AppColors.isDark ? [] : [
-                              BoxShadow(
-                                color: const Color(0xFF000000).withValues(alpha: 0.02),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    height: 7,
-                                    width: 7,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Color(0xFFA78BFA),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Flexible(
-                                    child: Text(
-                                      "Claude Sonnet",
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        fontFamily: 'Lato',
-                                        color: AppColors.textColor,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                "Math",
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.textColor.withValues(
-                                    alpha: 0.45,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      const SizedBox(width: 8),
+                      _buildAiModelCard(
+                        index: 2,
+                        title: "Claude Sonnet",
+                        subtitle: "Math",
+                        dotColor: const Color(0xFFA78BFA),
+                      ),
+                         const SizedBox(width: 8),
+                      _buildAiModelCard(
+                        index: 3,
+                        title: "QQAI",
+                        subtitle: "Quick",
+                        dotColor: const Color(0xFF10B981),
                       ),
                     ],
                   ),
@@ -1012,5 +845,95 @@ class _HomeScreenState extends State<HomeScreen> {
               '${w[0].toUpperCase()}${w.length > 1 ? w.substring(1).toLowerCase() : ''}',
         )
         .join(' ');
+  }
+
+  Widget _buildAiModelCard({
+    required int index,
+    required String title,
+    required String subtitle,
+    required Color dotColor,
+  }) {
+    final isSelected = _selectedModelIndex == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedModelIndex = index;
+          });
+        },
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 16,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            color: isSelected
+                ? (AppColors.isDark
+                    ? const Color(0xFF132B25)
+                    : const Color(0xFFECFDF5))
+                : AppColors.cardColor,
+            border: Border.all(
+              color: isSelected
+                  ? const Color(0xFF10B981).withValues(alpha: 0.35)
+                  : AppColors.borderColor,
+              width: isSelected ? 1.2 : 1,
+            ),
+            boxShadow: (AppColors.isDark || isSelected)
+                ? []
+                : [
+                    BoxShadow(
+                      color: const Color(0xFF000000).withValues(alpha: 0.02),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    height: 7,
+                    width: 7,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: dotColor,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      title,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'Lato',
+                        color: AppColors.textColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textColor.withValues(
+                    alpha: 0.45,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

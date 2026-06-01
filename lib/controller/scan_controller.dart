@@ -59,6 +59,7 @@ class ScanController extends GetxController
   ];
 
   final List<String> subjects = [
+    'All Subjects', 
     'Math',
     'Physics',
     'Chemistry',

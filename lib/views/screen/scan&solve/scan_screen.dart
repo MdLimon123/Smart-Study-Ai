@@ -215,19 +215,11 @@ class _ScanScreenState extends State<ScanScreen> {
       child: SizedBox(
         height: 280,
         width: double.infinity,
-        child: CustomPaint(
-          painter: _CornerBracketPainter(
-            color: const Color(0xFFA78BFA),
-            cornerLength: 30,
-            strokeWidth: 3,
-            borderRadius: 16,
-          ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              _buildScanLine(),
-            ],
-          ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            _buildScanLine(),
+          ],
         ),
       ),
     );
@@ -551,70 +543,6 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 }
 
-// ─── Corner Bracket Painter ───
-class _CornerBracketPainter extends CustomPainter {
-  final Color color;
-  final double cornerLength;
-  final double strokeWidth;
-  final double borderRadius;
-
-  _CornerBracketPainter({
-    required this.color,
-    required this.cornerLength,
-    required this.strokeWidth,
-    required this.borderRadius,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final r = borderRadius;
-    final cl = cornerLength;
-    final w = size.width;
-    final h = size.height;
-
-    final topLeft = Path()
-      ..moveTo(0, cl + r)
-      ..lineTo(0, r)
-      ..arcToPoint(Offset(r, 0), radius: Radius.circular(r))
-      ..lineTo(cl + r, 0);
-    canvas.drawPath(topLeft, paint);
-
-    final topRight = Path()
-      ..moveTo(w - cl - r, 0)
-      ..lineTo(w - r, 0)
-      ..arcToPoint(Offset(w, r), radius: Radius.circular(r))
-      ..lineTo(w, cl + r);
-    canvas.drawPath(topRight, paint);
-
-    final bottomLeft = Path()
-      ..moveTo(0, h - cl - r)
-      ..lineTo(0, h - r)
-      ..arcToPoint(Offset(r, h), radius: Radius.circular(r))
-      ..lineTo(cl + r, h);
-    canvas.drawPath(bottomLeft, paint);
-
-    final bottomRight = Path()
-      ..moveTo(w - cl - r, h)
-      ..lineTo(w - r, h)
-      ..arcToPoint(Offset(w, h - r), radius: Radius.circular(r))
-      ..lineTo(w, h - cl - r);
-    canvas.drawPath(bottomRight, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _CornerBracketPainter oldDelegate) {
-    return oldDelegate.color != color ||
-        oldDelegate.cornerLength != cornerLength ||
-        oldDelegate.strokeWidth != strokeWidth ||
-        oldDelegate.borderRadius != borderRadius;
-  }
-}
 
 // ─── Circular Progress Painter ───
 class _CircularProgressPainter extends CustomPainter {
