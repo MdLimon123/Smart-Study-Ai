@@ -248,7 +248,7 @@ class ScanController extends GetxController
     try {
       final response = await ApiClient.postMultipartData(
         ApiConstant.scanResultEndpoint,
-        {'subject': selectedSubject.value != null ? _subjectToApi(selectedSubject.value!) : ''},
+        {'subject': (selectedSubject.value != null && selectedSubject.value != 'All Subjects') ? _subjectToApi(selectedSubject.value!) : ''},
         multipartBody: [MultipartBody(isImage ? 'image' : 'file', File(filePath))],
       );
 
@@ -329,3 +329,4 @@ class ScanController extends GetxController
     super.onClose();
   }
 }
+ 
