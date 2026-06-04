@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/controller/localization_controller.dart';
 import 'package:flutter_extension/controller/theme_controller.dart';
-import 'package:flutter_extension/data/model/language_model.dart';
 import 'package:flutter_extension/util/app_constants.dart';
 import 'package:get/get.dart';
 
@@ -180,25 +179,98 @@ class SettingsPage extends StatelessWidget {
                 builder: (localizeController) {
                   final bool isAuto = localizeController.isAutoDetect;
                   final activeLocale = localizeController.locale;
+                  const activeColor = Color(0xFF7C3AED);
+
+                  // Build dropdown items: "Auto Detect" + all languages
+                  final List<DropdownMenuItem<String>> items = [
+                    DropdownMenuItem<String>(
+                      value: 'auto',
+                      child: Row(
+                        children: [
+                          Icon(Icons.public, size: 20, color: isAuto ? activeColor : subTextColor),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                "auto_detect".tr,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                ),
+                              ),
+                              Text(
+                                "${'system_default'.tr} (${_getSystemLanguageLabel()})",
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w400,
+                                  color: subTextColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    ...List.generate(localizeController.languages.length, (index) {
+                      final language = localizeController.languages[index];
+                      return DropdownMenuItem<String>(
+                        value: language.languageCode,
+                        child: Row(
+                          children: [
+                            Icon(Icons.language, size: 20, color: subTextColor),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  language.languageName,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
+                                  ),
+                                ),
+                                Text(
+                                  _getLanguageNativeLabel(language.languageCode),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w400,
+                                    color: subTextColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ];
+
+                  // Current selected value
+                  final String currentValue = isAuto ? 'auto' : activeLocale.languageCode;
 
                   return Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       color: cardBgColor.withValues(alpha: 0.5),
-                      border: Border.all(
-                        color: borderColor,
-                      ),
+                      border: Border.all(color: borderColor),
                     ),
-                    child: Column(
-                      children: [
-                        // Auto Detect Row
-                        _buildLanguageRow(
-                          context: context,
-                          title: "auto_detect".tr,
-                          subtitle: "${'system_default'.tr} (${_getSystemLanguageLabel()})",
-                          icon: Icons.public,
-                          isSelected: isAuto,
-                          onTap: () {
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: currentValue,
+                        isExpanded: true,
+                        icon: Icon(Icons.keyboard_arrow_down_rounded, color: subTextColor),
+                        dropdownColor: cardBgColor,
+                        borderRadius: BorderRadius.circular(16),
+                        items: items,
+                        onChanged: (value) {
+                          if (value == null) return;
+                          if (value == 'auto') {
                             localizeController.setLanguage(
                               Locale(
                                 AppConstants.languages[0].languageCode,
@@ -206,42 +278,17 @@ class SettingsPage extends StatelessWidget {
                               ),
                               autoDetect: true,
                             );
-                          },
-                        ),
-                        Divider(
-                          height: 1,
-                          color: borderColor.withValues(alpha: 0.5),
-                        ),
-                        // Manual languages
-                        ...List.generate(localizeController.languages.length, (index) {
-                          final LanguageModel language = localizeController.languages[index];
-                          final isSelected = !isAuto &&
-                              language.languageCode == activeLocale.languageCode;
-
-                          return Column(
-                            children: [
-                              _buildLanguageRow(
-                                context: context,
-                                title: language.languageName,
-                                subtitle: _getLanguageNativeLabel(language.languageCode),
-                                icon: Icons.language,
-                                isSelected: isSelected,
-                                onTap: () {
-                                  localizeController.setLanguage(
-                                    Locale(language.languageCode, language.countryCode),
-                                    autoDetect: false,
-                                  );
-                                },
-                              ),
-                              if (index < localizeController.languages.length - 1)
-                                Divider(
-                                  height: 1,
-                                  color: borderColor.withValues(alpha: 0.5),
-                                ),
-                            ],
-                          );
-                        }),
-                      ],
+                          } else {
+                            final lang = localizeController.languages.firstWhere(
+                              (l) => l.languageCode == value,
+                            );
+                            localizeController.setLanguage(
+                              Locale(lang.languageCode, lang.countryCode),
+                              autoDetect: false,
+                            );
+                          }
+                        },
+                      ),
                     ),
                   );
                 },
@@ -342,90 +389,4 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLanguageRow({
-    required BuildContext context,
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    const activeColor = Color(0xFF7C3AED); // Premium purple
-    final textColor = _getTextColor(context);
-    final subTextColor = _getSubTextColor(context);
-    final cardBgColor = _getCardBgColor(context);
-    final borderColor = _getBorderColor(context);
-
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Row(
-          children: [
-            Container(
-              height: 38,
-              width: 38,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: isSelected
-                    ? activeColor.withValues(alpha: 0.1)
-                    : cardBgColor,
-                border: Border.all(color: borderColor),
-              ),
-              child: Center(
-                child: Icon(
-                  icon,
-                  size: 20,
-                  color: isSelected ? activeColor : subTextColor,
-                ),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected ? activeColor : textColor,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w400,
-                      color: isSelected ? activeColor.withValues(alpha: 0.8) : subTextColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (isSelected)
-              const Icon(
-                Icons.check_circle,
-                color: activeColor,
-                size: 22,
-              )
-            else
-              Container(
-                height: 20,
-                width: 20,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: subTextColor.withValues(alpha: 0.3),
-                    width: 1.5,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
 }

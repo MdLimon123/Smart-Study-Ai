@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/controller/profile_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
-import 'package:gpt_markdown/gpt_markdown.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_markdown_latex/flutter_markdown_latex.dart';
 import 'package:get/get.dart';
+import 'package:markdown/markdown.dart' as md;
 
 class SeeChilderActivity extends StatefulWidget {
   const SeeChilderActivity({super.key});
@@ -447,12 +449,44 @@ class _SeeChilderActivityState extends State<SeeChilderActivity> with SingleTick
                     const SizedBox(height: 8),
 
                     // Markdown response
-                    GptMarkdown(
-                      aiResponse,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textColor.withValues(alpha: 0.85),
-                        height: 1.5,
+                    MarkdownBody(
+                      data: aiResponse,
+                      selectable: true,
+                      styleSheet: MarkdownStyleSheet(
+                        p: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textColor.withValues(alpha: 0.85),
+                          height: 1.5,
+                        ),
+                        strong: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textColor.withValues(alpha: 0.85),
+                        ),
+                        em: TextStyle(
+                          fontSize: 13,
+                          fontStyle: FontStyle.italic,
+                          color: AppColors.textColor.withValues(alpha: 0.85),
+                        ),
+                        code: TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 12,
+                          backgroundColor: AppColors.textColor.withValues(alpha: 0.08),
+                          color: AppColors.textColor.withValues(alpha: 0.85),
+                        ),
+                      ),
+                      builders: {
+                        'latex': LatexElementBuilder(
+                          textStyle: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textColor.withValues(alpha: 0.85),
+                          ),
+                          textScaleFactor: 1.0,
+                        ),
+                      },
+                      extensionSet: md.ExtensionSet(
+                        [LatexBlockSyntax()],
+                        [LatexInlineSyntax()],
                       ),
                     ),
                   ],

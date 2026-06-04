@@ -25,7 +25,9 @@ dependencies:
   # Camera2 implementation — avoids CameraX re-init / surface bugs when leaving & returning to scan.
   camera_android: ^0.10.10+16
   permission_handler: ^11.3.0
-  gpt_markdown: ^1.1.6
+  flutter_markdown: ^0.7.4
+  flutter_markdown_latex: ^0.3.4
+  markdown: ^7.3.0
   flutter_math_fork: ^0.7.4
   path_provider: ^2.1.5
   file_saver: ^0.3.1

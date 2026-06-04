@@ -3,10 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/controller/ai_chat_controller.dart';
 import 'package:flutter_extension/util/app_colors.dart';
-import 'package:flutter_math_fork/flutter_math.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_markdown_latex/flutter_markdown_latex.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:get/get.dart';
+import 'package:markdown/markdown.dart' as md;
 
 class AiChatScreen extends StatefulWidget {
   final String controllerTag;
@@ -785,42 +786,51 @@ class _AiMarkdown extends StatelessWidget {
       color: baseColor,
     );
 
-    return GptMarkdownTheme(
-      gptThemeData: GptMarkdownThemeData(
-        brightness: Theme.of(context).brightness,
+    return MarkdownBody(
+      data: text,
+      selectable: true,
+      styleSheet: MarkdownStyleSheet(
+        p: baseStyle,
         h1: baseStyle.copyWith(fontSize: 20, fontWeight: FontWeight.w800),
         h2: baseStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w800),
         h3: baseStyle.copyWith(fontSize: 17, fontWeight: FontWeight.w700),
         h4: baseStyle.copyWith(fontSize: 16, fontWeight: FontWeight.w700),
         h5: baseStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w700),
         h6: baseStyle.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
-        linkColor: const Color(0xFF93C5FD),
+        strong: baseStyle.copyWith(fontWeight: FontWeight.w700),
+        em: baseStyle.copyWith(fontStyle: FontStyle.italic),
+        code: baseStyle.copyWith(
+          fontFamily: 'monospace',
+          fontSize: 13,
+          backgroundColor: AppColors.textColor.withValues(alpha: 0.08),
+        ),
+        codeblockDecoration: BoxDecoration(
+          color: AppColors.textColor.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        blockquoteDecoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(
+              color: const Color(0xFF7C3AED).withValues(alpha: 0.6),
+              width: 3,
+            ),
+          ),
+        ),
+        listBullet: baseStyle,
+        a: baseStyle.copyWith(
+          color: const Color(0xFF93C5FD),
+          decoration: TextDecoration.underline,
+        ),
       ),
-      child: GptMarkdown(
-        text.replaceAll(r'\n', '\n'),
-        style: baseStyle,
-        textAlign: TextAlign.start,
-        latexBuilder: (context, tex, textStyle, inline) {
-          final screenWidth = MediaQuery.sizeOf(context).width;
-          final safeWidth = (screenWidth - 96).clamp(160.0, screenWidth);
-          final math = Math.tex(
-            tex,
-            textStyle: textStyle,
-            mathStyle: inline ? MathStyle.text : MathStyle.display,
-            settings: const TexParserSettings(strict: Strict.ignore),
-            options: MathOptions(
-              color: baseColor,
-              fontSize: baseStyle.fontSize,
-            ),
-          );
-          return ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: safeWidth),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: math,
-            ),
-          );
-        },
+      builders: {
+        'latex': LatexElementBuilder(
+          textStyle: baseStyle,
+          textScaleFactor: 1.0,
+        ),
+      },
+      extensionSet: md.ExtensionSet(
+        [LatexBlockSyntax()],
+        [LatexInlineSyntax()],
       ),
     );
   }
