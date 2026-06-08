@@ -12,24 +12,92 @@ class HelpSupport extends StatefulWidget {
 class _HelpSupportState extends State<HelpSupport> {
   final List<Map<String, String>> _faqs = [
     {
-      'question': 'How do I upgrade to Premium?',
-      'answer': "Tap the 'Upgrade to Premium' button on your profile",
+      'question': 'What is QUIZ QUESTION AI?',
+      'answer': 'QUIZ QUESTION AI is an AI-powered educational assistant designed to help students solve homework problems, understand academic concepts, generate study materials, and improve learning across multiple subjects.\n\nThe platform supports subjects including:\n• Mathematics\n• Science\n• Physics\n• Chemistry\n• Biology\n• Literature\n• History\n• Business Studies\n• English Language\n• Social Sciences\n• And many more\n\nStudents can ask questions using text, screenshots, images, scanned documents, or AI chat conversations.',
     },
     {
-      'question': 'How many scans do I get per day?',
-      'answer': 'Free plan: 3 scans/day, Premium: Unlimited',
+      'question': 'How does QUIZ QUESTION AI work?',
+      'answer': 'Using QUIZ QUESTION AI is simple:\n1. Type your question directly into the platform.\n2. Upload an image, screenshot, or document if needed.\n3. Our AI system analyzes the question instantly.\n4. Receive accurate answers, explanations, and learning guidance within seconds.\n\nThe platform is designed to provide both quick answers and deeper understanding.',
     },
     {
-      'question': 'How do I earn badges?',
-      'answer': 'Complete challenges and maintain study streaks',
+      'question': 'Is QUIZ QUESTION AI free to use?',
+      'answer': 'Yes. QUIZ QUESTION AI offers free access to many features.\n\nPremium plans may include:\n• Unlimited AI questions\n• Faster responses\n• Advanced AI models\n• Unlimited image uploads\n• Extended document analysis\n• Priority support\n• Early access to new tools',
     },
     {
-      'question': 'Can I export my study data?',
-      'answer': 'Yes, go to Privacy & Security > Data Management',
+      'question': 'Which devices are supported?',
+      'answer': 'QUIZ QUESTION AI works across multiple devices and platforms, including:\n• Web browsers\n• Android devices\n• iPhone & iPad\n• Tablets\n• Desktop computers',
     },
     {
-      'question': 'How do I earn badges?',
-      'answer': 'Complete challenges and maintain study streaks',
+      'question': 'Can I upload screenshots or photos of questions?',
+      'answer': 'Yes. You can upload:\n• Homework screenshots\n• Math equations\n• PDF files\n• Worksheets\n• Handwritten notes\n• Camera images\n\nOur AI can analyze and solve problems directly from uploaded images and documents.',
+    },
+    {
+      'question': 'Which subjects are supported?',
+      'answer': 'QUIZ QUESTION AI supports a wide range of academic subjects including:\n• Algebra\n• Geometry\n• Calculus\n• Chemistry\n• Biology\n• Physics\n• Literature\n• History\n• Economics\n• Business\n• Computer Science\n• Grammar & Writing\n• Test Preparation',
+    },
+    {
+      'question': 'Does the platform provide step-by-step explanations?',
+      'answer': 'Yes. For many questions, QUIZ QUESTION AI provides detailed step-by-step solutions to help students understand the process, not just the final answer.\n\nThis helps improve learning, comprehension, and academic confidence.',
+    },
+    {
+      'question': 'Can QUIZ QUESTION AI help with essays and writing?',
+      'answer': 'Yes. The platform can assist with:\n• Essay generation\n• Grammar correction\n• Writing improvement\n• Content summarization\n• Research support\n• Citation guidance\n• Paragraph rewriting\n• Academic writing structure\n\nStudents should always review and personalize generated content before submission.',
+    },
+    {
+      'question': 'Can the AI summarize textbooks or long documents?',
+      'answer': 'Yes. QUIZ QUESTION AI can summarize:\n• PDFs\n• Articles\n• Research documents\n• Notes\n• Textbooks\n• Study materials\n\nThis helps students study more efficiently and save time.',
+    },
+    {
+      'question': 'Does QUIZ QUESTION AI support multiple languages?',
+      'answer': 'Yes. The platform supports multilingual learning and can assist users in many international languages.',
+    },
+    {
+      'question': 'Do I need an account to use the platform?',
+      'answer': 'Some features may be available without registration, but creating an account allows users to:\n• Save chat history\n• Access premium tools\n• Sync across devices\n• Store uploaded documents\n• Personalize learning experiences',
+    },
+    {
+      'question': 'How do I reset my password?',
+      'answer': 'Use the "Forgot Password" option on the login page and follow the instructions sent to your registered email address.\n\nIf you still experience issues, contact: feedback@quizquestionai.com',
+    },
+    {
+      'question': 'How do I cancel my subscription?',
+      'answer': 'You can manage or cancel your subscription through your account settings or through the platform where the subscription was purchased.\n\nAfter cancellation, premium access remains active until the end of the current billing cycle.',
+    },
+    {
+      'question': 'Are payments secure?',
+      'answer': 'Yes. QUIZ QUESTION AI uses secure payment technologies and encrypted systems to help protect user transactions and account information.',
+    },
+    {
+      'question': 'Is my personal information safe?',
+      'answer': 'Protecting user privacy is important to us. We use industry-standard security practices to help safeguard personal information and uploaded content.',
+    },
+    {
+      'question': 'Are uploaded files stored permanently?',
+      'answer': 'Uploaded files may be temporarily processed to improve user experience and AI functionality. Users may delete content from their accounts where supported.',
+    },
+    {
+      'question': 'Does QUIZ QUESTION AI sell user data?',
+      'answer': 'No. We do not sell personal user information to third parties.',
+    },
+    {
+      'question': 'Why is my upload not working?',
+      'answer': 'Common reasons include:\n• Unsupported file format\n• Large file size\n• Weak internet connection\n• Temporary server issues\n\nTry refreshing the page or uploading the file again.',
+    },
+    {
+      'question': 'Why am I not receiving answers?',
+      'answer': 'Possible reasons may include:\n• Network interruptions\n• Temporary platform maintenance\n• Unsupported question format\n• High server traffic\n\nPlease retry after a few moments.',
+    },
+    {
+      'question': 'How can I report bugs or technical problems?',
+      'answer': 'If you encounter any technical issues, errors, or unexpected behavior, please contact our support team:\nfeedback@quizquestionai.com\n\nInclude:\n• A description of the issue\n• Screenshots if available\n• Your device/browser information\n• Steps to reproduce the problem',
+    },
+    {
+      'question': 'Should students rely entirely on AI-generated answers?',
+      'answer': 'QUIZ QUESTION AI is designed to support learning and understanding. Students are encouraged to review explanations carefully and use the platform as an educational aid rather than a replacement for independent study.',
+    },
+    {
+      'question': 'How can I contact QUIZ QUESTION AI?',
+      'answer': 'Official Website: QUIZ QUESTION AI Official Website\nSupport Email: feedback@quizquestionai.com',
     },
   ];
 

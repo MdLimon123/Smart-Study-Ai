@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_extension/util/app_colors.dart';
+import 'package:flutter_extension/views/screen/profile/privacy_policy_page.dart';
+import 'package:flutter_extension/views/screen/profile/terms_of_service_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
@@ -90,7 +92,9 @@ class _PrivacySecurityState extends State<PrivacySecurity> {
                   children: [
                     _infoRow(
                       title: "Privacy Policy",
-                      onTap: () {},
+                      onTap: () {
+                        Get.to(() => const PrivacyPolicyPage());
+                      },
                     ),
                     Divider(
                       height: 1,
@@ -100,70 +104,15 @@ class _PrivacySecurityState extends State<PrivacySecurity> {
                     ),
                     _infoRow(
                       title: "Terms of Service",
-                      onTap: () {},
+                      onTap: () {
+                        Get.to(() => TermsOfServicePage());
+                      },
                     ),
                   ],
                 ),
               ),
 
               const SizedBox(height: 20),
-
-              // Delete Account
-              InkWell(
-                onTap: () {
-                  _showDeleteAccountDialog();
-                },
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: const Color(0xFFEF4444).withValues(alpha: 0.08),
-                    border: Border.all(
-                      color: const Color(0xFFEF4444).withValues(alpha: 0.20),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        height: 36,
-                        width: 36,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: const Color(0xFFEF4444).withValues(alpha: 0.12),
-                        ),
-                        child: Center(
-                          child: SvgPicture.asset('assets/icon/delete.svg'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Delete Account",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFFEF4444),
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            "Permanently delete your account",
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.textColor.withValues(alpha: 0.40),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -171,10 +120,7 @@ class _PrivacySecurityState extends State<PrivacySecurity> {
     );
   }
 
-  Widget _infoRow({
-    required String title,
-    required VoidCallback onTap,
-  }) {
+  Widget _infoRow({required String title, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -223,7 +169,11 @@ class _PrivacySecurityState extends State<PrivacySecurity> {
                   color: const Color(0xFFEF4444).withValues(alpha: 0.12),
                 ),
                 child: const Center(
-                  child: Icon(Icons.warning_amber_rounded, color: Color(0xFFEF4444), size: 24),
+                  child: Icon(
+                    Icons.warning_amber_rounded,
+                    color: Color(0xFFEF4444),
+                    size: 24,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),

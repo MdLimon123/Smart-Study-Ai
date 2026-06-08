@@ -12,6 +12,7 @@ import 'package:flutter_extension/views/screen/profile/change_password_screen.da
 import 'package:flutter_extension/views/screen/profile/dataControl/data_control_screen.dart';
 import 'package:flutter_extension/views/screen/profile/parental/parental_control_screen.dart';
 import 'package:flutter_extension/views/screen/profile/help_support.dart';
+import 'package:flutter_extension/views/screen/profile/privacy_security.dart';
 import 'package:flutter_extension/views/screen/profile/twoFactorAuth/two_factor_auth.dart';
 import 'package:flutter_extension/views/screen/profile/twoFactorAuth/settings_page.dart'; 
  
@@ -568,15 +569,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     const SizedBox(height: 10),
 
-                    // _customRow(
-                    //   onTap: () {
-                    //     Get.to(() => const PrivacySecurity());
-                    //   },
-                    //   backgroundColor: const Color(0xFF34D399),
-                    //   image: "assets/images/privacy.png",
-                    //   title: "Privacy & Security",
-                    //   subtitle: "Manage data",
-                    // ),
+                    _customRow(
+                      onTap: () {
+                        Get.to(() => const PrivacySecurity());
+                      },
+                      backgroundColor: const Color(0xFF34D399),
+                      image: "assets/images/privacy.png",
+                      title: "Privacy & Security",
+                      subtitle: "Manage data",
+                    ),
 
                     _customRow(
                       onTap: () {
