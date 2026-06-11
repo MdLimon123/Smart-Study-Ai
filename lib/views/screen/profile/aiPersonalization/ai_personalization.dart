@@ -5,6 +5,7 @@ import 'package:flutter_extension/views/base/custom_snackbar.dart';
 import 'package:flutter_extension/views/base/custom_switch.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:flutter_extension/controller/ai_chat_controller.dart';
 
 class AiPersonalization extends StatefulWidget {
   const AiPersonalization({super.key});
@@ -63,6 +64,7 @@ class _AiPersonalizationState extends State<AiPersonalization> {
   ];
 
   final List<String> _subjects = [
+    "All Subjects",
     "Mathematics",
     "Physics",
     "Chemistry",
@@ -74,6 +76,7 @@ class _AiPersonalizationState extends State<AiPersonalization> {
   ];
 
   final List<IconData> _subjectIcons = [
+    Icons.all_inclusive_rounded,
     Icons.functions,
     Icons.bolt,
     Icons.science,
@@ -103,6 +106,8 @@ class _AiPersonalizationState extends State<AiPersonalization> {
 
   String _slugToSubject(String slug) {
     switch (slug.toLowerCase()) {
+      case 'all_subjects':
+        return 'All Subjects';
       case 'mathematics':
         return 'Mathematics';
       case 'physics':
@@ -160,6 +165,8 @@ class _AiPersonalizationState extends State<AiPersonalization> {
 
   String _subjectToSlug(String label) {
     switch (label) {
+      case 'All Subjects':
+        return 'all_subjects';
       case 'Mathematics':
         return 'mathematics';
       case 'Physics':
@@ -312,6 +319,16 @@ class _AiPersonalizationState extends State<AiPersonalization> {
                         setState(() {
                           _autoSelect = val;
                         });
+                        try {
+                          final chatCtrl = Get.find<AiChatController>();
+                          if (val) {
+                            chatCtrl.selectModel(0); // Index 0 is Auto-select
+                          } else {
+                            if (chatCtrl.selectedIndex.value == 0) {
+                              chatCtrl.selectModel(1); // Revert to GPT-4o if turning off
+                            }
+                          }
+                        } catch (_) {}
                       },
                     ),
                   ],
@@ -631,10 +648,20 @@ class _AiPersonalizationState extends State<AiPersonalization> {
                   return InkWell(
                     onTap: () {
                       setState(() {
-                        if (isSelected) {
-                          _selectedSubjects.remove(_subjects[i]);
+                        if (_subjects[i] == "All Subjects") {
+                          if (isSelected) {
+                            _selectedSubjects.remove("All Subjects");
+                          } else {
+                            _selectedSubjects.clear();
+                            _selectedSubjects.add("All Subjects");
+                          }
                         } else {
-                          _selectedSubjects.add(_subjects[i]);
+                          if (isSelected) {
+                            _selectedSubjects.remove(_subjects[i]);
+                          } else {
+                            _selectedSubjects.remove("All Subjects");
+                            _selectedSubjects.add(_subjects[i]);
+                          }
                         }
                       });
                     },
@@ -759,14 +786,18 @@ class _AiPersonalizationState extends State<AiPersonalization> {
     required String subtitle,
     required String icon,
   }) {
-    final isSelected = _selectedModel == index;
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedModel = index;
-        });
-      },
-      borderRadius: BorderRadius.circular(16),
+    final isSelected = !_autoSelect && _selectedModel == index;
+    return Opacity(
+      opacity: _autoSelect ? 0.5 : 1.0,
+      child: InkWell(
+        onTap: _autoSelect
+            ? null
+            : () {
+                setState(() {
+                  _selectedModel = index;
+                });
+              },
+        borderRadius: BorderRadius.circular(16),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(14),
@@ -864,8 +895,9 @@ class _AiPersonalizationState extends State<AiPersonalization> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _styleChip({
     required int index,

@@ -8,6 +8,9 @@ import 'package:flutter_extension/views/screen/auth/forget_password_screen.dart'
 import 'package:flutter_extension/views/screen/auth/signup_screen.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter_extension/views/screen/profile/privacy_policy_page.dart';
+import 'package:flutter_extension/views/screen/profile/terms_of_service_page.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -285,6 +288,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: AppColors.primaryColor,
                             fontWeight: FontWeight.w500,
                           ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => Get.to(() => const TermsOfServicePage()),
                         ),
                         const TextSpan(text: ' and '),
                         TextSpan(
@@ -293,6 +298,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: AppColors.primaryColor,
                             fontWeight: FontWeight.w500,
                           ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => Get.to(() => const PrivacyPolicyPage()),
                         ),
                         const TextSpan(text: '.'),
                       ],

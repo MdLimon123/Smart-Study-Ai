@@ -24,6 +24,7 @@ class AiChatScreen extends StatefulWidget {
 class _AiChatScreenState extends State<AiChatScreen> {
   late final AiChatController _aiChatController;
   final ScrollController _scrollController = ScrollController();
+  Worker? _messagesWorker;
 
   @override
   void initState() {
@@ -32,10 +33,25 @@ class _AiChatScreenState extends State<AiChatScreen> {
       AiChatController(),
       tag: widget.controllerTag,
     );
+    // Auto-scroll to bottom whenever messages change
+    _messagesWorker = ever(_aiChatController.messages, (_) => _scrollToBottom());
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
+    _messagesWorker?.dispose();
     Get.delete<AiChatController>(tag: widget.controllerTag);
     _scrollController.dispose();
     super.dispose();
@@ -71,7 +87,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Center(
-                  child: Image.asset(model.icon, height: 24, width: 24),
+                  child: model.icon.endsWith('.svg')
+                      ? SvgPicture.asset(model.icon, height: 24, width: 24)
+                      : Image.asset(model.icon, height: 24, width: 24),
                 ),
               ),
               const SizedBox(width: 12),
@@ -276,7 +294,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                     Text(
                       "AI Chat",
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 28,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textColor,
                       ),
@@ -284,55 +302,73 @@ class _AiChatScreenState extends State<AiChatScreen> {
                     Text(
                       "Ask anything academic",
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 13,
                         fontWeight: FontWeight.w400,
                         color: AppColors.textColor.withValues(alpha: 0.40),
                       ),
                     ),
                   ],
                 ),
-                const Spacer(),
-                GestureDetector(
-                  onTap: _showModelPicker,
-                  child: Obx(
-                    () => Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: const Color(
-                            0xFF10B981,
-                          ).withValues(alpha: 0.20),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Image.asset(
-                            _aiChatController.selectedModel!.icon,
-                            height: 16,
-                            width: 16,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: _showModelPicker,
+                      child: Obx(
+                        () => Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
                           ),
-                          const SizedBox(width: 6),
-                          Text(
-                            _aiChatController.selectedModelName,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textColor,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF10B981).withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: const Color(
+                                0xFF10B981,
+                              ).withValues(alpha: 0.20),
                             ),
                           ),
-                          const SizedBox(width: 4),
-                          Icon(
-                            Icons.keyboard_arrow_down_rounded,
-                            size: 18,
-                            color: AppColors.textColor.withValues(alpha: 0.50),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Center(
+                                child: (_aiChatController.selectedModel?.icon ?? '').endsWith('.svg')
+                                    ? SvgPicture.asset(
+                                        _aiChatController.selectedModel!.icon,
+                                        height: 14,
+                                        width: 14,
+                                      )
+                                    : Image.asset(
+                                        _aiChatController.selectedModel?.icon ??
+                                            'assets/images/gpt_fill.png',
+                                        height: 14,
+                                        width: 14,
+                                      ),
+                              ),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  _aiChatController.selectedModelName,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textColor,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                size: 18,
+                                color: AppColors.textColor.withValues(alpha: 0.50),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -380,7 +416,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                         child: Text(
                           subject,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                             color: isSelected
                                 ? const Color(0xFF7C3AED)
@@ -400,177 +436,181 @@ class _AiChatScreenState extends State<AiChatScreen> {
           // ─── Chat Messages ───
           Expanded(
             child: Obx(
-              () => ListView(
-                controller: _scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                children: [
-                  ..._aiChatController.messages.map((m) {
-                    final isUser = m.role == 'user';
-                    if (isUser) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Flexible(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  if (m.imagePaths != null && m.imagePaths!.isNotEmpty)
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 6),
-                                      child: Wrap(
-                                        spacing: 6,
-                                        runSpacing: 6,
-                                        alignment: WrapAlignment.end,
-                                        children: m.imagePaths!.map((path) => ClipRRect(
+              () {
+                final reversedMessages = _aiChatController.messages.reversed.toList();
+                return ListView(
+                  controller: _scrollController,
+                  reverse: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  children: [
+                    if (_aiChatController.isSending.value)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Thinking...',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.textColor.withValues(alpha: 0.5),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ...reversedMessages.map((m) {
+                      final isUser = m.role == 'user';
+                      if (isUser) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Flexible(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    if (m.imagePaths != null && m.imagePaths!.isNotEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 6),
+                                        child: Wrap(
+                                          spacing: 6,
+                                          runSpacing: 6,
+                                          alignment: WrapAlignment.end,
+                                          children: m.imagePaths!.map((path) => ClipRRect(
+                                            borderRadius: BorderRadius.circular(12),
+                                            child: Image.file(
+                                              File(path),
+                                              width: 150,
+                                              height: 150,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          )).toList(),
+                                        ),
+                                      )
+                                    else if (m.imagePath != null)
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 6),
+                                        child: ClipRRect(
                                           borderRadius: BorderRadius.circular(12),
                                           child: Image.file(
-                                            File(path),
-                                            width: 150,
-                                            height: 150,
+                                            File(m.imagePath!),
+                                            width: 200,
                                             fit: BoxFit.cover,
                                           ),
-                                        )).toList(),
-                                      ),
-                                    )
-                                  else if (m.imagePath != null)
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 6),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(12),
-                                        child: Image.file(
-                                          File(m.imagePath!),
-                                          width: 200,
-                                          fit: BoxFit.cover,
                                         ),
                                       ),
-                                    ),
-                                  if (m.filePath != null)
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 6),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 8,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF7C3AED).withValues(alpha: 0.12),
-                                          borderRadius: BorderRadius.circular(10),
-                                          border: Border.all(
-                                            color: const Color(0xFF7C3AED).withValues(alpha: 0.25),
+                                    if (m.filePath != null)
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 6),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
                                           ),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Icon(
-                                              Icons.picture_as_pdf_outlined,
-                                              color: Color(0xFF7C3AED),
-                                              size: 18,
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF7C3AED).withValues(alpha: 0.12),
+                                            borderRadius: BorderRadius.circular(10),
+                                            border: Border.all(
+                                              color: const Color(0xFF7C3AED).withValues(alpha: 0.25),
                                             ),
-                                            const SizedBox(width: 8),
-                                            Flexible(
-                                              child: Text(
-                                                m.fileName ?? 'File',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: AppColors.textColor.withValues(alpha: 0.8),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(
+                                                Icons.picture_as_pdf_outlined,
+                                                color: Color(0xFF7C3AED),
+                                                size: 18,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Flexible(
+                                                child: Text(
+                                                  m.fileName ?? 'File',
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: AppColors.textColor.withValues(alpha: 0.8),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  if (m.content.isNotEmpty)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 10,
-                                      ),
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
+                                    if (m.content.isNotEmpty)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 10,
                                         ),
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(18),
-                                          topRight: Radius.circular(18),
-                                          bottomLeft: Radius.circular(18),
-                                          bottomRight: Radius.circular(4),
+                                        decoration: const BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
+                                          ),
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(18),
+                                            topRight: Radius.circular(18),
+                                            bottomLeft: Radius.circular(18),
+                                            bottomRight: Radius.circular(4),
+                                          ),
+                                        ),
+                                        child: SelectableText(
+                                          m.content,
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ),
-                                      child: Text(
-                                        m.content,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                ],
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                height: 28,
+                                width: 28,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: AppColors.textColor.withValues(alpha: 0.10),
+                                ),
+                                child: const Icon(
+                                  Icons.person_rounded,
+                                  size: 16,
+                                  color: Color(0xFF7C3AED),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            padding: const EdgeInsets.all(14),
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width * 0.78,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.textColor.withValues(alpha: 0.07),
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(18),
+                                topRight: Radius.circular(18),
+                                bottomLeft: Radius.circular(4),
+                                bottomRight: Radius.circular(18),
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Container(
-                              height: 28,
-                              width: 28,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppColors.textColor.withValues(alpha: 0.10),
-                              ),
-                              child: const Icon(
-                                Icons.person_rounded,
-                                size: 16,
-                                color: Color(0xFF7C3AED),
-                              ),
-                            ),
-                          ],
+                            child: _AiMarkdown(text: m.content),
+                          ),
                         ),
                       );
-                    }
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Container(
-                          padding: const EdgeInsets.all(14),
-                          constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.78,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.textColor.withValues(alpha: 0.07),
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(18),
-                              topRight: Radius.circular(18),
-                              bottomLeft: Radius.circular(4),
-                              bottomRight: Radius.circular(18),
-                            ),
-                          ),
-                          child: _AiMarkdown(text: m.content),
-                        ),
-                      ),
-                    );
-                  }),
-                  if (_aiChatController.isSending.value)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Thinking...',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textColor.withValues(alpha: 0.5),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+                    }),
+                  ],
+                );
+              },
             ),
           ),
 
@@ -620,7 +660,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                               name.length > 15 ? '${name.substring(0, 15)}...' : name,
                               maxLines: 1,
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: AppColors.textColor.withValues(alpha: 0.75),
                               ),
@@ -689,7 +729,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6),
-              constraints: const BoxConstraints(minHeight: 50),
+              constraints: const BoxConstraints(minHeight: 50, maxHeight: 180),
               decoration: BoxDecoration(
                 color: AppColors.textColor.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(16),
@@ -698,7 +738,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 ),
               ),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   // File/Upload button
                   GestureDetector(
@@ -718,11 +758,14 @@ class _AiChatScreenState extends State<AiChatScreen> {
                     child: TextField(
                       controller: _aiChatController.messageController,
                       textAlignVertical: TextAlignVertical.center,
-                      style: TextStyle(fontSize: 14, color: AppColors.textColor),
+                      minLines: 1,
+                      maxLines: null,
+                      keyboardType: TextInputType.multiline,
+                      style: TextStyle(fontSize: 16, color: AppColors.textColor),
                       decoration: InputDecoration(
                         hintText: "Ask a question...",
                         hintStyle: TextStyle(
-                          fontSize: 14,
+                          fontSize: 16,
                           fontWeight: FontWeight.w400,
                           color: AppColors.textColor.withValues(alpha: 0.50),
                         ),
@@ -739,13 +782,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   GestureDetector(
                     onTap: () async {
                       await _aiChatController.sendMessage();
-                      if (_scrollController.hasClients) {
-                        _scrollController.animateTo(
-                          _scrollController.position.maxScrollExtent + 120,
-                          duration: const Duration(milliseconds: 250),
-                          curve: Curves.easeOut,
-                        );
-                      }
+                      _scrollToBottom();
                     },
                     child: Container(
                       height: 32,
@@ -780,57 +817,59 @@ class _AiMarkdown extends StatelessWidget {
   Widget build(BuildContext context) {
     final baseColor = AppColors.textColor.withValues(alpha: 0.92);
     final baseStyle = TextStyle(
-      fontSize: 14,
+      fontSize: 16,
       fontWeight: FontWeight.w400,
       height: 1.55,
       color: baseColor,
     );
 
-    return MarkdownBody(
-      data: text,
-      selectable: true,
-      styleSheet: MarkdownStyleSheet(
-        p: baseStyle,
-        h1: baseStyle.copyWith(fontSize: 20, fontWeight: FontWeight.w800),
-        h2: baseStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w800),
-        h3: baseStyle.copyWith(fontSize: 17, fontWeight: FontWeight.w700),
-        h4: baseStyle.copyWith(fontSize: 16, fontWeight: FontWeight.w700),
-        h5: baseStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w700),
-        h6: baseStyle.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
-        strong: baseStyle.copyWith(fontWeight: FontWeight.w700),
-        em: baseStyle.copyWith(fontStyle: FontStyle.italic),
-        code: baseStyle.copyWith(
-          fontFamily: 'monospace',
-          fontSize: 13,
-          backgroundColor: AppColors.textColor.withValues(alpha: 0.08),
-        ),
-        codeblockDecoration: BoxDecoration(
-          color: AppColors.textColor.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        blockquoteDecoration: BoxDecoration(
-          border: Border(
-            left: BorderSide(
-              color: const Color(0xFF7C3AED).withValues(alpha: 0.6),
-              width: 3,
+    return SelectionArea(
+      child: MarkdownBody(
+        data: text,
+        selectable: false,
+        styleSheet: MarkdownStyleSheet(
+          p: baseStyle,
+          h1: baseStyle.copyWith(fontSize: 24, fontWeight: FontWeight.w800),
+          h2: baseStyle.copyWith(fontSize: 21, fontWeight: FontWeight.w800),
+          h3: baseStyle.copyWith(fontSize: 19, fontWeight: FontWeight.w700),
+          h4: baseStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+          h5: baseStyle.copyWith(fontSize: 17, fontWeight: FontWeight.w700),
+          h6: baseStyle.copyWith(fontSize: 16, fontWeight: FontWeight.w600),
+          strong: baseStyle.copyWith(fontWeight: FontWeight.w700),
+          em: baseStyle.copyWith(fontStyle: FontStyle.italic),
+          code: baseStyle.copyWith(
+            fontFamily: 'monospace',
+            fontSize: 15,
+            backgroundColor: AppColors.textColor.withValues(alpha: 0.08),
+          ),
+          codeblockDecoration: BoxDecoration(
+            color: AppColors.textColor.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          blockquoteDecoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(
+                color: const Color(0xFF7C3AED).withValues(alpha: 0.6),
+                width: 3,
+              ),
             ),
           ),
+          listBullet: baseStyle,
+          a: baseStyle.copyWith(
+            color: const Color(0xFF93C5FD),
+            decoration: TextDecoration.underline,
+          ),
         ),
-        listBullet: baseStyle,
-        a: baseStyle.copyWith(
-          color: const Color(0xFF93C5FD),
-          decoration: TextDecoration.underline,
+        builders: {
+          'latex': LatexElementBuilder(
+            textStyle: baseStyle,
+            textScaleFactor: 1.0,
+          ),
+        },
+        extensionSet: md.ExtensionSet(
+          [LatexBlockSyntax()],
+          [LatexInlineSyntax()],
         ),
-      ),
-      builders: {
-        'latex': LatexElementBuilder(
-          textStyle: baseStyle,
-          textScaleFactor: 1.0,
-        ),
-      },
-      extensionSet: md.ExtensionSet(
-        [LatexBlockSyntax()],
-        [LatexInlineSyntax()],
       ),
     );
   }

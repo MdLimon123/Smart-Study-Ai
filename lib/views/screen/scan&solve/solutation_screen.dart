@@ -58,7 +58,7 @@ class _SolutationScreenState extends State<SolutationScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 28,
                       fontWeight: FontWeight.w800,
                       color: AppColors.textColor,
                     ),
@@ -69,7 +69,7 @@ class _SolutationScreenState extends State<SolutationScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textColor.withValues(alpha: 0.40),
                     ),
@@ -109,7 +109,7 @@ class _SolutationScreenState extends State<SolutationScreen> {
                       Text(
                         "Subject",
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 13,
                           fontWeight: FontWeight.w400,
                           color: AppColors.textColor.withValues(alpha: 0.40),
                         ),
@@ -118,7 +118,7 @@ class _SolutationScreenState extends State<SolutationScreen> {
                       Text(
                         subjectLabel,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 18,
                           fontWeight: FontWeight.w700,
                           color: AppColors.textColor,
                         ),
@@ -135,7 +135,7 @@ class _SolutationScreenState extends State<SolutationScreen> {
                                 ? "AI analysis · ${r.scanId.length > 12 ? '${r.scanId.substring(0, 12)}…' : r.scanId}"
                                 : "AI analysis complete",
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 14,
                               fontWeight: FontWeight.w400,
                               color: Color(0xFF34D399),
                             ),
@@ -150,7 +150,7 @@ class _SolutationScreenState extends State<SolutationScreen> {
               Text(
                 "Solution",
                 style: TextStyle(
-                  fontSize: 17,
+                  fontSize: 20,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textColor,
                 ),
@@ -175,85 +175,41 @@ class _SolutationScreenState extends State<SolutationScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 12, 8, 24),
-        child: Row(
-          children: [
-            Expanded(
-              child: SizedBox(
-                height: 50,
-                child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: AppColors.textColor.withValues(
-                      alpha: 0.07,
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 12, 8, 20),
+          child: Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 50,
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: AppColors.textColor.withValues(
+                        alpha: 0.07,
+                      ),
+                      side: BorderSide(
+                        color: AppColors.textColor.withValues(alpha: 0.15),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
-                    side: BorderSide(
-                      color: AppColors.textColor.withValues(alpha: 0.15),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: Text(
-                    "Scan Again",
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textColor.withValues(alpha: 0.70),
+                    child: Text(
+                      "Scan Again",
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textColor.withValues(alpha: 0.70),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-
-            // Expanded(
-            //   child: SizedBox(
-            //     height: 50,
-            //     child: DecoratedBox(
-            //       decoration: BoxDecoration(
-            //         gradient: const LinearGradient(
-            //           colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
-            //         ),
-            //         borderRadius: BorderRadius.circular(14),
-            //       ),
-            //       child: ElevatedButton(
-            //         onPressed: () {},
-            //         style: ElevatedButton.styleFrom(
-            //           backgroundColor: Colors.transparent,
-            //           shadowColor: Colors.transparent,
-            //           shape: RoundedRectangleBorder(
-            //             borderRadius: BorderRadius.circular(16),
-            //           ),
-            //         ),
-            //         child: FittedBox(
-            //           fit: BoxFit.scaleDown,
-            //           child: Row(
-            //             mainAxisAlignment: MainAxisAlignment.center,
-            //             children: [
-            //               Text(
-            //                 "Save to Library",
-            //                 style: TextStyle(
-            //                   fontSize: 15,
-            //                   fontWeight: FontWeight.w700,
-            //                   color: AppColors.textColor,
-            //                 ),
-            //               ),
-            //               const SizedBox(width: 2),
-            //               Icon(
-            //                 Icons.chevron_right,
-            //                 color: AppColors.textColor,
-            //                 size: 18,
-            //               ),
-            //             ],
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-            // ),
-          ],
+              const SizedBox(width: 8),
+            ],
+          ),
         ),
       ),
     );
@@ -270,7 +226,7 @@ class _SolutionMarkdown extends StatelessWidget {
   Widget build(BuildContext context) {
     final baseColor = AppColors.textColor.withValues(alpha: 0.92);
     final baseStyle = TextStyle(
-      fontSize: 14,
+      fontSize: 16,
       fontWeight: FontWeight.w400,
       height: 1.55,
       color: baseColor,
@@ -278,51 +234,53 @@ class _SolutionMarkdown extends StatelessWidget {
 
     final data = text.trim().isEmpty ? '_No solution text._' : text;
 
-    return MarkdownBody(
-      data: data,
-      selectable: true,
-      styleSheet: MarkdownStyleSheet(
-        p: baseStyle,
-        h1: baseStyle.copyWith(fontSize: 20, fontWeight: FontWeight.w800, height: 1.35),
-        h2: baseStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w800, height: 1.4),
-        h3: baseStyle.copyWith(fontSize: 17, fontWeight: FontWeight.w800, height: 1.45),
-        h4: baseStyle.copyWith(fontSize: 16, fontWeight: FontWeight.w700, height: 1.45),
-        h5: baseStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w700, height: 1.45),
-        h6: baseStyle.copyWith(fontSize: 14, fontWeight: FontWeight.w600, height: 1.45),
-        strong: baseStyle.copyWith(fontWeight: FontWeight.w700),
-        em: baseStyle.copyWith(fontStyle: FontStyle.italic),
-        code: baseStyle.copyWith(
-          fontFamily: 'monospace',
-          fontSize: 13,
-          backgroundColor: AppColors.textColor.withValues(alpha: 0.08),
-        ),
-        codeblockDecoration: BoxDecoration(
-          color: AppColors.textColor.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        blockquoteDecoration: BoxDecoration(
-          border: Border(
-            left: BorderSide(
-              color: const Color(0xFF7C3AED).withValues(alpha: 0.6),
-              width: 3,
+    return SelectionArea(
+      child: MarkdownBody(
+        data: data,
+        selectable: false,
+        styleSheet: MarkdownStyleSheet(
+          p: baseStyle,
+          h1: baseStyle.copyWith(fontSize: 24, fontWeight: FontWeight.w800, height: 1.35),
+          h2: baseStyle.copyWith(fontSize: 21, fontWeight: FontWeight.w800, height: 1.4),
+          h3: baseStyle.copyWith(fontSize: 19, fontWeight: FontWeight.w800, height: 1.45),
+          h4: baseStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w700, height: 1.45),
+          h5: baseStyle.copyWith(fontSize: 17, fontWeight: FontWeight.w700, height: 1.45),
+          h6: baseStyle.copyWith(fontSize: 16, fontWeight: FontWeight.w600, height: 1.45),
+          strong: baseStyle.copyWith(fontWeight: FontWeight.w700),
+          em: baseStyle.copyWith(fontStyle: FontStyle.italic),
+          code: baseStyle.copyWith(
+            fontFamily: 'monospace',
+            fontSize: 15,
+            backgroundColor: AppColors.textColor.withValues(alpha: 0.08),
+          ),
+          codeblockDecoration: BoxDecoration(
+            color: AppColors.textColor.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          blockquoteDecoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(
+                color: const Color(0xFF7C3AED).withValues(alpha: 0.6),
+                width: 3,
+              ),
             ),
           ),
+          listBullet: baseStyle,
+          a: baseStyle.copyWith(
+            color: const Color(0xFF93C5FD),
+            decoration: TextDecoration.underline,
+          ),
         ),
-        listBullet: baseStyle,
-        a: baseStyle.copyWith(
-          color: const Color(0xFF93C5FD),
-          decoration: TextDecoration.underline,
+        builders: {
+          'latex': LatexElementBuilder(
+            textStyle: baseStyle,
+            textScaleFactor: 1.0,
+          ),
+        },
+        extensionSet: md.ExtensionSet(
+          [LatexBlockSyntax()],
+          [LatexInlineSyntax()],
         ),
-      ),
-      builders: {
-        'latex': LatexElementBuilder(
-          textStyle: baseStyle,
-          textScaleFactor: 1.0,
-        ),
-      },
-      extensionSet: md.ExtensionSet(
-        [LatexBlockSyntax()],
-        [LatexInlineSyntax()],
       ),
     );
   }

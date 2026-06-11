@@ -55,6 +55,12 @@ class AiChatController extends GetxController {
 
   final List<AiModel> models = const [
     AiModel(
+      name: 'Auto-select model',
+      subtitle: 'QQA picks best model',
+      icon: 'assets/icon/model.svg',
+      apiValue: 'gpt',
+    ),
+    AiModel(
       name: 'GPT-4o',
       subtitle: 'General',
       icon: 'assets/images/gpt_fill.png',

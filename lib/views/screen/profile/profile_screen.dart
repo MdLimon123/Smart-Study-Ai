@@ -13,6 +13,7 @@ import 'package:flutter_extension/views/screen/profile/dataControl/data_control_
 import 'package:flutter_extension/views/screen/profile/parental/parental_control_screen.dart';
 import 'package:flutter_extension/views/screen/profile/help_support.dart';
 import 'package:flutter_extension/views/screen/profile/privacy_security.dart';
+import 'package:flutter_extension/views/screen/profile/subscription_page.dart';
 import 'package:flutter_extension/views/screen/profile/twoFactorAuth/two_factor_auth.dart';
 import 'package:flutter_extension/views/screen/profile/twoFactorAuth/settings_page.dart'; 
  
@@ -263,32 +264,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const SizedBox(height: 24),
 
-              Container(
-                width: double.infinity,
-                height: 48,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: const Color(0xFF7C3AED).withValues(alpha: 0.30),
-                  ),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset('assets/images/crown.png'),
-                    const SizedBox(width: 16),
-                    Text(
-                      "Upgrade to Premium",
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textColor,
-                      ),
+              InkWell(
+                onTap:(){
+
+                  Get.to(() => const SubscriptionPage());
+
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFF7C3AED).withValues(alpha: 0.30),
                     ),
-                  ],
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset('assets/images/crown.png'),
+                      const SizedBox(width: 16),
+                      Text(
+                        "Upgrade to Premium",
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textColor,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
