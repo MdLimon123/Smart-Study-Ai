@@ -35,8 +35,8 @@ class AiModel {
 class ChatMessage {
   final String role; // user | assistant
   final String content;
-  final String? imagePath;  // local file path for image attachments
-  final String? filePath;   // local file path for doc/pdf attachments
+  final String? imagePath; // local file path for image attachments
+  final String? filePath; // local file path for doc/pdf attachments
   final String? fileName;
   final List<String>? imagePaths;
 
@@ -78,7 +78,19 @@ class AiChatController extends GetxController {
       icon: 'assets/images/claude.jpg',
       apiValue: 'claude',
     ),
-      AiModel(
+    AiModel(
+      name: 'Opus 4.8',
+      subtitle: 'Advanced',
+      icon: 'assets/images/claude.jpg',
+      apiValue: 'claude',
+    ),
+    AiModel(
+      name: 'Claude Fable 5',
+      subtitle: 'Chat',
+      icon: 'assets/images/claude.jpg',
+      apiValue: 'claude',
+    ),
+    AiModel(
       name: 'QQ AI',
       subtitle: 'Quick Question',
       icon: 'assets/images/app_logo.png',
@@ -145,9 +157,7 @@ class AiChatController extends GetxController {
 
   Future<void> pickImage() async {
     try {
-      final picked = await _imagePicker.pickMultiImage(
-        imageQuality: 85,
-      );
+      final picked = await _imagePicker.pickMultiImage(imageQuality: 85);
       if (picked.isNotEmpty) {
         attachedImages.addAll(picked.map((e) => e.path));
       }
@@ -188,17 +198,19 @@ class AiChatController extends GetxController {
     }
   }
 
-
   Future<void> sendMessage({String? presetMessage}) async {
     final text = (presetMessage ?? messageController.text).trim();
-    final hasAttachment = attachedFilePath.value != null || attachedImages.isNotEmpty;
+    final hasAttachment =
+        attachedFilePath.value != null || attachedImages.isNotEmpty;
     if (text.isEmpty && !hasAttachment) return;
 
     final model = selectedModel!; // always non-null — defaults to first model
     if (isSending.value) return;
 
     // Snapshot attachment before clearing
-    final imgPath = attachedIsImage.value ? attachedFilePath.value : null; // Keep for backward compat
+    final imgPath = attachedIsImage.value
+        ? attachedFilePath.value
+        : null; // Keep for backward compat
     final List<String> imgPaths = List.from(attachedImages);
     final fPath = (!attachedIsImage.value && attachedFilePath.value != null)
         ? attachedFilePath.value
@@ -212,14 +224,16 @@ class AiChatController extends GetxController {
       userContent = text.isEmpty ? '[File: $fname]' : '$text\n[File: $fname]';
     }
 
-    messages.add(ChatMessage(
-      role: 'user',
-      content: userContent,
-      imagePath: imgPath,
-      imagePaths: imgPaths,
-      filePath: fPath,
-      fileName: fName,
-    ));
+    messages.add(
+      ChatMessage(
+        role: 'user',
+        content: userContent,
+        imagePath: imgPath,
+        imagePaths: imgPaths,
+        filePath: fPath,
+        fileName: fName,
+      ),
+    );
     messageController.clear();
     clearAttachment();
     isSending.value = true;
@@ -229,7 +243,9 @@ class AiChatController extends GetxController {
       final Map<String, String> body = {
         'message': text,
         'model': model.apiValue,
-        if (selectedSubject.value != 'All' && selectedSubject.value != 'All Subjects') 'subject': selectedSubject.value.toLowerCase(),
+        if (selectedSubject.value != 'All' &&
+            selectedSubject.value != 'All Subjects')
+          'subject': selectedSubject.value.toLowerCase(),
       };
 
       // Build multipart body
@@ -298,7 +314,7 @@ class AiChatController extends GetxController {
   void _loadDefaultModelFromProfile() {
     try {
       final profileController = Get.find<ProfileController>();
-      
+
       // 1. Initial assignment if already loaded
       if (profileController.personalization.value != null) {
         _updateSelectedIndex(profileController.personalization.value!.model);
@@ -325,8 +341,12 @@ class AiChatController extends GetxController {
       index = 1;
     } else if (savedModel == 'claude-3-5-sonnet') {
       index = 2;
-    } else if (savedModel == 'qqai') {
+    } else if (savedModel == 'claude-opus-4-8') {
       index = 3;
+    } else if (savedModel == 'claude-fable-5') {
+      index = 4;
+    } else if (savedModel == 'qqai') {
+      index = 5;
     }
     selectedIndex.value = index;
   }

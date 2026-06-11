@@ -144,48 +144,27 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                 const SizedBox(height: 32),
                 CustomTextField(
                   controller: descriptionController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your description';
-                    }
-                    return null;
-                  },
                   maxLines: 5,
                   hintText:
                       'Tell us a bit of your self to get most potential result',
                 ),
-
-                // const SizedBox(height: 3),
-                // const Text(
-                //   "Optional",
-                //   style: TextStyle(
-                //     fontSize: 13,
-                //     fontWeight: FontWeight.w400,
-                //     color: Color(0xFF7F7F87),
-                //   ),
-                // ),
+                const SizedBox(height: 3),
+                const Text(
+                  "Optional",
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFF7F7F87),
+                  ),
+                ),
                 const SizedBox(height: 85),
                 Obx(
                   () => CustomButton(
                     loading: _authController.isLoading.value,
                     onTap: () {
-                      if (_authController.userProfileImage.value == null) {
-                        showCustomSnackBar(
-                          'Please select your profile image',
-                          isError: true,
-                        );
-                        return;
-                      }
                       if (nameController.text.isEmpty) {
                         showCustomSnackBar(
                           'Please enter your name',
-                          isError: true,
-                        );
-                        return;
-                      }
-                      if (descriptionController.text.isEmpty) {
-                        showCustomSnackBar(
-                          'Please enter your description',
                           isError: true,
                         );
                         return;

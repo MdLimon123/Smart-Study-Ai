@@ -21,6 +21,8 @@ class _AiPersonalizationState extends State<AiPersonalization> {
     'gpt-4o',
     'gemini-pro',
     'claude-3-5-sonnet',
+    'claude-opus-4-8',
+    'claude-fable-5',
     'qqai',
   ];
 
@@ -190,19 +192,24 @@ class _AiPersonalizationState extends State<AiPersonalization> {
 
   Future<void> _savePreferences() async {
     if (_selectedSubjects.isEmpty) {
-      showCustomSnackBar('Select at least one subject focus area', isError: true);
+      showCustomSnackBar(
+        'Select at least one subject focus area',
+        isError: true,
+      );
       return;
     }
     final modelIdx = _selectedModel.clamp(0, _modelApiIds.length - 1);
     final styleIdx = _selectedStyle.clamp(0, _responseStyleApi.length - 1);
-    final diffIdx = _difficultyLevel.round().clamp(0, _difficultyApi.length - 1);
+    final diffIdx = _difficultyLevel.round().clamp(
+      0,
+      _difficultyApi.length - 1,
+    );
     await _profileController.saveAiPersonalization(
       model: _modelApiIds[modelIdx],
       responseStyle: _responseStyleApi[styleIdx],
       difficultyLevel: _difficultyApi[diffIdx],
       language: _selectedLanguage.toLowerCase(),
-      subjectFocusArea:
-          _selectedSubjects.map(_subjectToSlug).join(','),
+      subjectFocusArea: _selectedSubjects.map(_subjectToSlug).join(','),
     );
   }
 
@@ -255,7 +262,7 @@ class _AiPersonalizationState extends State<AiPersonalization> {
           ],
         ),
       ),
-     
+
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -325,7 +332,9 @@ class _AiPersonalizationState extends State<AiPersonalization> {
                             chatCtrl.selectModel(0); // Index 0 is Auto-select
                           } else {
                             if (chatCtrl.selectedIndex.value == 0) {
-                              chatCtrl.selectModel(1); // Revert to GPT-4o if turning off
+                              chatCtrl.selectModel(
+                                1,
+                              ); // Revert to GPT-4o if turning off
                             }
                           }
                         } catch (_) {}
@@ -374,10 +383,28 @@ class _AiPersonalizationState extends State<AiPersonalization> {
                 badgeColor: const Color(0xFFF59E0B),
                 subtitle: "Great for writing, analysis & nuanced\nanswers",
               ),
-                    const SizedBox(height: 10),
+              const SizedBox(height: 10),
+              _modelCard(
+                icon: "assets/images/claude.jpg",
+                index: 3,
+                title: "Opus 4.8",
+                badgeText: "Anthropic",
+                badgeColor: const Color(0xFFF59E0B),
+                subtitle: "Advanced model for highly complex tasks",
+              ),
+              const SizedBox(height: 10),
+              _modelCard(
+                icon: "assets/images/claude.jpg",
+                index: 4,
+                title: "Claude Fable 5",
+                badgeText: "Anthropic",
+                badgeColor: const Color(0xFFF59E0B),
+                subtitle: "Specialized model for chat and stories",
+              ),
+              const SizedBox(height: 10),
               _modelCard(
                 icon: "assets/images/app_logo.png",
-                index: 3,
+                index: 5,
                 title: " QQAI",
                 badgeText: "QQA",
                 badgeColor: const Color(0xFFF59E0B),
@@ -721,54 +748,52 @@ class _AiPersonalizationState extends State<AiPersonalization> {
               const SizedBox(height: 30),
 
               // Save Preferences Button
-              Obx(
-                () {
-                  final loading =
-                      _profileController.isAiPersonalizationLoading.value;
-                  return InkWell(
-                    onTap: loading ? null : _savePreferences,
-                    child: Container(
-                      width: double.infinity,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (loading)
-                            SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.textColor,
-                              ),
-                            )
-                          else
-                            Icon(
-                              Icons.check_circle_outline,
-                              color: AppColors.textColor,
-                              size: 20,
-                            ),
-                          const SizedBox(width: 8),
-                          Text(
-                            loading ? 'Saving…' : 'Save Preferences',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textColor,
-                            ),
-                          ),
-                        ],
+              Obx(() {
+                final loading =
+                    _profileController.isAiPersonalizationLoading.value;
+                return InkWell(
+                  onTap: loading ? null : _savePreferences,
+                  child: Container(
+                    width: double.infinity,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
                       ),
                     ),
-                  );
-                },
-              ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (loading)
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.textColor,
+                            ),
+                          )
+                        else
+                          Icon(
+                            Icons.check_circle_outline,
+                            color: AppColors.textColor,
+                            size: 20,
+                          ),
+                        const SizedBox(width: 8),
+                        Text(
+                          loading ? 'Saving…' : 'Save Preferences',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
 
               const SizedBox(height: 20),
             ],
@@ -798,106 +823,106 @@ class _AiPersonalizationState extends State<AiPersonalization> {
                 });
               },
         borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: isSelected
-              ? const Color(0xFF34D399).withValues(alpha: 0.07)
-              : AppColors.textColor.withValues(alpha: 0.04),
-          border: Border.all(
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
             color: isSelected
-                ? const Color(0xFF34D399).withValues(alpha: 0.25)
-                : AppColors.textColor.withValues(alpha: 0.07),
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              height: 42,
-              width: 42,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                color: const Color(0xFF34D399).withValues(alpha: 0.09),
-              ),
-              child: Center(child: Image.asset(icon)),
+                ? const Color(0xFF34D399).withValues(alpha: 0.07)
+                : AppColors.textColor.withValues(alpha: 0.04),
+            border: Border.all(
+              color: isSelected
+                  ? const Color(0xFF34D399).withValues(alpha: 0.25)
+                  : AppColors.textColor.withValues(alpha: 0.07),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textColor,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: badgeColor.withValues(alpha: 0.15),
-                        ),
-                        child: Text(
-                          badgeText,
+          ),
+          child: Row(
+            children: [
+              Container(
+                height: 42,
+                width: 42,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  color: const Color(0xFF34D399).withValues(alpha: 0.09),
+                ),
+                child: Center(child: Image.asset(icon)),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          title,
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: badgeColor,
+                            color: AppColors.textColor,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.textColor.withValues(alpha: 0.40),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: badgeColor.withValues(alpha: 0.15),
+                          ),
+                          child: Text(
+                            badgeText,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: badgeColor,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              height: 20,
-              width: 20,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isSelected
-                    ? const Color(0xFF34D399)
-                    : Colors.transparent,
-                border: Border.all(
-                  color: isSelected
-                      ? const Color(0xFF34D399)
-                      : AppColors.textColor.withValues(alpha: 0.20),
-                  width: 2,
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.textColor.withValues(alpha: 0.40),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: isSelected
-                  ? const Center(
-                      child: Icon(Icons.check, color: Colors.white, size: 12),
-                    )
-                  : null,
-            ),
-          ],
+              Container(
+                height: 20,
+                width: 20,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isSelected
+                      ? const Color(0xFF34D399)
+                      : Colors.transparent,
+                  border: Border.all(
+                    color: isSelected
+                        ? const Color(0xFF34D399)
+                        : AppColors.textColor.withValues(alpha: 0.20),
+                    width: 2,
+                  ),
+                ),
+                child: isSelected
+                    ? const Center(
+                        child: Icon(Icons.check, color: Colors.white, size: 12),
+                      )
+                    : null,
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _styleChip({
     required int index,

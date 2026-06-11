@@ -14,21 +14,21 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
   final List<_PlanData> _plans = const [
     _PlanData(
-      title: 'Weekly',
+      title: 'Monthly',
       price: '\$7.99',
-      period: '/week',
+      period: '/month',
       buttonLabel: 'Get Started',
       isPopular: false,
     ),
     _PlanData(
-      title: 'Monthly',
+      title: 'Month Plan',
       price: '\$19.99',
-      period: '/month',
+      period: '/quarterly',
       buttonLabel: 'Upgrade to Pro',
       isPopular: true,
     ),
     _PlanData(
-      title: 'Yearly',
+      title: 'Annual Plan',
       price: '\$59.99',
       period: '/year',
       buttonLabel: 'Save Big',
