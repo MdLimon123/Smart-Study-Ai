@@ -5,8 +5,8 @@ import 'package:flutter_extension/views/base/custom_snackbar.dart';
 import 'package:flutter_extension/views/base/custom_switch.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:flutter_extension/helper/prefs_helper.dart';
 import 'package:flutter_extension/controller/ai_chat_controller.dart';
-
 class AiPersonalization extends StatefulWidget {
   const AiPersonalization({super.key});
 
@@ -95,6 +95,22 @@ class _AiPersonalizationState extends State<AiPersonalization> {
     _profileController = Get.find<ProfileController>();
     _loadSavedPreferences();
     _fetchFreshPreferences();
+
+    try {
+      final chatCtrl = Get.find<AiChatController>();
+      _autoSelect = chatCtrl.selectedIndex.value == 0;
+    } catch (_) {}
+
+    _loadAutoSelect();
+  }
+
+  Future<void> _loadAutoSelect() async {
+    final val = await PrefsHelper.getBool('auto_select_model');
+    if (mounted) {
+      setState(() {
+        _autoSelect = val;
+      });
+    }
   }
 
   Future<void> _fetchFreshPreferences() async {
@@ -204,6 +220,17 @@ class _AiPersonalizationState extends State<AiPersonalization> {
       0,
       _difficultyApi.length - 1,
     );
+    await PrefsHelper.setBool('auto_select_model', _autoSelect);
+
+    try {
+      final chatCtrl = Get.find<AiChatController>();
+      if (_autoSelect) {
+        chatCtrl.selectModel(0);
+      } else {
+        chatCtrl.selectModel(modelIdx + 1);
+      }
+    } catch (_) {}
+
     await _profileController.saveAiPersonalization(
       model: _modelApiIds[modelIdx],
       responseStyle: _responseStyleApi[styleIdx],

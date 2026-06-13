@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_extension/controller/profile_controller.dart';
 import 'package:flutter_extension/data/api/api_client.dart';
 import 'package:flutter_extension/data/api/api_constant.dart';
+import 'package:flutter_extension/helper/prefs_helper.dart';
 import 'package:flutter_extension/views/base/custom_snackbar.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -204,10 +205,9 @@ class AiChatController extends GetxController {
         attachedFilePath.value != null || attachedImages.isNotEmpty;
     if (text.isEmpty && !hasAttachment) return;
 
-    final model = selectedModel!; // always non-null — defaults to first model
+    final model = selectedModel!; 
     if (isSending.value) return;
 
-    // Snapshot attachment before clearing
     final imgPath = attachedIsImage.value
         ? attachedFilePath.value
         : null; // Keep for backward compat
@@ -217,7 +217,7 @@ class AiChatController extends GetxController {
         : null;
     final fName = attachedFileName.value;
 
-    // Build user message content (text only — image shown as thumbnail in UI)
+   
     String userContent = text;
     if (fPath != null) {
       final fname = fName ?? 'attachment';
@@ -317,15 +317,15 @@ class AiChatController extends GetxController {
 
       // 1. Initial assignment if already loaded
       if (profileController.personalization.value != null) {
-        _updateSelectedIndex(profileController.personalization.value!.model);
+        _updateSelectedIndexAsync(profileController.personalization.value!.model);
       } else {
-        selectedIndex.value = 0; // Fallback default
+        _updateSelectedIndexAsync(null); 
       }
 
       // 2. Reactively listen to future personalization state updates
       ever(profileController.personalization, (personalModel) {
         if (personalModel != null) {
-          _updateSelectedIndex(personalModel.model);
+          _updateSelectedIndexAsync(personalModel.model);
         }
       });
     } catch (_) {
@@ -333,20 +333,31 @@ class AiChatController extends GetxController {
     }
   }
 
-  void _updateSelectedIndex(String savedModel) {
-    int index = 0;
+  Future<void> _updateSelectedIndexAsync(String? savedModel) async {
+    bool isAutoSelect = await PrefsHelper.getBool('auto_select_model');
+    if (isAutoSelect) {
+      selectedIndex.value = 0;
+      return;
+    }
+
+    if (savedModel == null) {
+      selectedIndex.value = 1; // Default to GPT-4o if not auto-select
+      return;
+    }
+
+    int index = 1; // Default to GPT-4o
     if (savedModel == 'gpt-4o') {
-      index = 0;
-    } else if (savedModel == 'gemini-pro') {
       index = 1;
-    } else if (savedModel == 'claude-3-5-sonnet') {
+    } else if (savedModel == 'gemini-pro') {
       index = 2;
-    } else if (savedModel == 'claude-opus-4-8') {
+    } else if (savedModel == 'claude-3-5-sonnet') {
       index = 3;
-    } else if (savedModel == 'claude-fable-5') {
+    } else if (savedModel == 'claude-opus-4-8') {
       index = 4;
-    } else if (savedModel == 'qqai') {
+    } else if (savedModel == 'claude-fable-5') {
       index = 5;
+    } else if (savedModel == 'qqai') {
+      index = 6;
     }
     selectedIndex.value = index;
   }

@@ -7,6 +7,9 @@ import 'package:flutter_extension/views/base/custom_text_field.dart';
 import 'package:flutter_extension/views/screen/auth/login_screen.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter_extension/views/screen/profile/privacy_policy_page.dart';
+import 'package:flutter_extension/views/screen/profile/terms_of_service_page.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -287,6 +290,8 @@ class _SignupScreenState extends State<SignupScreen> {
                             color: AppColors.primaryColor,
                             fontWeight: FontWeight.w500,
                           ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => Get.to(() => const TermsOfServicePage()),
                         ),
                         const TextSpan(text: ' and '),
                         TextSpan(
@@ -295,6 +300,8 @@ class _SignupScreenState extends State<SignupScreen> {
                             color: AppColors.primaryColor,
                             fontWeight: FontWeight.w500,
                           ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => Get.to(() => const PrivacyPolicyPage()),
                         ),
                         const TextSpan(text: '.'),
                       ],
