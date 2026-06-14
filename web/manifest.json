@@ -1,6 +1,6 @@
 {
-    "name": "flutter_extension",
-    "short_name": "flutter_extension",
+    "name": "Quiz Question AI: Study Pro",
+    "short_name": "Quiz Question AI: Study Pro",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

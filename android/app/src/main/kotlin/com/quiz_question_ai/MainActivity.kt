@@ -1,4 +1,4 @@
-package com.example.flutter_extension
+package com.quiz_question_ai
 
 import io.flutter.embedding.android.FlutterActivity
 
